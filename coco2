@@ -1,5 +1,6 @@
 #!/bin/bash
-cd "$(dirname "$(realpath $0)")" || exit 1
+set -e
+cd "$(dirname "$(realpath $0)")"
 javac -d ./classes $(find ./src -name '*.java')
 clear
 stty raw -echo
