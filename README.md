@@ -19,8 +19,8 @@ In order to use this emulator, you must provide a ROM to boot on.  You can downl
 own and put the content of `Color Basic` in `./rom/bas.rom` and the `Extended Color Basic` in `./rom/extbas.rom` or
 craft your own :
 
- * `bas.rom` starts at 0xA000 ending at 0BFFF, boot vector must be at 0xBFFE ;
- * `extbas.rom` starts at 0x8000 ending at 0x9FFF .
+ * __`bas.rom`__ starts at __0xA000__ ending at __0xBFFF__, boot vector must be at __0xBFFE__ ;
+ * __`extbas.rom`__ starts at __0x8000__ ending at __0x9FFF__ .
 
 ## Some useful resources
  - https://colorcomputerarchive.com/
