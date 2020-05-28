@@ -12,6 +12,8 @@ import com.joprovost.r8bemu.data.MemoryAccess;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.memory.MemoryMapped;
 
+import java.io.EOFException;
+import java.io.IOException;
 import java.util.Optional;
 
 import static com.joprovost.r8bemu.data.DataOutput.negative;
@@ -48,7 +50,7 @@ public class MC6809E implements ClockAware {
         this.branch = new Branches(stack);
     }
 
-    public void tick(long tick) {
+    public void tick(long tick) throws IOException {
         var address = PC.unsigned();
         debug.at(address);
         var instruction = interpreter.next();
@@ -268,14 +270,14 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case SYNC:
-                    break;
+                    throw new EOFException("SYNC");
 
                 default:
                     throw new IllegalStateException("Unexpected instruction: " + instruction + " at 0x" + Integer.toHexString(address));
             }
 
             debug.instruction(mnemonic);
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             throw new UnsupportedOperationException("\n" + instruction, e);
         }
     }

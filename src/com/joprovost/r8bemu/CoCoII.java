@@ -6,6 +6,7 @@ import com.joprovost.r8bemu.devices.MC6847;
 import com.joprovost.r8bemu.devices.MC6883;
 import com.joprovost.r8bemu.devices.keyboard.Keyboard;
 import com.joprovost.r8bemu.mc6809.MC6809E;
+import com.joprovost.r8bemu.memory.Demo;
 import com.joprovost.r8bemu.memory.Memory;
 import com.joprovost.r8bemu.memory.MemoryMapped;
 import com.joprovost.r8bemu.memory.ReadOnly;
@@ -43,6 +44,6 @@ public class CoCoII {
     public static MemoryMapped rom(String rom) throws IOException {
         var path = Path.of(rom);
         if (Files.exists(path)) return ReadOnly.file(path);
-        return ReadOnly.readOnly(new Memory(0xff));
+        return new Demo();
     }
 }

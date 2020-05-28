@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static com.joprovost.r8bemu.mc6809.Register.A;
 import static com.joprovost.r8bemu.mc6809.Register.B;
 import static com.joprovost.r8bemu.mc6809.Register.C;
@@ -33,7 +35,7 @@ class MC6809ETest {
     }
 
     @Test
-    void nop() {
+    void nop() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
         MC6809E cpu = new MC6809E(new Memory(new byte[]{(byte) 0x12, (byte) 0x12}), debugger);
         PC.set(0x0000);
@@ -47,7 +49,7 @@ class MC6809ETest {
 
     // TODO flags
     @Test
-    void abx() {
+    void abx() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
         MC6809E cpu = new MC6809E(memory, debugger);
         B.set(0x15);
@@ -63,7 +65,7 @@ class MC6809ETest {
 
     // TODO flags
     @Test
-    void mul() {
+    void mul() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
         MC6809E cpu = new MC6809E(memory, debugger);
         A.set(0x04);
@@ -78,7 +80,7 @@ class MC6809ETest {
 
     // TODO flags
     @Test
-    void neg() {
+    void neg() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
         MC6809E cpu = new MC6809E(memory, debugger);
         DP.set(0x04);
@@ -96,7 +98,7 @@ class MC6809ETest {
     }
 
     @Test
-    void neg0x0() {
+    void neg0x0() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
         MC6809E cpu = new MC6809E(memory, debugger);
         DP.set(0x04);
@@ -113,7 +115,7 @@ class MC6809ETest {
     }
 
     @Test
-    void neg0x00() {
+    void neg0x00() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
         MC6809E cpu = new MC6809E(memory, debugger);
         DP.set(0x04);
@@ -130,7 +132,7 @@ class MC6809ETest {
     }
 
     @Test
-    void cmpa() {
+    void cmpa() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
         MC6809E cpu = new MC6809E(memory, debugger);
         A.set(0x10);
@@ -147,7 +149,7 @@ class MC6809ETest {
     }
 
     @Test
-    void sbca() {
+    void sbca() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
         MC6809E cpu = new MC6809E(memory, debugger);
         A.set(0x10);
