@@ -18,7 +18,7 @@ public class ReadOnly implements MemoryMapped {
         return new ReadOnly(peripheral);
     }
 
-    public static MemoryMapped rawFile(Path file) throws IOException {
+    public static MemoryMapped file(Path file) throws IOException {
         byte[] data = Files.readAllBytes(file);
         return readOnly(new Memory(data));
     }

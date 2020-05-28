@@ -1,0 +1,8 @@
+#!/bin/bash
+cd "$(dirname "$(realpath $0)")" || exit 1
+javac -d ./classes $(find ./src -name '*.java')
+clear
+stty raw -echo
+java -classpath ./classes com.joprovost.r8bemu.CoCoII
+stty cooked echo 2>/dev/null
+
