@@ -36,15 +36,15 @@ public class MC6809E implements ClockAware {
     public static final int NMI_VECTOR = 0xfffc;
     public static final int FIRQ_VECTOR = 0xfff6;
 
-    private final MemoryManagementUnit memory;
+    private final MemoryMapped memory;
     private final Stack stack;
     private final Branches branch;
     private final Debugger debug;
 
     public MC6809E(MemoryMapped memory, Debugger debug) {
-        this.memory = new MemoryManagementUnit(memory);
+        this.memory = memory;
         this.debug = debug;
-        this.stack = new Stack(this.memory);
+        this.stack = new Stack(memory);
         this.branch = new Branches(stack);
     }
 
@@ -55,6 +55,7 @@ public class MC6809E implements ClockAware {
         try {
             var mnemonic = instruction.mnemonic();
             var addressing = instruction.addressing();
+            var argument = debug.argument(Argument.next(memory, addressing, PC));
             switch (mnemonic) {
                 case NOP:
                     break;
@@ -72,130 +73,129 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case NEG: case NEGA: case NEGB:
-                    negate(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    negate(mnemonic.registerOr(argument));
                     break;
 
                 case COM: case COMA: case COMB:
-                    mnemonic.registerOr(() -> debug.parameter(memory.data(addressing)))
-                            .update(it -> checking(Complement.of(it)));
+                    mnemonic.registerOr(argument).update(it -> checking(Complement.of(it)));
                     break;
 
                 case CMPA: case CMPB: case CMPD: case CMPX: case CMPY: case CMPU: case CMPS:
-                    checking(Subtraction.of(mnemonic.register(), debug.parameter(memory.data(addressing))));
+                    checking(Subtraction.of(mnemonic.register(), argument));
                     break;
 
                 case TST: case TSTA: case TSTB:
-                    tst(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    tst(mnemonic.registerOr(argument));
                     break;
 
                 case BITA: case BITB:
-                    bitTest(mnemonic.register(), debug.parameter(memory.data(addressing)));
+                    bitTest(mnemonic.register(), argument);
                     break;
 
                 case STA: case STB: case STD: case STX: case STY: case STU: case STS:
-                    storeIntoMemory(mnemonic.register(), debug.parameter(memory.data(addressing)));
+                    storeIntoMemory(mnemonic.register(), argument);
                     break;
 
                 case LDA: case LDB: case LDD: case LDX: case LDY: case LDU: case LDS:
-                    loadFromMemory(mnemonic.register(), debug.parameter(memory.data(addressing)));
+                    loadFromMemory(mnemonic.register(), argument);
                     break;
 
                 case ADCA: case ADCB:
-                    mnemonic.register().update(it -> checking(Addition.of(it, debug.parameter(memory.data(addressing)), C)));
+                    mnemonic.register().update(it -> checking(Addition.of(it, argument, C)));
                     break;
 
                 case ADDA: case ADDB: case ADDD:
-                    mnemonic.register().update(it -> checking(Addition.of(it, debug.parameter(memory.data(addressing)))));
+                    mnemonic.register().update(it -> checking(Addition.of(it, argument)));
                     break;
 
                 case SBCA: case SBCB:
-                    mnemonic.register().update(it -> checking(Subtraction.of(it, debug.parameter(memory.data(addressing)), C)));
+                    mnemonic.register().update(it -> checking(Subtraction.of(it, argument, C)));
                     break;
 
                 case SUBA: case SUBB: case SUBD:
-                    mnemonic.register().update(it -> checking(Subtraction.of(it, debug.parameter(memory.data(addressing)))));
+                    mnemonic.register().update(it -> checking(Subtraction.of(it, argument)));
                     break;
 
                 case EORA: case EORB:
-                    mnemonic.register().update(it -> checking(ExclusiveDisjunction.of(it, debug.parameter(memory.data(addressing)))));
+                    mnemonic.register().update(it -> checking(ExclusiveDisjunction.of(it, argument)));
                     break;
 
                 case ROR: case RORA: case RORB:
-                    Shift.ror(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    Shift.ror(mnemonic.registerOr(argument));
                     break;
 
                 case ROL: case ROLA: case ROLB:
-                    Shift.rol(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    Shift.rol(mnemonic.registerOr(argument));
                     break;
 
                 case INC: case INCA: case INCB:
-                    increment(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    increment(mnemonic.registerOr(argument));
                     break;
 
                 case DEC: case DECA: case DECB:
-                    decrement(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    decrement(mnemonic.registerOr(argument));
                     break;
 
                 case LSR: case LSRA: case LSRB:
-                    Shift.lsr(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    Shift.lsr(mnemonic.registerOr(argument));
                     break;
 
                 case LSL: case LSLA: case LSLB:
-                    Shift.lsl(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    Shift.lsl(mnemonic.registerOr(argument));
                     break;
 
                 case ASR: case ASRA: case ASRB:
-                    Shift.asr(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    Shift.asr(mnemonic.registerOr(argument));
                     break;
 
                 case ANDA: case ANDB:
-                    and(mnemonic.register(), debug.parameter(memory.data(addressing)));
+                    and(mnemonic.register(), argument);
                     break;
                 case ANDCC:
-                    andcc(mnemonic.register(), debug.parameter(memory.data(addressing)));
+                    andcc(mnemonic.register(), argument);
                     break;
 
                 case ORA: case ORB:
-                    or(mnemonic.register(), debug.parameter(memory.data(addressing)));
+                    or(mnemonic.register(), argument);
                     break;
                 case ORCC:
-                    orcc(mnemonic.register(), debug.parameter(memory.data(addressing)));
+                    orcc(mnemonic.register(), argument);
                     break;
 
                 case TFR:
-                    debug.parameter(Pair.registers(memory.data(addressing))).transfer();
+                    debug.argument(Pair.registers(argument)).transfer();
                     break;
 
                 case EXG:
-                    debug.parameter(Pair.registers(memory.data(addressing))).exchange();
+                    debug.argument(Pair.registers(argument)).exchange();
                     break;
 
                 case CLR: case CLRA: case CLRB:
-                    clear(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    clear(mnemonic.registerOr(argument));
                     break;
 
                 case PSHU: case PSHS:
-                    stack.pushAll(debug.parameter(memory.data(addressing)), Optional.ofNullable(mnemonic.register()).orElseThrow());
+                    stack.pushAll(argument, Optional.ofNullable(mnemonic.register()).orElseThrow());
                     break;
 
                 case PULU: case PULS:
-                    stack.pullAll(debug.parameter(memory.data(addressing)), Optional.ofNullable(mnemonic.register()).orElseThrow());
+                    stack.pullAll(argument, Optional.ofNullable(mnemonic.register()).orElseThrow());
                     break;
 
                 case LEAX: case LEAY:
-                    Z.set(mnemonic.register().replace(debug.parameter(memory.address(addressing))).unsigned() == 0);
+                    Z.set(mnemonic.register().replace(argument).unsigned() == 0);
                     break;
 
                 case LEAU: case LEAS:
-                    mnemonic.register().replace(debug.parameter(memory.address(addressing))).unsigned();
+                    mnemonic.register().replace(argument).unsigned();
                     break;
 
                 case JMP:
-                    branch.jump(debug.parameter(memory.address(addressing)));
+                    branch.jump(argument);
                     break;
 
                 case JSR:
-                    branch.jsr(debug.parameter(memory.address(addressing)));
+                    branch.jsr(argument);
                     break;
 
                 case RTS:
@@ -207,82 +207,82 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case BSR: case LBSR:
-                    branch.bsr(debug.parameter(memory.address(addressing)));
+                    branch.bsr(argument);
                     break;
 
                 case BCC: case LBCC:
-                    branch.jumpIf(C::isClear, debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(C::isClear, argument);
                     break;
 
                 case BCS: case LBCS:
-                    branch.jumpIf(C::isSet, debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(C::isSet, argument);
                     break;
 
                 case BEQ: case LBEQ:
-                    branch.jumpIf(Z::isSet, debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(Z::isSet, argument);
                     break;
 
                 case BGE: case LBGE:
                     // IFF [N ⊕ V] = 0 then PC' ← PC + TEMP
-                    branch.jumpIf(() -> N.isSet() == V.isSet(), debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(() -> N.isSet() == V.isSet(), argument);
                     break;
 
                 case BGT: case LBGT:
                     // IFF Z ∧ [N ⊕ V] = 0 then PC' ← PC + TEMP
-                    branch.jumpIf(() -> Z.isClear() == (N.isSet() == V.isSet()) , debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(() -> Z.isClear() == (N.isSet() == V.isSet()) , argument);
                     break;
 
                 case BHI: case LBHI:
                     // IFF [ C ∨ Z ] = 0 then PC' ← PC + TEMP
-                    branch.jumpIf(() -> C.isClear() && Z.isClear(), debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(() -> C.isClear() && Z.isClear(), argument);
                     break;
 
                 case BLE: case LBLE:
                     // IFF Z ∨ [ N ⊕ V ] = 1 then PC' ← PC + TEMP
-                    branch.jumpIf(() -> Z.isSet() || (N.isSet() != V.isSet()), debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(() -> Z.isSet() || (N.isSet() != V.isSet()), argument);
                     break;
 
                 case BLS: case LBLS:
                     // IFF (C ∨ Z) = 1 then PC' ← PC + TEMP
-                    branch.jumpIf(() -> C.isSet() || Z.isSet(), debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(() -> C.isSet() || Z.isSet(), argument);
                     break;
 
                 case BLT: case LBLT:
                     // IFF [ N ⊕ V ] = 1 then PC' ← PC + TEMP
-                    branch.jumpIf(() -> N.isSet() != V.isSet(), debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(() -> N.isSet() != V.isSet(), argument);
                     break;
 
                 case BMI: case LBMI:
                     // IFF N = 1 then PC' ← PC + TEMP
-                    branch.jumpIf(N::isSet, debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(N::isSet, argument);
                     break;
 
                 case BNE: case LBNE:
                     // IFF Z = 0 then PC' ← PC + TEMP
-                    branch.jumpIf(Z::isClear, debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(Z::isClear, argument);
                     break;
 
                 case BPL: case LBPL:
                     // IFF N = 0 then PC' ← PC + TEMP
-                    branch.jumpIf(N::isClear, debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(N::isClear, argument);
                     break;
 
                 case BRA: case LBRA:
-                    branch.jumpIf(() -> true, debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(() -> true, argument);
                     break;
 
                 case BRN: case LBRN:
-                    branch.jumpIf(() -> false, debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(() -> false, argument);
                     break;
 
                 case BVC: case LBVC:
                     // IFF V = 0 then PC' ← PC + TEMP
-                    branch.jumpIf(V::isClear, debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(V::isClear, argument);
                     break;
 
                 case BVS: case LBVS:
                     // IFF V = 1 then PC' ← PC + TEMP
-                    branch.jumpIf(V::isSet, debug.parameter(memory.address(addressing)));
+                    branch.jumpIf(V::isSet, argument);
                     break;
 
                 case SYNC:

@@ -21,7 +21,7 @@ public class Trace extends Debugger {
                 "",
                 column(16, leftPad("0000", Integer.toHexString(address)) + " :"),
                 column(8, mnemonic.description()),
-                column(24, parameter.description()),
+                column(24, argument.description()),
                 "; ",
                 column(12, Register.A),
                 column(12, Register.B),

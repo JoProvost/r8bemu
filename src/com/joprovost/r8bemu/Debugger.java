@@ -8,7 +8,7 @@ import java.nio.file.Path;
 public abstract class Debugger {
 
     protected int address;
-    protected Described parameter;
+    protected Described argument;
 
     public static Trace trace() {
         return new Trace();
@@ -36,7 +36,7 @@ public abstract class Debugger {
 
     public void at(int address) {
         this.address = address;
-        this.parameter = Described.EMPTY;
+        this.argument = Described.EMPTY;
     }
 
     public abstract void instruction(Described mnemonic);
@@ -49,9 +49,9 @@ public abstract class Debugger {
         return string + " ".repeat(size - string.toString().length());
     }
 
-    public <T extends Described> T parameter(T data) {
-        parameter = data;
-        return data;
+    public <T extends Described> T argument(T argument) {
+        this.argument = argument;
+        return argument;
     }
 
     protected String describe(Described mnemonic) {
@@ -59,7 +59,7 @@ public abstract class Debugger {
                 "",
                 column(16, leftPad("0000", Integer.toHexString(address)) + " :"),
                 column(8, mnemonic.description()),
-                column(24, parameter.description()),
+                column(24, argument.description()),
                 "; ",
                 column(12, Register.A),
                 column(12, Register.B),

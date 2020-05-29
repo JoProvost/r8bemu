@@ -168,7 +168,7 @@ public enum Mnemonic implements Described {
         return register;
     }
 
-    public DataAccess registerOr(Supplier<? extends DataAccess> supplier) {
-        return Optional.ofNullable(register()).map(DataAccess.class::cast).orElseGet(supplier);
+    public DataAccess registerOr(DataAccess argument) {
+        return Optional.ofNullable(register()).map(DataAccess.class::cast).orElse(argument);
     }
 }
