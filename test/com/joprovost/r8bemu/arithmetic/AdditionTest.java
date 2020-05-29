@@ -1,10 +1,10 @@
 package com.joprovost.r8bemu.arithmetic;
 
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.Constant;
+import com.joprovost.r8bemu.data.Value;
 import org.junit.jupiter.api.Test;
 
-import static com.joprovost.r8bemu.data.Constant.asByte;
+import static com.joprovost.r8bemu.data.Value.asByte;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,16 +13,16 @@ class AdditionTest {
 
     @Test
     void signed() {
-        DataAccess minusTen = Constant.of(-10, 0xff);
+        DataAccess minusTen = Value.of(-10, 0xff);
         assertEquals(-10, minusTen.signed());
-        assertEquals(-10, Constant.of(minusTen.unsigned(), 0xff).signed());
+        assertEquals(-10, Value.of(minusTen.unsigned(), 0xff).signed());
     }
 
     @Test
     void unsigned() {
-        DataAccess minusTen = Constant.of(-10, 0xff);
+        DataAccess minusTen = Value.of(-10, 0xff);
         assertEquals(256 - 10, minusTen.unsigned());
-        assertEquals(-10, Constant.of(minusTen.unsigned(), 0xff).signed());
+        assertEquals(-10, Value.of(minusTen.unsigned(), 0xff).signed());
     }
 
     @Test

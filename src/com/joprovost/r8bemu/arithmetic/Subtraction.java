@@ -5,8 +5,8 @@ import com.joprovost.r8bemu.data.DataOutput;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.joprovost.r8bemu.data.Constant.ONE;
-import static com.joprovost.r8bemu.data.Constant.ZERO;
+import static com.joprovost.r8bemu.data.Value.ONE;
+import static com.joprovost.r8bemu.data.Value.ZERO;
 
 public class Subtraction implements Operation {
     private final DataOutput origin;

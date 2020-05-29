@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.memory.AddressRange;
-import com.joprovost.r8bemu.data.Constant;
+import com.joprovost.r8bemu.data.Value;
 import com.joprovost.r8bemu.data.Subset;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.memory.ChipSelect;
@@ -151,7 +151,7 @@ public class MC6883 implements MemoryMapped {
 
         @Override
         public void write(int address, int data) {
-            Constant addressRegister = Constant.of(address, 0xffff);
+            Value addressRegister = Value.of(address, 0xffff);
             if (Subset.of(addressRegister, REGISTER_ADDRESS_PREFIX_MASK).matches(REGISTER_ADDRESS)) {
                 Subset.bit(SAM_CONTROL_REGISTER, Subset.of(addressRegister, REGISTER_ADDRESS_BIT_MASK).unsigned())
                       .set(Subset.of(addressRegister, REGISTER_ADDRESS_VALUE_MASK));

@@ -2,7 +2,7 @@ package com.joprovost.r8bemu.arithmetic;
 
 import org.junit.jupiter.api.Test;
 
-import static com.joprovost.r8bemu.data.Constant.asByte;
+import static com.joprovost.r8bemu.data.Value.asByte;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

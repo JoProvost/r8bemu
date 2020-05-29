@@ -1,36 +1,43 @@
 package com.joprovost.r8bemu.data;
 
+import com.joprovost.r8bemu.mc6809.Register;
 import com.joprovost.r8bemu.memory.MemoryMapped;
 
 import java.util.Optional;
 
-public class MemoryAccess implements DataAccess {
+import static com.joprovost.r8bemu.arithmetic.Addition.incrementBy;
+
+public class Reference implements DataAccess {
     private final MemoryMapped device;
     private final int address;
     private final Size size;
     private final String description;
 
-    private MemoryAccess(MemoryMapped device, int address, Size size, String description) {
+    private Reference(MemoryMapped device, int address, Size size, String description) {
         this.device = device;
         this.address = address;
         this.size = size;
         this.description = description;
     }
 
-    public MemoryAccess(MemoryMapped device, int address, Size size) {
+    public Reference(MemoryMapped device, int address, Size size) {
         this(device, address, size, null);
     }
 
-    public static MemoryAccess of(MemoryMapped device, int address, Size size) {
-        return new MemoryAccess(device, address, size);
+    public static Reference of(MemoryMapped device, int address, Size size) {
+        return new Reference(device, address, size);
     }
 
-    public static MemoryAccess of(MemoryMapped device, int address, Size size, String description) {
-        return new MemoryAccess(device, address, size, description);
+    public static Reference of(MemoryMapped device, int address, Size size, String description) {
+        return new Reference(device, address, size, description);
     }
 
-    public static MemoryAccess of(MemoryMapped device, DataOutput address, Size size) {
-        return new MemoryAccess(device, address.unsigned(), size, address.description());
+    public static Reference of(MemoryMapped device, DataOutput address, Size size) {
+        return new Reference(device, address.unsigned(), size, address.description());
+    }
+
+    public static DataAccess next(MemoryMapped memory, Size size, Register register) {
+        return of(memory, register.post(incrementBy(size)), size);
     }
 
     @Override

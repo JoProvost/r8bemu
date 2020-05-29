@@ -11,7 +11,7 @@ public interface DataAccess extends DataOutput, DataInput {
     }
 
     default DataOutput post(Function<DataOutput, ? extends DataOutput> changes) {
-        var constant = Constant.of(this);
+        var constant = Value.of(this);
         update(changes);
         return constant;
     }

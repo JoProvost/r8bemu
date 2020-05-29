@@ -1,12 +1,12 @@
 package com.joprovost.r8bemu.arithmetic;
 
 import com.joprovost.r8bemu.data.DataOutput;
-import com.joprovost.r8bemu.data.Constant;
+import com.joprovost.r8bemu.data.Value;
 
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.joprovost.r8bemu.data.Constant.ONE;
+import static com.joprovost.r8bemu.data.Value.ONE;
 
 public class Addition implements Operation {
     private final DataOutput origin;
@@ -22,7 +22,7 @@ public class Addition implements Operation {
     }
 
     public static Addition of(DataOutput origin, DataOutput offset) {
-        return new Addition(origin, offset, Constant.ZERO, null);
+        return new Addition(origin, offset, Value.ZERO, null);
     }
 
     public static Addition of(DataOutput origin, DataOutput offset, DataOutput carry) {
@@ -30,7 +30,7 @@ public class Addition implements Operation {
     }
 
     public static Function<DataOutput, Operation> incrementBy(DataOutput offset) {
-        return origin -> new Addition(origin, offset, Constant.ZERO, null);
+        return origin -> new Addition(origin, offset, Value.ZERO, null);
     }
 
     public static Function<DataOutput, Operation> increment() {

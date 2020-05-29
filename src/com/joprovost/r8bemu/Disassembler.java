@@ -26,7 +26,7 @@ class Disassembler extends Debugger {
         if (code[address] == null) {
             code[address] = describe(mnemonic);
 
-            try (OutputStream out = Files.newOutputStream(file, StandardOpenOption.CREATE)) {
+            try (OutputStream out = Files.newOutputStream(file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
                 for (var line : code) if (line != null) out.write((line + "\n").getBytes());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

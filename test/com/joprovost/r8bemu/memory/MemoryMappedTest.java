@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.memory;
 
-import com.joprovost.r8bemu.data.Constant;
+import com.joprovost.r8bemu.data.Value;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,12 +24,12 @@ class MemoryMappedTest {
     @Test
     void readWithDataOutputTypeAddreess() {
         memory.write(4, 99);
-        assertEquals(99, memory.read(Constant.asByte(4)));
+        assertEquals(99, memory.read(Value.asByte(4)));
     }
 
     @Test
     void writeWithDataOutputTypeAddreess() {
-        memory.write(Constant.asByte(4), 88);
+        memory.write(Value.asByte(4), 88);
         assertEquals(88, memory.read(4));
     }
 }

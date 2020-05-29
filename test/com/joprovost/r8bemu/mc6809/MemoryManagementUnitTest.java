@@ -1,9 +1,8 @@
 package com.joprovost.r8bemu.mc6809;
 
-import com.joprovost.r8bemu.memory.Addressing;
-import com.joprovost.r8bemu.data.DataAccess;
+import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
-import com.joprovost.r8bemu.data.MemoryAccess;
+import com.joprovost.r8bemu.memory.Addressing;
 import com.joprovost.r8bemu.memory.Memory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -187,7 +186,7 @@ class MemoryManagementUnitTest {
         assertEquals(0x3000, access.unsigned());
 
         access.set(0x4000);
-        assertEquals(0x4000, ((DataAccess) MemoryAccess.of(memory, 0x2000, Size.WORD_16)).unsigned());
+        assertEquals(0x4000, Reference.of(memory, 0x2000, Size.WORD_16).unsigned());
 
         assertEquals(0x02, PC.unsigned());
     }
