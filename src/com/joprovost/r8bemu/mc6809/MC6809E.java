@@ -121,11 +121,11 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case ROR: case RORA: case RORB:
-                    ror(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    Shift.ror(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
                     break;
 
                 case ROL: case ROLA: case ROLB:
-                    rol(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    Shift.rol(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
                     break;
 
                 case INC: case INCA: case INCB:
@@ -137,11 +137,15 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case LSR: case LSRA: case LSRB:
-                    lsr(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    Shift.lsr(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
                     break;
 
                 case LSL: case LSLA: case LSLB:
-                    lsl(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    Shift.lsl(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
+                    break;
+
+                case ASR: case ASRA: case ASRB:
+                    Shift.asr(mnemonic.registerOr(() -> debug.parameter(memory.data(addressing))));
                     break;
 
                 case ANDA: case ANDB:
@@ -202,14 +206,6 @@ public class MC6809E implements ClockAware {
                     branch.rti();
                     break;
 
-                case BNE: case LBNE:
-                    branch.jumpIf(Z::isClear, debug.parameter(memory.address(addressing)));
-                    break;
-
-                case BEQ: case LBEQ:
-                    branch.jumpIf(Z::isSet, debug.parameter(memory.address(addressing)));
-                    break;
-
                 case BSR: case LBSR:
                     branch.bsr(debug.parameter(memory.address(addressing)));
                     break;
@@ -218,44 +214,56 @@ public class MC6809E implements ClockAware {
                     branch.jumpIf(C::isClear, debug.parameter(memory.address(addressing)));
                     break;
 
-                case BMI: case LBMI:
-                    branch.jumpIf(N::isSet, debug.parameter(memory.address(addressing)));
-                    break;
-
-                case BVS: case LBVS:
-                    branch.jumpIf(V::isSet, debug.parameter(memory.address(addressing)));
-                    break;
-
-                case BVC: case LBVC:
-                    branch.jumpIf(V::isClear, debug.parameter(memory.address(addressing)));
-                    break;
-
-                case BLS: case LBLS:
-                    branch.jumpIf(() -> C.isSet() || Z.isSet(), debug.parameter(memory.address(addressing)));
-                    break;
-
-                case BLE: case LBLE:
-                    //(CC.N ≠ CC.V) OR (CC.Z = 1)
-                    branch.jumpIf(() -> (N.isSet() != V.isSet()) || Z.isSet(), debug.parameter(memory.address(addressing)));
-                    break;
-
-                case BLT: case LBLT:
-                    branch.jumpIf(() -> N.isSet() != V.isSet(), debug.parameter(memory.address(addressing)));
-                    break;
-
-                case BGT: case LBGT:
-                    branch.jumpIf(() -> (N.isSet() == V.isSet()) && Z.isClear(), debug.parameter(memory.address(addressing)));
-                    break;
-
-                case BHI: case LBHI:
-                    branch.jumpIf(() -> C.isClear() && Z.isClear(), debug.parameter(memory.address(addressing)));
-                    break;
-
                 case BCS: case LBCS:
                     branch.jumpIf(C::isSet, debug.parameter(memory.address(addressing)));
                     break;
 
+                case BEQ: case LBEQ:
+                    branch.jumpIf(Z::isSet, debug.parameter(memory.address(addressing)));
+                    break;
+
+                case BGE: case LBGE:
+                    // IFF [N ⊕ V] = 0 then PC' ← PC + TEMP
+                    branch.jumpIf(() -> N.isSet() == V.isSet(), debug.parameter(memory.address(addressing)));
+                    break;
+
+                case BGT: case LBGT:
+                    // IFF Z ∧ [N ⊕ V] = 0 then PC' ← PC + TEMP
+                    branch.jumpIf(() -> Z.isClear() == (N.isSet() == V.isSet()) , debug.parameter(memory.address(addressing)));
+                    break;
+
+                case BHI: case LBHI:
+                    // IFF [ C ∨ Z ] = 0 then PC' ← PC + TEMP
+                    branch.jumpIf(() -> C.isClear() && Z.isClear(), debug.parameter(memory.address(addressing)));
+                    break;
+
+                case BLE: case LBLE:
+                    // IFF Z ∨ [ N ⊕ V ] = 1 then PC' ← PC + TEMP
+                    branch.jumpIf(() -> Z.isSet() || (N.isSet() != V.isSet()), debug.parameter(memory.address(addressing)));
+                    break;
+
+                case BLS: case LBLS:
+                    // IFF (C ∨ Z) = 1 then PC' ← PC + TEMP
+                    branch.jumpIf(() -> C.isSet() || Z.isSet(), debug.parameter(memory.address(addressing)));
+                    break;
+
+                case BLT: case LBLT:
+                    // IFF [ N ⊕ V ] = 1 then PC' ← PC + TEMP
+                    branch.jumpIf(() -> N.isSet() != V.isSet(), debug.parameter(memory.address(addressing)));
+                    break;
+
+                case BMI: case LBMI:
+                    // IFF N = 1 then PC' ← PC + TEMP
+                    branch.jumpIf(N::isSet, debug.parameter(memory.address(addressing)));
+                    break;
+
+                case BNE: case LBNE:
+                    // IFF Z = 0 then PC' ← PC + TEMP
+                    branch.jumpIf(Z::isClear, debug.parameter(memory.address(addressing)));
+                    break;
+
                 case BPL: case LBPL:
+                    // IFF N = 0 then PC' ← PC + TEMP
                     branch.jumpIf(N::isClear, debug.parameter(memory.address(addressing)));
                     break;
 
@@ -265,6 +273,16 @@ public class MC6809E implements ClockAware {
 
                 case BRN: case LBRN:
                     branch.jumpIf(() -> false, debug.parameter(memory.address(addressing)));
+                    break;
+
+                case BVC: case LBVC:
+                    // IFF V = 0 then PC' ← PC + TEMP
+                    branch.jumpIf(V::isClear, debug.parameter(memory.address(addressing)));
+                    break;
+
+                case BVS: case LBVS:
+                    // IFF V = 1 then PC' ← PC + TEMP
+                    branch.jumpIf(V::isSet, debug.parameter(memory.address(addressing)));
                     break;
 
                 case SYNC:
@@ -333,7 +351,7 @@ public class MC6809E implements ClockAware {
     private void multiply(DataAccess a, DataAccess b, DataAccess dest) {
         var result = a.unsigned() * b.unsigned();
         Register.Z.set(result == 0);
-        Register.C.set(bit(7, result));
+        Register.C.set(Shift.bit(7, result));
         dest.set(result);
     }
 
@@ -372,19 +390,9 @@ public class MC6809E implements ClockAware {
     private void clear(DataAccess register) {
         register.clear();
         Register.N.clear();
+        Register.Z.set();
         Register.V.clear();
         Register.C.clear();
-        Register.Z.set();
-    }
-
-    private void rol(DataAccess variable) {
-        int before = variable.unsigned();
-        int result = (before << 1) | Register.C.unsigned();
-        Register.N.set(negative(result, variable.mask()));
-        Register.Z.set(result == 0);
-        Register.C.set(bit(7, before));
-        Register.V.set(bit(6, before) ^ bit(7, before));
-        variable.set(result & variable.mask());
     }
 
     private void tst(DataAccess variable) {
@@ -392,34 +400,6 @@ public class MC6809E implements ClockAware {
         Register.V.clear();
         Register.N.set(negative(result, variable.mask()));
         Register.Z.set(result == 0);
-    }
-
-    private void lsr(DataAccess variable) {
-        int before = variable.unsigned();
-        int result = before >> 1;
-        Register.N.clear();
-        Register.Z.set(result == 0);
-        Register.C.set(before);
-        variable.set(result);
-    }
-
-    private void lsl(DataAccess variable) {
-        int before = variable.unsigned();
-        int result = before << 1;
-        Register.N.set(negative(result, variable.mask()));
-        Register.Z.set(result == 0);
-        Register.C.set(bit(7, before));
-        Register.V.set(bit(6, before) ^ bit(7, before));
-        variable.set(result);
-    }
-
-    private void ror(DataAccess variable) {
-        int before = variable.unsigned();
-        int result = (before >> 1) | (Register.C.unsigned() << 8);
-        Register.N.set(negative(result, variable.mask()));
-        Register.Z.set(result == 0);
-        Register.C.set(before);
-        variable.set(result);
     }
 
     private void and(DataAccess register, DataAccess memory) {
@@ -445,10 +425,6 @@ public class MC6809E implements ClockAware {
         result.halfCarry().ifPresent(Register.H::set);
         result.carry().ifPresent(Register.C::set);
         return result;
-    }
-
-    private int bit(int bit, int value) {
-        return (value >> bit) & 0b1;
     }
 
     private boolean overflow(int result, int mask) {

@@ -38,13 +38,14 @@ public class Interpreter {
         instructions.add(op(0x04, LSR, DIRECT_DATA_8));
         instructions.add(op(0x06, ROR, DIRECT_DATA_8));
         instructions.add(op(0x07, ASR, DIRECT_DATA_8));
-        instructions.add(op(0x08, LSL, DIRECT_DATA_8));
+        instructions.add(op(0x08, LSL, DIRECT_DATA_8)); // ASL
         instructions.add(op(0x09, ROL, DIRECT_DATA_8));
         instructions.add(op(0x0a, DEC, DIRECT_DATA_8));
         instructions.add(op(0x0c, INC, DIRECT_DATA_8));
         instructions.add(op(0x0d, TST, DIRECT_DATA_8));
         instructions.add(op(0x0e, JMP, DIRECT_ADDRESS));
         instructions.add(op(0x0f, CLR, DIRECT_DATA_8));
+
         instructions.add(op(0x12, NOP, INHERENT));
         instructions.add(op(0x13, SYNC, INHERENT));
         instructions.add(op(0x16, LBRA, RELATIVE_ADDRESS_16));
@@ -55,12 +56,13 @@ public class Interpreter {
         instructions.add(op(0x1d, SEX, INHERENT));
         instructions.add(op(0x1e, EXG, IMMEDIATE_VALUE_8));
         instructions.add(op(0x1f, TFR, IMMEDIATE_VALUE_8));
+
         instructions.add(op(0x20, BRA, RELATIVE_ADDRESS_8));
         instructions.add(op(0x21, BRN, RELATIVE_ADDRESS_8));
         instructions.add(op(0x22, BHI, RELATIVE_ADDRESS_8));
         instructions.add(op(0x23, BLS, RELATIVE_ADDRESS_8));
-        instructions.add(op(0x24, BCC, RELATIVE_ADDRESS_8));
-        instructions.add(op(0x25, BCS, RELATIVE_ADDRESS_8));
+        instructions.add(op(0x24, BCC, RELATIVE_ADDRESS_8)); // BHS
+        instructions.add(op(0x25, BCS, RELATIVE_ADDRESS_8)); // BLO
         instructions.add(op(0x26, BNE, RELATIVE_ADDRESS_8));
         instructions.add(op(0x27, BEQ, RELATIVE_ADDRESS_8));
         instructions.add(op(0x28, BVC, RELATIVE_ADDRESS_8));
@@ -71,10 +73,11 @@ public class Interpreter {
         instructions.add(op(0x2d, BLT, RELATIVE_ADDRESS_8));
         instructions.add(op(0x2e, BGT, RELATIVE_ADDRESS_8));
         instructions.add(op(0x2f, BLE, RELATIVE_ADDRESS_8));
-        instructions.add(op(0x30, LEAX, INDEXED_DATA_16));
-        instructions.add(op(0x31, LEAY, INDEXED_DATA_16));
-        instructions.add(op(0x32, LEAS, INDEXED_DATA_16));
-        instructions.add(op(0x33, LEAU, INDEXED_DATA_16));
+
+        instructions.add(op(0x30, LEAX, INDEXED_ADDRESS));
+        instructions.add(op(0x31, LEAY, INDEXED_ADDRESS));
+        instructions.add(op(0x32, LEAS, INDEXED_ADDRESS));
+        instructions.add(op(0x33, LEAU, INDEXED_ADDRESS));
         instructions.add(op(0x34, PSHS, IMMEDIATE_VALUE_8));
         instructions.add(op(0x35, PULS, IMMEDIATE_VALUE_8));
         instructions.add(op(0x36, PSHU, IMMEDIATE_VALUE_8));
@@ -82,55 +85,60 @@ public class Interpreter {
         instructions.add(op(0x39, RTS, INHERENT));
         instructions.add(op(0x3a, ABX, INHERENT));
         instructions.add(op(0x3b, RTI, INHERENT));
-        instructions.add(op(0x3c, CWAI, IMMEDIATE_VALUE_8));
+        instructions.add(op(0x3c, CWAI, INHERENT));
         instructions.add(op(0x3d, MUL, INHERENT));
         instructions.add(op(0x3f, SWI, INHERENT));
+
         instructions.add(op(0x40, NEGA, INHERENT));
         instructions.add(op(0x43, COMA, INHERENT));
         instructions.add(op(0x44, LSRA, INHERENT));
         instructions.add(op(0x46, RORA, INHERENT));
         instructions.add(op(0x47, ASRA, INHERENT));
-        instructions.add(op(0x48, LSLA, INHERENT));
+        instructions.add(op(0x48, LSLA, INHERENT)); // ASLA
         instructions.add(op(0x49, ROLA, INHERENT));
         instructions.add(op(0x4a, DECA, INHERENT));
         instructions.add(op(0x4c, INCA, INHERENT));
         instructions.add(op(0x4d, TSTA, INHERENT));
         instructions.add(op(0x4f, CLRA, INHERENT));
+
         instructions.add(op(0x50, NEGB, INHERENT));
         instructions.add(op(0x53, COMB, INHERENT));
         instructions.add(op(0x54, LSRB, INHERENT));
         instructions.add(op(0x56, RORB, INHERENT));
         instructions.add(op(0x57, ASRB, INHERENT));
-        instructions.add(op(0x58, LSLB, INHERENT));
+        instructions.add(op(0x58, LSLB, INHERENT)); // ASLB
         instructions.add(op(0x59, ROLB, INHERENT));
         instructions.add(op(0x5a, DECB, INHERENT));
         instructions.add(op(0x5c, INCB, INHERENT));
         instructions.add(op(0x5d, TSTB, INHERENT));
         instructions.add(op(0x5f, CLRB, INHERENT));
+
         instructions.add(op(0x60, NEG, INDEXED_DATA_8));
         instructions.add(op(0x63, COM, INDEXED_DATA_8));
         instructions.add(op(0x64, LSR, INDEXED_DATA_8));
         instructions.add(op(0x66, ROR, INDEXED_DATA_8));
         instructions.add(op(0x67, ASR, INDEXED_DATA_8));
-        instructions.add(op(0x68, LSL, INDEXED_DATA_8));
+        instructions.add(op(0x68, LSL, INDEXED_DATA_8)); // ASL
         instructions.add(op(0x69, ROL, INDEXED_DATA_8));
         instructions.add(op(0x6a, DEC, INDEXED_DATA_8));
         instructions.add(op(0x6c, INC, INDEXED_DATA_8));
         instructions.add(op(0x6d, TST, INDEXED_DATA_8));
         instructions.add(op(0x6e, JMP, INDEXED_ADDRESS));
         instructions.add(op(0x6f, CLR, INDEXED_DATA_8));
+
         instructions.add(op(0x70, NEG, EXTENDED_DATA_8));
         instructions.add(op(0x73, COM, EXTENDED_DATA_8));
         instructions.add(op(0x74, LSR, EXTENDED_DATA_8));
         instructions.add(op(0x76, ROR, EXTENDED_DATA_8));
         instructions.add(op(0x77, ASR, EXTENDED_DATA_8));
-        instructions.add(op(0x78, LSL, EXTENDED_DATA_8));
+        instructions.add(op(0x78, LSL, EXTENDED_DATA_8)); // ASL
         instructions.add(op(0x79, ROL, EXTENDED_DATA_8));
         instructions.add(op(0x7a, DEC, EXTENDED_DATA_8));
         instructions.add(op(0x7c, INC, EXTENDED_DATA_8));
         instructions.add(op(0x7d, TST, EXTENDED_DATA_8));
         instructions.add(op(0x7e, JMP, EXTENDED_ADDRESS));
         instructions.add(op(0x7f, CLR, EXTENDED_DATA_8));
+
         instructions.add(op(0x80, SUBA, IMMEDIATE_VALUE_8));
         instructions.add(op(0x81, CMPA, IMMEDIATE_VALUE_8));
         instructions.add(op(0x82, SBCA, IMMEDIATE_VALUE_8));
@@ -145,6 +153,7 @@ public class Interpreter {
         instructions.add(op(0x8c, CMPX, IMMEDIATE_VALUE_16));
         instructions.add(op(0x8d, BSR, RELATIVE_ADDRESS_8));
         instructions.add(op(0x8e, LDX, IMMEDIATE_VALUE_16));
+
         instructions.add(op(0x90, SUBA, DIRECT_DATA_8));
         instructions.add(op(0x91, CMPA, DIRECT_DATA_8));
         instructions.add(op(0x92, SBCA, DIRECT_DATA_8));
@@ -161,6 +170,7 @@ public class Interpreter {
         instructions.add(op(0x9d, JSR, DIRECT_ADDRESS));
         instructions.add(op(0x9e, LDX, DIRECT_DATA_16));
         instructions.add(op(0x9f, STX, DIRECT_DATA_16));
+
         instructions.add(op(0xa0, SUBA, INDEXED_DATA_8));
         instructions.add(op(0xa1, CMPA, INDEXED_DATA_8));
         instructions.add(op(0xa2, SBCA, INDEXED_DATA_8));
@@ -177,6 +187,7 @@ public class Interpreter {
         instructions.add(op(0xad, JSR, INDEXED_ADDRESS));
         instructions.add(op(0xae, LDX, INDEXED_DATA_16));
         instructions.add(op(0xaf, STX, INDEXED_DATA_16));
+
         instructions.add(op(0xb0, SUBA, EXTENDED_DATA_8));
         instructions.add(op(0xb1, CMPA, EXTENDED_DATA_8));
         instructions.add(op(0xb2, SBCA, EXTENDED_DATA_8));
@@ -193,6 +204,7 @@ public class Interpreter {
         instructions.add(op(0xbd, JSR, EXTENDED_ADDRESS));
         instructions.add(op(0xbe, LDX, EXTENDED_DATA_16));
         instructions.add(op(0xbf, STX, EXTENDED_DATA_16));
+
         instructions.add(op(0xc0, SUBB, IMMEDIATE_VALUE_8));
         instructions.add(op(0xc1, CMPB, IMMEDIATE_VALUE_8));
         instructions.add(op(0xc2, SBCB, IMMEDIATE_VALUE_8));
@@ -206,6 +218,7 @@ public class Interpreter {
         instructions.add(op(0xcb, ADDB, IMMEDIATE_VALUE_8));
         instructions.add(op(0xcc, LDD, IMMEDIATE_VALUE_16));
         instructions.add(op(0xce, LDU, IMMEDIATE_VALUE_16));
+
         instructions.add(op(0xd0, SUBB, DIRECT_DATA_8));
         instructions.add(op(0xd1, CMPB, DIRECT_DATA_8));
         instructions.add(op(0xd2, SBCB, DIRECT_DATA_8));
@@ -222,6 +235,7 @@ public class Interpreter {
         instructions.add(op(0xdd, STD, DIRECT_DATA_16));
         instructions.add(op(0xde, LDU, DIRECT_DATA_16));
         instructions.add(op(0xdf, STU, DIRECT_DATA_16));
+
         instructions.add(op(0xe0, SUBB, INDEXED_DATA_8));
         instructions.add(op(0xe1, CMPB, INDEXED_DATA_8));
         instructions.add(op(0xe2, SBCB, INDEXED_DATA_8));
@@ -238,6 +252,7 @@ public class Interpreter {
         instructions.add(op(0xed, STD, INDEXED_DATA_16));
         instructions.add(op(0xee, LDU, INDEXED_DATA_16));
         instructions.add(op(0xef, STU, INDEXED_DATA_16));
+
         instructions.add(op(0xf0, SUBB, EXTENDED_DATA_8));
         instructions.add(op(0xf1, CMPB, EXTENDED_DATA_8));
         instructions.add(op(0xf2, SBCB, EXTENDED_DATA_8));
@@ -254,11 +269,12 @@ public class Interpreter {
         instructions.add(op(0xfd, STD, EXTENDED_DATA_16));
         instructions.add(op(0xfe, LDU, EXTENDED_DATA_16));
         instructions.add(op(0xff, STU, EXTENDED_DATA_16));
+
         instructions.add(op(0x1021, LBRN, RELATIVE_ADDRESS_16));
         instructions.add(op(0x1022, LBHI, RELATIVE_ADDRESS_16));
         instructions.add(op(0x1023, LBLS, RELATIVE_ADDRESS_16));
-        instructions.add(op(0x1024, LBCC, RELATIVE_ADDRESS_16));
-        instructions.add(op(0x1025, LBCS, RELATIVE_ADDRESS_16));
+        instructions.add(op(0x1024, LBCC, RELATIVE_ADDRESS_16)); // LBHS
+        instructions.add(op(0x1025, LBCS, RELATIVE_ADDRESS_16)); // LBLO
         instructions.add(op(0x1026, LBNE, RELATIVE_ADDRESS_16));
         instructions.add(op(0x1027, LBEQ, RELATIVE_ADDRESS_16));
         instructions.add(op(0x1028, LBVC, RELATIVE_ADDRESS_16));
@@ -269,6 +285,7 @@ public class Interpreter {
         instructions.add(op(0x102d, LBLT, RELATIVE_ADDRESS_16));
         instructions.add(op(0x102e, LBGT, RELATIVE_ADDRESS_16));
         instructions.add(op(0x102f, LBLE, RELATIVE_ADDRESS_16));
+
         instructions.add(op(0x103f, SWI2, INHERENT));
         instructions.add(op(0x1083, CMPD, IMMEDIATE_VALUE_16));
         instructions.add(op(0x108c, CMPY, IMMEDIATE_VALUE_16));
@@ -292,6 +309,7 @@ public class Interpreter {
         instructions.add(op(0x10ef, STS, INDEXED_DATA_16));
         instructions.add(op(0x10fe, LDS, EXTENDED_DATA_16));
         instructions.add(op(0x10ff, STS, EXTENDED_DATA_16));
+
         instructions.add(op(0x113f, SWI3, INHERENT));
         instructions.add(op(0x1183, CMPU, IMMEDIATE_VALUE_16));
         instructions.add(op(0x118c, CMPS, IMMEDIATE_VALUE_16));
