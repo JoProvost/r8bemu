@@ -1,4 +1,7 @@
 #!/bin/bash
+function cleanup() { stty cooked echo 2>/dev/null; }
+trap cleanup EXIT
+
 set -e
 cd "$(dirname "$(realpath $0)")"
 javac -d ./classes $(find ./src -name '*.java')
