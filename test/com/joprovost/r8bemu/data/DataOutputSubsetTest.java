@@ -6,52 +6,18 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SubsetTest {
+class DataOutputSubsetTest {
 
     DataAccess source = Variable.ofMask(0xffff);
 
     @Test
-    void lsb() {
-        var lsb = Subset.lsb(source);
-
-        assertEquals(0xff, lsb.mask());
-
-        source.set(0xfa1a);
-        assertEquals(0x1a, lsb.unsigned());
-
-        lsb.set(0xde);
-        assertEquals(0xfade, source.unsigned());
-
-        // No overflow
-        lsb.set(0x872398de);
-        assertEquals(0xfade, source.unsigned());
-    }
-
-    @Test
-    void msb() {
-        var msb = Subset.msb(source);
-
-        assertEquals(0xff, msb.mask());
-
-        source.set(0xfa1a);
-        assertEquals(0xfa, msb.unsigned());
-
-        msb.set(0xd0);
-        assertEquals(0xd01a, source.unsigned());
-
-        // No overflow
-        msb.set(0x872398d0);
-        assertEquals(0xd01a, source.unsigned());
-    }
-
-    @Test
     void bit() {
 
-        var b0 = Subset.bit(source, 0);
-        var b1 = Subset.bit(source, 1);
-        var b7 = Subset.bit(source, 7);
-        var b8 = Subset.bit(source, 8);
-        var b15 = Subset.bit(source, 15);
+        var b0 = DataOutputSubset.bit(source, 0);
+        var b1 = DataOutputSubset.bit(source, 1);
+        var b7 = DataOutputSubset.bit(source, 7);
+        var b8 = DataOutputSubset.bit(source, 8);
+        var b15 = DataOutputSubset.bit(source, 15);
 
         assertEquals(0b1, b1.mask());
         assertEquals(0b1, b15.mask());
@@ -86,18 +52,11 @@ class SubsetTest {
         assertTrue(b7.isClear());
         assertTrue(b8.isSet());
         assertTrue(b15.isClear());
-
-        source.set(0xff00);
-        b0.set();
-        b1.set();
-        b7.set();
-        b15.clear();
-        assertEquals(0x7f83, source.unsigned());
     }
 
     @Test
     void multipleConsecutiveBits() {
-        var middle = Subset.of(source, 0b0000001111111100);
+        var middle = DataOutputSubset.of(source, 0b0000001111111100);
         assertEquals(0xff, middle.mask());
 
         source.set(0b111111_11111111_11);
@@ -111,8 +70,6 @@ class SubsetTest {
 
         source.set(0b101010_10101010_10);
         assertEquals(0xaa, middle.unsigned());
-        middle.set(0x55);
-        assertEquals(0b101010_01010101_10, source.unsigned());
     }
 
     public void assertEquals(int expected, int actual) {

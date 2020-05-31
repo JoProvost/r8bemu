@@ -1,8 +1,6 @@
 package com.joprovost.r8bemu.data;
 
 import com.joprovost.r8bemu.arithmetic.Addition;
-import com.joprovost.r8bemu.arithmetic.Conjunction;
-import com.joprovost.r8bemu.arithmetic.Disjunction;
 import com.joprovost.r8bemu.arithmetic.Operation;
 import com.joprovost.r8bemu.arithmetic.Subtraction;
 
@@ -52,13 +50,5 @@ public interface DataOutput extends Described {
 
     default Operation minus(DataOutput offset) {
         return Subtraction.of(this, offset);
-    }
-
-    default Operation and(DataOutput operand) {
-        return Conjunction.of(this, operand);
-    }
-
-    default Operation or(DataOutput operand) {
-        return Disjunction.of(this, operand);
     }
 }

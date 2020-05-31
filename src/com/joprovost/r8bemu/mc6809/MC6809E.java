@@ -2,19 +2,17 @@ package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.Debugger;
 import com.joprovost.r8bemu.arithmetic.Addition;
-import com.joprovost.r8bemu.arithmetic.Complement;
-import com.joprovost.r8bemu.arithmetic.ExclusiveDisjunction;
 import com.joprovost.r8bemu.arithmetic.Operation;
 import com.joprovost.r8bemu.arithmetic.Subtraction;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
+import com.joprovost.r8bemu.data.DataOutputSubset;
 import com.joprovost.r8bemu.memory.MemoryMapped;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.Optional;
 
 import static com.joprovost.r8bemu.data.DataOutput.negative;
 import static com.joprovost.r8bemu.mc6809.Register.A;
@@ -56,6 +54,7 @@ public class MC6809E implements ClockAware {
             var mnemonic = instruction.mnemonic();
             var addressing = instruction.addressing();
             var argument = debug.argument(Argument.next(memory, addressing, PC));
+            var registerOrArgument = mnemonic.registerOr(argument);
             switch (mnemonic) {
                 case NOP:
                     break;
@@ -73,11 +72,11 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case NEG: case NEGA: case NEGB:
-                    negate(mnemonic.registerOr(argument));
+                    negate(registerOrArgument);
                     break;
 
                 case COM: case COMA: case COMB:
-                    mnemonic.registerOr(argument).update(it -> checking(Complement.of(it)));
+                    Logic.com(registerOrArgument);
                     break;
 
                 case CMPA: case CMPB: case CMPD: case CMPX: case CMPY: case CMPU: case CMPS:
@@ -85,7 +84,7 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case TST: case TSTA: case TSTB:
-                    tst(mnemonic.registerOr(argument));
+                    tst(registerOrArgument);
                     break;
 
                 case BITA: case BITB:
@@ -117,49 +116,46 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case EORA: case EORB:
-                    mnemonic.register().update(it -> checking(ExclusiveDisjunction.of(it, argument)));
+                    Logic.xor(mnemonic.register(), argument);
                     break;
 
                 case ROR: case RORA: case RORB:
-                    Shift.ror(mnemonic.registerOr(argument));
+                    Shift.ror(registerOrArgument);
                     break;
 
                 case ROL: case ROLA: case ROLB:
-                    Shift.rol(mnemonic.registerOr(argument));
+                    Shift.rol(registerOrArgument);
                     break;
 
                 case INC: case INCA: case INCB:
-                    increment(mnemonic.registerOr(argument));
+                    increment(registerOrArgument);
                     break;
 
                 case DEC: case DECA: case DECB:
-                    decrement(mnemonic.registerOr(argument));
+                    decrement(registerOrArgument);
                     break;
 
                 case LSR: case LSRA: case LSRB:
-                    Shift.lsr(mnemonic.registerOr(argument));
+                    Shift.lsr(registerOrArgument);
                     break;
 
                 case LSL: case LSLA: case LSLB:
-                    Shift.lsl(mnemonic.registerOr(argument));
+                    Shift.lsl(registerOrArgument);
                     break;
 
                 case ASR: case ASRA: case ASRB:
-                    Shift.asr(mnemonic.registerOr(argument));
+                    Shift.asr(registerOrArgument);
                     break;
 
-                case ANDA: case ANDB:
-                    and(mnemonic.register(), argument);
-                    break;
-                case ANDCC:
-                    andcc(mnemonic.register(), argument);
+                case ANDA: case ANDB: case ANDCC:
+                    Logic.and(mnemonic.register(), argument);
                     break;
 
                 case ORA: case ORB:
-                    or(mnemonic.register(), argument);
+                    Logic.or(mnemonic.register(), argument);
                     break;
                 case ORCC:
-                    orcc(mnemonic.register(), argument);
+                    Logic.or(mnemonic.register(), argument);
                     break;
 
                 case TFR:
@@ -171,15 +167,15 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case CLR: case CLRA: case CLRB:
-                    clear(mnemonic.registerOr(argument));
+                    clear(registerOrArgument);
                     break;
 
                 case PSHU: case PSHS:
-                    stack.pushAll(argument, Optional.ofNullable(mnemonic.register()).orElseThrow());
+                    stack.pushAll(argument, mnemonic.register());
                     break;
 
                 case PULU: case PULS:
-                    stack.pullAll(argument, Optional.ofNullable(mnemonic.register()).orElseThrow());
+                    stack.pullAll(argument, mnemonic.register());
                     break;
 
                 case LEAX: case LEAY:
@@ -351,7 +347,7 @@ public class MC6809E implements ClockAware {
     private void multiply(DataAccess a, DataAccess b, DataAccess dest) {
         var result = a.unsigned() * b.unsigned();
         Register.Z.set(result == 0);
-        Register.C.set(Shift.bit(7, result));
+        Register.C.set(DataOutputSubset.bit(7, result));
         dest.set(result);
     }
 
@@ -402,23 +398,7 @@ public class MC6809E implements ClockAware {
         Register.Z.set(result == 0);
     }
 
-    private void and(DataAccess register, DataAccess memory) {
-        register.set(checking(register.and(memory)));
-    }
-
-    private void andcc(DataAccess register, DataAccess memory) {
-        register.set(register.and(memory));
-    }
-
-    private void or(DataAccess register, DataAccess memory) {
-        register.set(checking(register.or(memory)));
-    }
-
-    private void orcc(DataAccess register, DataAccess memory) {
-        register.set(register.or(memory));
-    }
-
-    private Operation checking(Operation result) {
+    public static Operation checking(Operation result) {
         Register.V.set(result.overflow());
         Register.N.set(result.negative());
         Register.Z.set(result.zero());

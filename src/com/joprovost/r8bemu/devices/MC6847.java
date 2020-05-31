@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu.devices;
 
-import com.joprovost.r8bemu.data.Subset;
+import com.joprovost.r8bemu.data.DataAccess;
+import com.joprovost.r8bemu.data.DataAccessSubset;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.memory.MemoryMapped;
 import com.joprovost.r8bemu.terminal.Color;
@@ -23,25 +24,25 @@ public class MC6847 implements MemoryMapped {
 
     private final Variable VDG_DATA_BUS = Variable.ofMask(0xff);
 
-    private final Subset DD0 = Subset.bit(VDG_DATA_BUS, 0);
-    private final Subset DD1 = Subset.bit(VDG_DATA_BUS, 1);
-    private final Subset DD2 = Subset.bit(VDG_DATA_BUS, 2);
-    private final Subset DD3 = Subset.bit(VDG_DATA_BUS, 3);
-    private final Subset DD4 = Subset.bit(VDG_DATA_BUS, 4);
-    private final Subset DD5 = Subset.bit(VDG_DATA_BUS, 5);
-    private final Subset DD6 = Subset.bit(VDG_DATA_BUS, 6);
-    private final Subset DD7 = Subset.bit(VDG_DATA_BUS, 7);
-    private final Subset INV = DD6;
-    private final Subset AS = DD7;
+    private final DataAccess DD0 = DataAccessSubset.bit(VDG_DATA_BUS, 0);
+    private final DataAccess DD1 = DataAccessSubset.bit(VDG_DATA_BUS, 1);
+    private final DataAccess DD2 = DataAccessSubset.bit(VDG_DATA_BUS, 2);
+    private final DataAccess DD3 = DataAccessSubset.bit(VDG_DATA_BUS, 3);
+    private final DataAccess DD4 = DataAccessSubset.bit(VDG_DATA_BUS, 4);
+    private final DataAccess DD5 = DataAccessSubset.bit(VDG_DATA_BUS, 5);
+    private final DataAccess DD6 = DataAccessSubset.bit(VDG_DATA_BUS, 6);
+    private final DataAccess DD7 = DataAccessSubset.bit(VDG_DATA_BUS, 7);
+    private final DataAccess INV = DD6;
+    private final DataAccess AS = DD7;
 
-    private final Subset ASCII_CODE = Subset.of(VDG_DATA_BUS, 0b00111111);
-    private final Subset SGM4_CHROMA = Subset.of(VDG_DATA_BUS, 0b01110000);
-    private final Subset SGM4_LUMA = Subset.of(VDG_DATA_BUS, 0b00001111);
+    private final DataAccess ASCII_CODE = DataAccessSubset.of(VDG_DATA_BUS, 0b00111111);
+    private final DataAccess SGM4_CHROMA = DataAccessSubset.of(VDG_DATA_BUS, 0b01110000);
+    private final DataAccess SGM4_LUMA = DataAccessSubset.of(VDG_DATA_BUS, 0b00001111);
 
-    private final Display terminal;
+    private final Display display;
 
-    public MC6847(Display terminal) {
-        this.terminal = terminal;
+    public MC6847(Display display) {
+        this.display = display;
     }
 
     @Override
@@ -53,10 +54,10 @@ public class MC6847 implements MemoryMapped {
         var column = address % WIDTH + 1;
 
         if (AS.isSet()) {
-            terminal.sgm4(row, column, color(SGM4_CHROMA.unsigned()), BLACK, SGM4_LUMA.unsigned());
+            display.sgm4(row, column, color(SGM4_CHROMA.unsigned()), BLACK, SGM4_LUMA.unsigned());
         } else {
-            if (INV.isSet()) terminal.ascii(row, column, BLACK, GREEN, ASCII_CODE.unsigned());
-            else terminal.ascii(row, column, GREEN, BLACK, ASCII_CODE.unsigned());
+            if (INV.isSet()) display.ascii(row, column, BLACK, GREEN, ASCII_CODE.unsigned());
+            else display.ascii(row, column, GREEN, BLACK, ASCII_CODE.unsigned());
         }
     }
 

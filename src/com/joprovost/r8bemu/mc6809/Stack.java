@@ -1,12 +1,12 @@
 package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.Subset;
+import com.joprovost.r8bemu.data.DataAccessSubset;
 import com.joprovost.r8bemu.memory.MemoryMapped;
 
 import static com.joprovost.r8bemu.arithmetic.Addition.increment;
 import static com.joprovost.r8bemu.arithmetic.Subtraction.decrement;
-import static com.joprovost.r8bemu.data.Subset.bit;
+import static com.joprovost.r8bemu.data.DataAccessSubset.bit;
 import static com.joprovost.r8bemu.mc6809.Register.A;
 import static com.joprovost.r8bemu.mc6809.Register.B;
 import static com.joprovost.r8bemu.mc6809.Register.CC;
@@ -75,8 +75,8 @@ public class Stack {
 
     public void push(Register register, Register stack) {
         if (register.mask() == 0xffff) {
-            pushByte(Subset.lsb(register), stack);
-            pushByte(Subset.msb(register), stack);
+            pushByte(DataAccessSubset.lsb(register), stack);
+            pushByte(DataAccessSubset.msb(register), stack);
         } else if (register.mask() == 0xff) {
             pushByte(register, stack);
         } else {
@@ -86,8 +86,8 @@ public class Stack {
 
     public void pull(Register register, Register stack) {
         if (register.mask() == 0xffff) {
-            pullByte(Subset.msb(register), stack);
-            pullByte(Subset.lsb(register), stack);
+            pullByte(DataAccessSubset.msb(register), stack);
+            pullByte(DataAccessSubset.lsb(register), stack);
         } else if (register.mask() == 0xff) {
             pullByte(register, stack);
         } else {

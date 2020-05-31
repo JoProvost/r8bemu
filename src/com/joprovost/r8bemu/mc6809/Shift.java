@@ -3,6 +3,7 @@ package com.joprovost.r8bemu.mc6809;
 import com.joprovost.r8bemu.data.DataAccess;
 
 import static com.joprovost.r8bemu.data.DataOutput.negative;
+import static com.joprovost.r8bemu.data.DataOutputSubset.bit;
 
 public class Shift {
     public static void lsl(DataAccess variable) {
@@ -52,7 +53,4 @@ public class Shift {
         variable.set(result);
     }
 
-    public static int bit(int bit, int value) {
-        return (value >> bit) & 0b1;
-    }
 }

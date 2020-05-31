@@ -7,7 +7,7 @@ public interface DataAccess extends DataOutput, DataInput {
     String description();
 
     default DataAccess describedAs(String description) {
-        return Subset.of(this, mask()).describedAs(description);
+        return DataAccessSubset.of(this, mask()).describedAs(description);
     }
 
     default DataOutput post(Function<DataOutput, ? extends DataOutput> changes) {

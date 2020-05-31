@@ -2,7 +2,7 @@ package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.Described;
-import com.joprovost.r8bemu.data.Subset;
+import com.joprovost.r8bemu.data.DataAccessSubset;
 
 public class Pair implements Described {
     public final DataAccess left;
@@ -15,12 +15,12 @@ public class Pair implements Described {
 
     public static Pair registers(DataAccess registers) {
         return new Pair(
-                register(Subset.of(registers, 0b11110000)),
-                register(Subset.of(registers, 0b00001111))
+                register(DataAccessSubset.of(registers, 0b11110000)),
+                register(DataAccessSubset.of(registers, 0b00001111))
         );
     }
 
-    private static DataAccess register(Subset registerCode) {
+    private static DataAccess register(DataAccessSubset registerCode) {
         switch (registerCode.unsigned()) {
             case 0b0000: return Register.D;
             case 0b0001: return Register.X;

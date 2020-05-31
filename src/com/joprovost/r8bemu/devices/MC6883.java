@@ -1,8 +1,9 @@
 package com.joprovost.r8bemu.devices;
 
+import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.memory.AddressRange;
 import com.joprovost.r8bemu.data.Value;
-import com.joprovost.r8bemu.data.Subset;
+import com.joprovost.r8bemu.data.DataAccessSubset;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.memory.ChipSelect;
 import com.joprovost.r8bemu.memory.InvalidDevice;
@@ -30,15 +31,15 @@ public class MC6883 implements MemoryMapped {
     // SAM Programmability
     private final Variable SAM_CONTROL_REGISTER = Variable.ofMask(0xffff);
     // VDG Address Mode (3 bits) (V2, V1, V0)
-    private final Subset VDG_ADDRESS_MODE = Subset.of(SAM_CONTROL_REGISTER, 0b1110000000000000);
+    private final DataAccess VDG_ADDRESS_MODE = DataAccessSubset.of(SAM_CONTROL_REGISTER, 0b1110000000000000);
     // VDG Address Offset (7 bits)
-    private final Subset VDG_ADDRESS_OFFSET = Subset.of(SAM_CONTROL_REGISTER, 0b0001111111000000);
+    private final DataAccess VDG_ADDRESS_OFFSET = DataAccessSubset.of(SAM_CONTROL_REGISTER, 0b0001111111000000);
     // 32 K Page Switch (1 bit)
-    private final Subset PAGE_SWITCH_32K = Subset.of(SAM_CONTROL_REGISTER, 0b0000000000100000);
+    private final DataAccess PAGE_SWITCH_32K = DataAccessSubset.of(SAM_CONTROL_REGISTER, 0b0000000000100000);
     // MPU Rate (2 bits)
-    private final Subset MPU_RATE = Subset.of(SAM_CONTROL_REGISTER, 0b0000000000011000);
+    private final DataAccess MPU_RATE = DataAccessSubset.of(SAM_CONTROL_REGISTER, 0b0000000000011000);
     // Memory size (2 bits)
-    private final Subset MEMORY_SIZE = Subset.of(SAM_CONTROL_REGISTER, 0b0000000000000110);
+    private final DataAccess MEMORY_SIZE = DataAccessSubset.of(SAM_CONTROL_REGISTER, 0b0000000000000110);
     private final int MEMORY_SIZE_4K_BANK = 0b00;
     private final int MEMORY_SIZE_16K_BANK = 0b01;
     private final int MEMORY_SIZE_64K_BANK_DYNAMIC = 0b10;
@@ -46,7 +47,7 @@ public class MC6883 implements MemoryMapped {
 
 
     // Map type (1 bit)
-    public final Subset MAP_TYPE = Subset.of(SAM_CONTROL_REGISTER, 0b0000000000000001);
+    public final DataAccess MAP_TYPE = DataAccessSubset.of(SAM_CONTROL_REGISTER, 0b0000000000000001);
 
     private final MemoryMapped bus;
 
@@ -152,9 +153,9 @@ public class MC6883 implements MemoryMapped {
         @Override
         public void write(int address, int data) {
             Value addressRegister = Value.of(address, 0xffff);
-            if (Subset.of(addressRegister, REGISTER_ADDRESS_PREFIX_MASK).matches(REGISTER_ADDRESS)) {
-                Subset.bit(SAM_CONTROL_REGISTER, Subset.of(addressRegister, REGISTER_ADDRESS_BIT_MASK).unsigned())
-                      .set(Subset.of(addressRegister, REGISTER_ADDRESS_VALUE_MASK));
+            if (DataAccessSubset.of(addressRegister, REGISTER_ADDRESS_PREFIX_MASK).matches(REGISTER_ADDRESS)) {
+                DataAccessSubset.bit(SAM_CONTROL_REGISTER, DataAccessSubset.of(addressRegister, REGISTER_ADDRESS_BIT_MASK).unsigned())
+                                .set(DataAccessSubset.of(addressRegister, REGISTER_ADDRESS_VALUE_MASK));
             }
         }
     }
