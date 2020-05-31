@@ -151,17 +151,18 @@ public class KeyboardBuffer implements ClockAware {
 
             case ' ': return List.of(KeyStroke.SPACE);
             case 13: return List.of(KeyStroke.ENTER);
-            case 127: return List.of(KeyStroke.CLEAR);
+            case 127: return List.of(KeyStroke.LEFT); // BACKSPACE KEY
 
             case 27:
                 if (key.length() < 3) return List.of(KeyStroke.BREAK);
-                switch (key.charAt(2)) {
-                    case 65: return List.of(KeyStroke.UP);
-                    case 66: return List.of(KeyStroke.DOWN);
-                    case 68: return List.of(KeyStroke.LEFT);
-                    case 67: return List.of(KeyStroke.RIGHT);
+                switch (key.substring(1)) {
+                    case "[A": return List.of(KeyStroke.UP);
+                    case "[B": return List.of(KeyStroke.DOWN);
+                    case "[D": return List.of(KeyStroke.LEFT);
+                    case "[C": return List.of(KeyStroke.RIGHT);
+                    case "[1~": return List.of(KeyStroke.CLEAR); // HOME KEY
+                    case "[3~": return List.of(KeyStroke.CLEAR); // DEL KEY
                 }
-                return List.of(KeyStroke.PERIOD);
         }
         return List.of();
     }
