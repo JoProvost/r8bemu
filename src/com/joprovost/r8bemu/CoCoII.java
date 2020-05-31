@@ -5,6 +5,7 @@ import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6847;
 import com.joprovost.r8bemu.devices.MC6883;
 import com.joprovost.r8bemu.devices.keyboard.Keyboard;
+import com.joprovost.r8bemu.devices.keyboard.KeyboardBuffer;
 import com.joprovost.r8bemu.mc6809.MC6809E;
 import com.joprovost.r8bemu.memory.Demo;
 import com.joprovost.r8bemu.memory.Memory;
@@ -20,9 +21,11 @@ public class CoCoII {
 
     public static void main(String[] args) throws IOException {
         var clock = new ClockLoop();
+
         var cs4 = new MC6821();
         var keyboard = clock.aware(new Keyboard(cs4));
-        var terminal = clock.aware(new Terminal(System.in, System.out, keyboard));
+        var buffer = clock.aware(new KeyboardBuffer(keyboard));
+        var terminal = clock.aware(new Terminal(System.in, System.out, buffer));
 
         var sam = MC6883.ofRam(new Memory(0x7fff))
                         .withRom0(rom("rom/extbas.rom"))
