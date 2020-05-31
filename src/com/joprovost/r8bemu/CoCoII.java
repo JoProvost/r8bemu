@@ -16,6 +16,7 @@ import com.joprovost.r8bemu.terminal.Terminal;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class CoCoII {
 
@@ -40,6 +41,9 @@ public class CoCoII {
 
         MC6809E cpu = clock.aware(new MC6809E(sam, debugger));
         cpu.reset();
+
+        var path = Paths.get("./autorun.bas");
+        if (Files.exists(path)) buffer.script(path);
 
         clock.run();
     }
