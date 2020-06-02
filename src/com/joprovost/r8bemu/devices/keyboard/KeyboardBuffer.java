@@ -38,7 +38,11 @@ public class KeyboardBuffer implements ClockAware {
     }
 
     public void type(String key) {
-        buffer.add(keyStroke(key));
+        type(keyStroke(key));
+    }
+
+    public void type(List<KeyStroke> key) {
+        buffer.add(key);
     }
 
     public void script(String sequence) {
@@ -49,7 +53,11 @@ public class KeyboardBuffer implements ClockAware {
 
     public void script(Path path) throws IOException {
         try (Stream<String> lines = Files.lines(path)) {
-            lines.forEach(sequence -> script(sequence + "\r"));
+            lines.forEach(sequence -> {
+                script(sequence);
+                type(List.of(KeyStroke.ENTER));
+                type(List.of());
+            });
         }
     }
 
