@@ -1,30 +1,22 @@
 package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.Debugger;
-import com.joprovost.r8bemu.arithmetic.Addition;
-import com.joprovost.r8bemu.arithmetic.Operation;
-import com.joprovost.r8bemu.arithmetic.Subtraction;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
-import com.joprovost.r8bemu.data.DataOutputSubset;
 import com.joprovost.r8bemu.memory.MemoryMapped;
 
 import java.io.EOFException;
 import java.io.IOException;
 
 import static com.joprovost.r8bemu.data.DataOutput.negative;
-import static com.joprovost.r8bemu.mc6809.Register.A;
-import static com.joprovost.r8bemu.mc6809.Register.B;
 import static com.joprovost.r8bemu.mc6809.Register.C;
-import static com.joprovost.r8bemu.mc6809.Register.D;
 import static com.joprovost.r8bemu.mc6809.Register.F;
 import static com.joprovost.r8bemu.mc6809.Register.I;
 import static com.joprovost.r8bemu.mc6809.Register.N;
 import static com.joprovost.r8bemu.mc6809.Register.PC;
 import static com.joprovost.r8bemu.mc6809.Register.V;
-import static com.joprovost.r8bemu.mc6809.Register.X;
 import static com.joprovost.r8bemu.mc6809.Register.Z;
 
 public class MC6809E implements ClockAware {
@@ -60,19 +52,19 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case ABX:
-                    X.update(Addition.incrementBy(B));
+                    Arithmetic.abx();
                     break;
 
                 case MUL:
-                    multiply(A, B, D);
+                    Arithmetic.mul();
                     break;
 
                 case SEX:
-                    signExtended(A, B);
+                    Arithmetic.sex();
                     break;
 
                 case NEG: case NEGA: case NEGB:
-                    negate(registerOrArgument);
+                    Arithmetic.neg(registerOrArgument);
                     break;
 
                 case COM: case COMA: case COMB:
@@ -80,15 +72,15 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case CMPA: case CMPB: case CMPD: case CMPX: case CMPY: case CMPU: case CMPS:
-                    checking(Subtraction.of(mnemonic.register(), argument));
+                    Arithmetic.compare(mnemonic.register(), argument);
                     break;
 
                 case TST: case TSTA: case TSTB:
-                    tst(registerOrArgument);
+                    Arithmetic.test(registerOrArgument);
                     break;
 
                 case BITA: case BITB:
-                    bitTest(mnemonic.register(), argument);
+                    Logic.bitTest(mnemonic.register(), argument);
                     break;
 
                 case STA: case STB: case STD: case STX: case STY: case STU: case STS:
@@ -100,19 +92,19 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case ADCA: case ADCB:
-                    mnemonic.register().update(it -> checking(Addition.of(it, argument, C)));
+                    Arithmetic.adc(mnemonic.register(), argument);
                     break;
 
                 case ADDA: case ADDB: case ADDD:
-                    mnemonic.register().update(it -> checking(Addition.of(it, argument)));
+                    Arithmetic.add(mnemonic.register(), argument);
                     break;
 
                 case SBCA: case SBCB:
-                    mnemonic.register().update(it -> checking(Subtraction.of(it, argument, C)));
+                    Arithmetic.sbc(mnemonic.register(), argument);
                     break;
 
                 case SUBA: case SUBB: case SUBD:
-                    mnemonic.register().update(it -> checking(Subtraction.of(it, argument)));
+                    Arithmetic.sub(mnemonic.register(), argument);
                     break;
 
                 case EORA: case EORB:
@@ -128,11 +120,11 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case INC: case INCA: case INCB:
-                    increment(registerOrArgument);
+                    Arithmetic.increment(registerOrArgument);
                     break;
 
                 case DEC: case DECA: case DECB:
-                    decrement(registerOrArgument);
+                    Arithmetic.decrement(registerOrArgument);
                     break;
 
                 case LSR: case LSRA: case LSRB:
@@ -151,10 +143,7 @@ public class MC6809E implements ClockAware {
                     Logic.and(mnemonic.register(), argument);
                     break;
 
-                case ORA: case ORB:
-                    Logic.or(mnemonic.register(), argument);
-                    break;
-                case ORCC:
+                case ORA: case ORB: case ORCC:
                     Logic.or(mnemonic.register(), argument);
                     break;
 
@@ -179,7 +168,7 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case LEAX: case LEAY:
-                    Z.set(mnemonic.register().replace(argument).unsigned() == 0);
+                    Z.set(mnemonic.register().replace(argument).isClear());
                     break;
 
                 case LEAU: case LEAS:
@@ -320,53 +309,6 @@ public class MC6809E implements ClockAware {
         F.set();
     }
 
-    private void signExtended(Register a, Register b) {
-        if (negative(b.unsigned(), b.mask())) {
-            a.set(a.mask());
-        } else {
-            a.clear();
-        }
-        Register.N.set(negative(b.unsigned(), b.mask()));
-        Register.Z.set(b.isClear());
-    }
-
-    private void increment(DataAccess variable) {
-        int result = variable.pre(Addition.increment()).unsigned();
-        Register.V.set(overflow(result, variable.mask()));
-        Register.N.set(negative(result, variable.mask()));
-        Register.Z.set(result == 0);
-    }
-
-    private void decrement(DataAccess variable) {
-        int result = variable.pre(Subtraction.decrement()).unsigned();
-        Register.V.set(overflow(result, variable.mask()));
-        Register.N.set(negative(result, variable.mask()));
-        Register.Z.set(result == 0);
-    }
-
-    private void multiply(DataAccess a, DataAccess b, DataAccess dest) {
-        var result = a.unsigned() * b.unsigned();
-        Register.Z.set(result == 0);
-        Register.C.set(DataOutputSubset.bit(7, result));
-        dest.set(result);
-    }
-
-    private void negate(DataAccess variable) {
-        var result = (variable.unsigned() == 0x80) ? 0x80 : -variable.signed();
-        Register.N.set(negative(result, variable.mask()));
-        Register.Z.set(result == 0);
-        Register.V.set(overflow(result, variable.mask()));
-        Register.C.set(result == 0);
-        variable.set(result);
-    }
-
-    private void bitTest(DataAccess register, DataAccess memory) {
-        int result = register.unsigned() & memory.unsigned();
-        Register.N.set(negative(result, register.mask()));
-        Register.Z.set(result == 0);
-        Register.V.clear();
-    }
-
     private void storeIntoMemory(DataAccess register, DataAccess memory) {
         int result = register.unsigned();
         Register.N.set(negative(result, register.mask()));
@@ -391,23 +333,4 @@ public class MC6809E implements ClockAware {
         Register.C.clear();
     }
 
-    private void tst(DataAccess variable) {
-        int result = variable.unsigned();
-        Register.V.clear();
-        Register.N.set(negative(result, variable.mask()));
-        Register.Z.set(result == 0);
-    }
-
-    public static Operation checking(Operation result) {
-        Register.V.set(result.overflow());
-        Register.N.set(result.negative());
-        Register.Z.set(result.zero());
-        result.halfCarry().ifPresent(Register.H::set);
-        result.carry().ifPresent(Register.C::set);
-        return result;
-    }
-
-    private boolean overflow(int result, int mask) {
-        return (result & mask) == Integer.highestOneBit(mask);
-    }
 }

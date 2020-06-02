@@ -5,7 +5,7 @@ import com.joprovost.r8bemu.memory.MemoryMapped;
 
 import java.util.Optional;
 
-import static com.joprovost.r8bemu.arithmetic.Addition.incrementBy;
+import static com.joprovost.r8bemu.data.Addition.incrementBy;
 
 public class Reference implements DataAccess {
     private final MemoryMapped device;

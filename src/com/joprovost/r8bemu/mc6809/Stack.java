@@ -4,8 +4,8 @@ import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.DataAccessSubset;
 import com.joprovost.r8bemu.memory.MemoryMapped;
 
-import static com.joprovost.r8bemu.arithmetic.Addition.increment;
-import static com.joprovost.r8bemu.arithmetic.Subtraction.decrement;
+import static com.joprovost.r8bemu.data.Addition.increment;
+import static com.joprovost.r8bemu.data.Subtraction.decrement;
 import static com.joprovost.r8bemu.data.DataAccessSubset.bit;
 import static com.joprovost.r8bemu.mc6809.Register.A;
 import static com.joprovost.r8bemu.mc6809.Register.B;

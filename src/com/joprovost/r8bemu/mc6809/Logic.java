@@ -41,4 +41,11 @@ public class Logic {
         Register.Z.set(argument.isClear());
         Register.N.set(negative(argument.unsigned(), argument.mask()));
     }
+
+    public static void bitTest(DataAccess register, DataAccess memory) {
+        int result = register.unsigned() & memory.unsigned();
+        Register.N.set(negative(result, register.mask()));
+        Register.Z.set(result == 0);
+        Register.V.clear();
+    }
 }

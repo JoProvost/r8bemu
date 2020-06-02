@@ -1,13 +1,6 @@
 package com.joprovost.r8bemu.data;
 
-import com.joprovost.r8bemu.arithmetic.Addition;
-import com.joprovost.r8bemu.arithmetic.Operation;
-import com.joprovost.r8bemu.arithmetic.Subtraction;
-
 public interface DataOutput extends Described {
-    static boolean negative(int value, int mask) {
-        return ((value & Integer.highestOneBit(mask)) != 0);
-    }
 
     static int signed(int value, int mask) {
         int uvalue = value & mask;
@@ -20,12 +13,20 @@ public interface DataOutput extends Described {
         return "0".repeat(size - hex.length()) + hex;
     }
 
+    static int highestBit(int mask) {
+        return (mask >> 1) + 1;
+    }
+
+    static boolean negative(int result, int mask) {
+        return (result & highestBit(mask)) != 0;
+    }
+
     default String hex() {
-        return DataOutput.hex(unsigned(), mask());
+        return hex(unsigned(), mask());
     }
 
     default int signed() {
-        return DataOutput.signed(unsigned(), mask());
+        return signed(unsigned(), mask());
     }
 
     default boolean isSet() {
@@ -44,11 +45,11 @@ public interface DataOutput extends Described {
         return unsigned() == 0;
     }
 
-    default Operation plus(DataOutput offset) {
+    default DataOutput plus(DataOutput offset) {
         return Addition.of(this, offset);
     }
 
-    default Operation minus(DataOutput offset) {
+    default DataOutput minus(DataOutput offset) {
         return Subtraction.of(this, offset);
     }
 }

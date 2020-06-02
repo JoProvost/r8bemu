@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.mc6809;
 
-import com.joprovost.r8bemu.arithmetic.Addition;
-import com.joprovost.r8bemu.arithmetic.Subtraction;
+import com.joprovost.r8bemu.data.Addition;
+import com.joprovost.r8bemu.data.Subtraction;
 import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.data.Value;
 
