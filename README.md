@@ -22,6 +22,20 @@ craft your own :
  * __`bas.rom`__ starts at __0xA000__ ending at __0xBFFF__, boot vector must be at __0xBFFE__ ;
  * __`extbas.rom`__ starts at __0x8000__ ending at __0x9FFF__ .
 
+### Boot scripting
+In order to perform integration tests the content of __`autorun.bas`__ is typed on the emulator keyboard at boot. This
+is actually the only way to load a basic program. 
+
+## Demo!
+
+Live action demo of a simple basic program running on the emulator.
+
+![demo.gif](doc/demo.gif)
+
+![demo2.gif](doc/demo2.gif)
+
+![demo3.gif](doc/demo3.gif)
+
 ## Some useful resources
  - https://colorcomputerarchive.com/
  - https://nowhereman999.wordpress.com/2017/06/19/coco-6809-assembly-on-a-modern-computer/
