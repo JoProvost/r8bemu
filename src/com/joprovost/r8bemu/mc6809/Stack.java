@@ -51,7 +51,7 @@ public class Stack {
         pull(PC, S);
     }
 
-    public void pushAll(DataAccess configuration, Register stack) {
+    public void pushAll(Register stack, DataAccess configuration) {
         if (bit(configuration, 7).isSet()) push(PC, stack);
         if (bit(configuration, 6).isSet()) push(theOther(stack), stack);
         if (bit(configuration, 5).isSet()) push(Y, stack);
@@ -62,7 +62,7 @@ public class Stack {
         if (bit(configuration, 0).isSet()) push(CC, stack);
     }
 
-    public void pullAll(DataAccess configuration, Register stack) {
+    public void pullAll(Register stack, DataAccess configuration) {
         if (bit(configuration, 0).isSet()) pull(CC, stack);
         if (bit(configuration, 1).isSet()) pull(A, stack);
         if (bit(configuration, 2).isSet()) pull(B, stack);

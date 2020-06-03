@@ -19,7 +19,7 @@ class InterpreterTest {
     @Test
     void readInstructionFromOpCodeIncrementingRegister() {
         memory.write(0, 0x12);
-        var instruction = Interpreter.next(memory, PC);
+        var instruction = Instruction.next(memory, PC);
 
         assertEquals(Mnemonic.NOP, instruction.mnemonic());
         assertEquals(0x01, PC.unsigned());
@@ -28,7 +28,7 @@ class InterpreterTest {
     @Test
     void readExtendedInstructionFromOpCodeIncrementingRegister() {
         memory.write(0, 0x10, 0x21);
-        var instruction = Interpreter.next(memory, PC);
+        var instruction = Instruction.next(memory, PC);
 
         assertEquals(Mnemonic.LBRN, instruction.mnemonic());
         assertEquals(0x02, PC.unsigned());

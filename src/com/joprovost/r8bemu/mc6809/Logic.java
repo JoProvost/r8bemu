@@ -48,4 +48,12 @@ public class Logic {
         Register.Z.set(result == 0);
         Register.V.clear();
     }
+
+    public static void clear(DataAccess register) {
+        register.clear();
+        Register.N.clear();
+        Register.Z.set();
+        Register.V.clear();
+        Register.C.clear();
+    }
 }
