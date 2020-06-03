@@ -22,14 +22,12 @@ public class MC6809E implements ClockAware {
 
     private final MemoryMapped memory;
     private final Stack stack;
-    private final Branches branch;
     private final Debugger debug;
 
     public MC6809E(MemoryMapped memory, Debugger debug) {
         this.memory = memory;
         this.debug = debug;
         this.stack = new Stack(memory);
-        this.branch = new Branches(stack);
     }
 
     public void tick(long tick) throws IOException {
@@ -57,19 +55,19 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case JSR:
-                    branch.jsr(argument);
+                    Branches.jsr(argument, stack);
                     break;
 
                 case RTS:
-                    branch.rts();
+                    Branches.rts(stack);
                     break;
 
                 case RTI:
-                    branch.rti();
+                    Branches.rti(stack);
                     break;
 
                 case BSR: case LBSR:
-                    branch.bsr(argument);
+                    Branches.bsr(argument, stack);
                     break;
 
                 case SYNC:
@@ -91,19 +89,19 @@ public class MC6809E implements ClockAware {
 
     public void irq() {
         if (I.isSet()) return;
-        branch.interrupt(Reference.of(memory, IRQ_VECTOR, Size.WORD_16));
+        Branches.interrupt(Reference.of(memory, IRQ_VECTOR, Size.WORD_16), stack);
         I.set();
     }
 
     public void firq() {
         if (F.isSet()) return;
-        branch.fastInterrupt(Reference.of(memory, FIRQ_VECTOR, Size.WORD_16));
+        Branches.fastInterrupt(Reference.of(memory, FIRQ_VECTOR, Size.WORD_16), stack);
         F.set();
         I.set();
     }
 
     public void nmi() {
-        branch.interrupt(Reference.of(memory, NMI_VECTOR, Size.WORD_16));
+        Branches.interrupt(Reference.of(memory, NMI_VECTOR, Size.WORD_16), stack);
         I.set();
         F.set();
     }

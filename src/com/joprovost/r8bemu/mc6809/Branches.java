@@ -15,11 +15,6 @@ import static com.joprovost.r8bemu.mc6809.Register.V;
 import static com.joprovost.r8bemu.mc6809.Register.Z;
 
 public class Branches {
-    private final Stack stack;
-
-    public Branches(Stack stack) {
-        this.stack = stack;
-    }
 
     public static void jumpIf(Supplier<Boolean> condition, DataOutput address) {
         if (condition.get()) {
@@ -106,30 +101,29 @@ public class Branches {
         jumpIf(() -> C.isClear() && Z.isClear(), argument);
     }
 
-    public void rts() {
+    public static void rts(Stack stack) {
         stack.pull(PC, Register.S);
     }
 
-    public void rti() {
+    public static void rti(Stack stack) {
         stack.pullAll();
     }
 
-    public void jsr(DataOutput address) {
+    public static void jsr(DataOutput address, Stack stack) {
         stack.push(PC, Register.S);
         jump(address);
     }
 
-    public void bsr(DataOutput address) {
-        stack.push(PC, Register.S);
-        jump(address);
+    public static void bsr(DataOutput address, Stack stack) {
+        jsr(address, stack);
     }
 
-    public void interrupt(DataOutput address) {
+    public static void interrupt(DataOutput address, Stack stack) {
         stack.pushAll();
         jump(address);
     }
 
-    public void fastInterrupt(DataOutput address) {
+    public static void fastInterrupt(DataOutput address, Stack stack) {
         stack.push(PC, S);
 
         E.clear();

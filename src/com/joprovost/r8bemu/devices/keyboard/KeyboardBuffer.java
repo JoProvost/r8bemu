@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.devices.keyboard;
 
+import com.joprovost.r8bemu.clock.ClockState;
 import com.joprovost.r8bemu.clock.ClockAware;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ public class KeyboardBuffer implements ClockAware {
     public static final int TYPE_DELAY = 10000;
     public static final int BOOT_DELAY = 300000;
 
+    public final ClockState clock = new ClockState();
     private final Deque<List<KeyStroke>> buffer = new ArrayDeque<>();
     private final Keyboard keyboard;
 
@@ -22,12 +24,13 @@ public class KeyboardBuffer implements ClockAware {
 
     public KeyboardBuffer(Keyboard keyboard) {
         this.keyboard = keyboard;
+        clock.busy(BOOT_DELAY);
     }
 
     @Override
     public void tick(long tick) {
-        if (tick < BOOT_DELAY) return;
-        if (tick % TYPE_DELAY != 0) return;
+        if (clock.at(tick).isBusy()) return;
+        clock.busy(TYPE_DELAY);
 
         if (keyEventNumber++ % 2 == 0) {
             if (!buffer.isEmpty())

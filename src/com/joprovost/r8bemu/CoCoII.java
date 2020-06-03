@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu;
 
+import com.joprovost.r8bemu.clock.ClockFrequency900kHz;
 import com.joprovost.r8bemu.clock.ClockLoop;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6847;
@@ -22,6 +23,8 @@ public class CoCoII {
 
     public static void main(String[] args) throws IOException {
         var clock = new ClockLoop();
+
+        clock.aware(new ClockFrequency900kHz());
 
         var cs4 = new MC6821();
         var keyboard = clock.aware(new Keyboard(cs4));
