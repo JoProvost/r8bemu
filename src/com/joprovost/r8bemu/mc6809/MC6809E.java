@@ -2,6 +2,7 @@ package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.Debugger;
 import com.joprovost.r8bemu.clock.ClockAware;
+import com.joprovost.r8bemu.clock.ClockState;
 import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.memory.MemoryMapped;
@@ -23,6 +24,7 @@ public class MC6809E implements ClockAware {
     private final MemoryMapped memory;
     private final Stack stack;
     private final Debugger debug;
+    private ClockState clock = new ClockState();
 
     public MC6809E(MemoryMapped memory, Debugger debug) {
         this.memory = memory;
@@ -31,11 +33,16 @@ public class MC6809E implements ClockAware {
     }
 
     public void tick(long tick) throws IOException {
+        if (clock.at(tick).isBusy()) return;
+
         var address = PC.unsigned();
         debug.at(address);
-        var instruction = Instruction.next(memory, PC);
+        var instruction = Op.next(memory, PC);
         var mnemonic = instruction.mnemonic();
-        var argument = debug.argument(Argument.next(memory, instruction.addressing(), PC));
+        var argument = debug.argument(Argument.next(memory, instruction.addressing(), PC, clock));
+
+        clock.busy(instruction.cycles());
+
         if (!mnemonic.execute(argument)) {
             switch (mnemonic) {
                 case TFR:
@@ -47,27 +54,27 @@ public class MC6809E implements ClockAware {
                     break;
 
                 case PSHU: case PSHS:
-                    stack.pushAll(mnemonic.register(), argument);
+                    stack.pushAll(mnemonic.register(), argument, clock);
                     break;
 
                 case PULU: case PULS:
-                    stack.pullAll(mnemonic.register(), argument);
+                    stack.pullAll(mnemonic.register(), argument, clock);
                     break;
 
                 case JSR:
-                    Branches.jsr(argument, stack);
+                    Branches.jsr(argument, stack, clock);
                     break;
 
                 case RTS:
-                    Branches.rts(stack);
+                    Branches.rts(stack, clock);
                     break;
 
                 case RTI:
-                    Branches.rti(stack);
+                    Branches.rti(stack, clock);
                     break;
 
                 case BSR: case LBSR:
-                    Branches.bsr(argument, stack);
+                    Branches.bsr(argument, stack, clock);
                     break;
 
                 case SYNC:
@@ -89,19 +96,19 @@ public class MC6809E implements ClockAware {
 
     public void irq() {
         if (I.isSet()) return;
-        Branches.interrupt(Reference.of(memory, IRQ_VECTOR, Size.WORD_16), stack);
+        Branches.interrupt(Reference.of(memory, IRQ_VECTOR, Size.WORD_16), stack, clock);
         I.set();
     }
 
     public void firq() {
         if (F.isSet()) return;
-        Branches.fastInterrupt(Reference.of(memory, FIRQ_VECTOR, Size.WORD_16), stack);
+        Branches.fastInterrupt(Reference.of(memory, FIRQ_VECTOR, Size.WORD_16), stack, clock);
         F.set();
         I.set();
     }
 
     public void nmi() {
-        Branches.interrupt(Reference.of(memory, NMI_VECTOR, Size.WORD_16), stack);
+        Branches.interrupt(Reference.of(memory, NMI_VECTOR, Size.WORD_16), stack, clock);
         I.set();
         F.set();
     }

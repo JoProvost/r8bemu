@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.mc6809;
 
+import com.joprovost.r8bemu.clock.BusySource;
 import com.joprovost.r8bemu.memory.Addressing;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.memory.MemoryMapped;
@@ -12,7 +13,7 @@ import static com.joprovost.r8bemu.mc6809.Register.DP;
 public class Argument {
     public static final DataAccess NO_ARGUMENT = Value.of(0, 0).describedAs("");
 
-    public static DataAccess next(MemoryMapped memory, Addressing mode, Register register) {
+    public static DataAccess next(MemoryMapped memory, Addressing mode, Register register, BusySource clock) {
         switch (mode) {
             case INHERENT:
                 return NO_ARGUMENT;
@@ -25,21 +26,21 @@ public class Argument {
             case DIRECT_DATA_16:
             case INDEXED_DATA_8:
             case INDEXED_DATA_16:
-                return data(memory, mode, register);
+                return data(memory, mode, register, clock);
 
             case EXTENDED_ADDRESS:
             case DIRECT_ADDRESS:
             case INDEXED_ADDRESS:
             case RELATIVE_ADDRESS_8:
             case RELATIVE_ADDRESS_16:
-                return address(memory, mode, register);
+                return address(memory, mode, register, clock);
 
             default:
                 throw new UnsupportedOperationException("Unsupported memory access : " + mode);
         }
     }
 
-    private static DataAccess data(MemoryMapped memory, Addressing mode, Register register) {
+    private static DataAccess data(MemoryMapped memory, Addressing mode, Register register, BusySource clock) {
         switch (mode) {
             case IMMEDIATE_VALUE_8:
             case IMMEDIATE_VALUE_16:
@@ -52,7 +53,7 @@ public class Argument {
             case DIRECT_DATA_16:
             case INDEXED_DATA_8:
             case INDEXED_DATA_16:
-                return Reference.of(memory, address(memory, mode, register), mode.size);
+                return Reference.of(memory, address(memory, mode, register, clock), mode.size);
 
             case EXTENDED_ADDRESS:
             case DIRECT_ADDRESS:
@@ -66,7 +67,7 @@ public class Argument {
         }
     }
 
-    private static DataAccess address(MemoryMapped memory, Addressing mode, Register register) {
+    private static DataAccess address(MemoryMapped memory, Addressing mode, Register register, BusySource clock) {
         switch (mode) {
             case IMMEDIATE_VALUE_8:
             case IMMEDIATE_VALUE_16:
@@ -86,7 +87,7 @@ public class Argument {
             case INDEXED_ADDRESS:
             case INDEXED_DATA_8:
             case INDEXED_DATA_16:
-                return IndexedAddress.next(memory, register);
+                return IndexedAddress.next(memory, register, clock);
             default:
                 throw new UnsupportedOperationException("Unsupported memory access : " + mode);
         }

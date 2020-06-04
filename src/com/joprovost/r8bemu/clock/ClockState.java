@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.clock;
 
-public class ClockState {
+public class ClockState implements BusySource {
     private long tick;
     private long busy;
 
@@ -13,7 +13,9 @@ public class ClockState {
         return tick < busy;
     }
 
+    @Override
     public void busy(long period) {
-        busy = tick + period;
+        if (busy < tick) busy = tick;
+        busy += period;
     }
 }

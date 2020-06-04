@@ -1,5 +1,7 @@
 package com.joprovost.r8bemu.mc6809;
 
+import com.joprovost.r8bemu.clock.BusySource;
+import com.joprovost.r8bemu.clock.ClockState;
 import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.memory.Addressing;
@@ -15,6 +17,7 @@ import static com.joprovost.r8bemu.mc6809.Register.S;
 class ArgumentTest {
 
     Memory memory = new Memory(0xffff);
+    BusySource clock = new ClockState();
 
     @BeforeEach
     void setUp() {
@@ -26,7 +29,7 @@ class ArgumentTest {
         memory.write(0x00, 0x12, 0x34);
 
         PC.set(0x01);
-        assertEquals(0x34, Argument.next(memory, Addressing.IMMEDIATE_VALUE_8, PC).unsigned());
+        assertEquals(0x34, Argument.next(memory, Addressing.IMMEDIATE_VALUE_8, PC, clock).unsigned());
         assertEquals(0x02, PC.unsigned());
     }
 
@@ -34,7 +37,7 @@ class ArgumentTest {
     void loadImmediate16() {
         memory.write(0x00, 0x12, 0x34, 0x56, 0x7a);
         PC.set(0x01);
-        assertEquals(0x3456, Argument.next(memory, Addressing.IMMEDIATE_VALUE_16, PC).unsigned());
+        assertEquals(0x3456, Argument.next(memory, Addressing.IMMEDIATE_VALUE_16, PC, clock).unsigned());
         assertEquals(0x03, PC.unsigned());
     }
 
@@ -44,7 +47,7 @@ class ArgumentTest {
         memory.write(0x01, 0x12, 0x34);
         memory.write(0x1234, 0x56);
 
-        var access = Argument.next(memory, Addressing.EXTENDED_DATA_8, PC);
+        var access = Argument.next(memory, Addressing.EXTENDED_DATA_8, PC, clock);
         assertEquals(0x56, access.unsigned());
 
         access.set(0x7a);
@@ -60,7 +63,7 @@ class ArgumentTest {
         memory.write(0x01, 0x34);
         memory.write(0x1234, 0x56);
 
-        var access = Argument.next(memory, Addressing.DIRECT_DATA_8, PC);
+        var access = Argument.next(memory, Addressing.DIRECT_DATA_8, PC, clock);
         assertEquals(0x56, access.unsigned());
 
         access.set(0x7a);
@@ -76,7 +79,7 @@ class ArgumentTest {
         memory.write(0x1234, 0x56, 0x78);
         memory.write(0x5678, 0x9a);
 
-        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC);
+        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC, clock);
         assertEquals(0x9a, access.unsigned());
 
         access.set(0x7a);
@@ -91,7 +94,7 @@ class ArgumentTest {
         memory.write(0x01, 0b10001100, 0x10);
         memory.write(0x13, 0x56);
 
-        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC);
+        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC, clock);
         assertEquals(0x56, access.unsigned());
 
         access.set(0x7a);
@@ -106,7 +109,7 @@ class ArgumentTest {
         memory.write(0x01, 0b10001101, 0x10, 0x00);
         memory.write(0x1004, 0x56);
 
-        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC);
+        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC, clock);
         assertEquals(0x56, access.unsigned());
 
         access.set(0x7a);
@@ -123,7 +126,7 @@ class ArgumentTest {
 
         memory.write(0x5678, 0x99);
 
-        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC);
+        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC, clock);
         assertEquals(0x99, access.unsigned());
 
         access.set(0x7a);
@@ -140,7 +143,7 @@ class ArgumentTest {
 
         memory.write(0x5678, 0x99);
 
-        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC);
+        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC, clock);
         assertEquals(0x99, access.unsigned());
 
         access.set(0x7a);
@@ -160,7 +163,7 @@ class ArgumentTest {
         memory.write(0x01, 0b01111100);
         memory.write(0x1010, 0x99);
 
-        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC);
+        var access = Argument.next(memory, Addressing.INDEXED_DATA_8, PC, clock);
         assertEquals(0x99, access.unsigned());
 
         access.set(0x7a);
@@ -181,7 +184,7 @@ class ArgumentTest {
         memory.write(0x1000, 0x20, 0x00);
         memory.write(0x2000, 0x30, 0x00);
 
-        var access = Argument.next(memory, Addressing.INDEXED_DATA_16, PC);
+        var access = Argument.next(memory, Addressing.INDEXED_DATA_16, PC, clock);
         assertEquals(0x3000, access.unsigned());
 
         access.set(0x4000);

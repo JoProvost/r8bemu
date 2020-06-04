@@ -13,8 +13,9 @@ import java.util.stream.Stream;
 
 public class KeyboardBuffer implements ClockAware {
 
-    public static final int TYPE_DELAY = 10000;
-    public static final int BOOT_DELAY = 300000;
+    // At 900kHz, each key is pressed 44ms and released 44ms
+    public static final int TYPE_DELAY = 40000;
+    public static final int BOOT_DELAY = 1200000;
 
     public final ClockState clock = new ClockState();
     private final Deque<List<KeyStroke>> buffer = new ArrayDeque<>();

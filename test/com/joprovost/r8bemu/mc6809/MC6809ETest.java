@@ -35,7 +35,7 @@ class MC6809ETest {
     }
 
     @Test
-    void nop() throws IOException {
+    void nopTakesTwoTicks() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
         MC6809E cpu = new MC6809E(new Memory(new byte[]{(byte) 0x12, (byte) 0x12}), debugger);
         PC.set(0x0000);
@@ -43,6 +43,9 @@ class MC6809ETest {
 
         cpu.tick(tick++);
         assertEquals(0x0001, PC.unsigned());
+        cpu.tick(tick++);
+        assertEquals(0x0001, PC.unsigned());
+
         cpu.tick(tick++);
         assertEquals(0x0002, PC.unsigned());
     }
@@ -63,7 +66,6 @@ class MC6809ETest {
         assertEquals(0x0001, PC.unsigned());
     }
 
-    // TODO flags
     @Test
     void mul() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
@@ -71,7 +73,7 @@ class MC6809ETest {
         A.set(0x04);
         B.set(0x04);
 
-        memory.write(0x00, 0x3d);
+        memory.write(0x00, MUL_INHERENT);
 
         cpu.tick(tick++);
         assertEquals(0x10, D.unsigned());
