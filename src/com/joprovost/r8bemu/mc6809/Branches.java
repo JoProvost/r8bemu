@@ -1,6 +1,5 @@
 package com.joprovost.r8bemu.mc6809;
 
-import com.joprovost.r8bemu.clock.BusySource;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.DataOutput;
 
@@ -102,33 +101,33 @@ public class Branches {
         jumpIf(() -> C.isClear() && Z.isClear(), argument);
     }
 
-    public static void rts(Stack stack, BusySource clock) {
-        stack.pull(PC, Register.S, clock);
+    public static void rts(Stack stack) {
+        stack.pull(PC, Register.S);
     }
 
-    public static void rti(Stack stack, BusySource clock) {
-        stack.pullAll(clock);
+    public static void rti(Stack stack) {
+        stack.pullAll();
     }
 
-    public static void jsr(DataOutput address, Stack stack, BusySource clock) {
-        stack.push(PC, Register.S, clock);
+    public static void jsr(DataOutput address, Stack stack) {
+        stack.push(PC, Register.S);
         jump(address);
     }
 
-    public static void bsr(DataOutput address, Stack stack, BusySource clock) {
-        jsr(address, stack, clock);
+    public static void bsr(DataOutput address, Stack stack) {
+        jsr(address, stack);
     }
 
-    public static void interrupt(DataOutput address, Stack stack, BusySource clock) {
-        stack.pushAll(clock);
+    public static void interrupt(DataOutput address, Stack stack) {
+        stack.pushAll();
         jump(address);
     }
 
-    public static void fastInterrupt(DataOutput address, Stack stack, BusySource clock) {
-        stack.push(PC, S, clock);
+    public static void fastInterrupt(DataOutput address, Stack stack) {
+        stack.push(PC, S);
 
         E.clear();
-        stack.push(CC, S, clock);
+        stack.push(CC, S);
 
         jump(address);
     }

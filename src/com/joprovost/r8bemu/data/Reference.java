@@ -36,7 +36,7 @@ public class Reference implements DataAccess {
         return new Reference(device, address.unsigned(), size, address.description());
     }
 
-    public static DataAccess next(MemoryMapped memory, Size size, Register register) {
+    public static DataAccess next(MemoryMapped memory, Size size, DataAccess register) {
         return of(memory, register.post(incrementBy(size)), size);
     }
 

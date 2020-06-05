@@ -1,11 +1,10 @@
 package com.joprovost.r8bemu.mc6809;
 
+import com.joprovost.r8bemu.Debugger;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.Described;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
+import static com.joprovost.r8bemu.mc6809.Task.of;
 import static com.joprovost.r8bemu.mc6809.Register.A;
 import static com.joprovost.r8bemu.mc6809.Register.B;
 import static com.joprovost.r8bemu.mc6809.Register.CC;
@@ -16,176 +15,153 @@ import static com.joprovost.r8bemu.mc6809.Register.X;
 import static com.joprovost.r8bemu.mc6809.Register.Y;
 
 public enum Mnemonic implements Described {
-    ABX(Arithmetic::abx),
-    ADCA(A, Arithmetic::adc),
-    ADCB(B, Arithmetic::adc),
-    ADDA(A, Arithmetic::add),
-    ADDB(B, Arithmetic::add),
-    ADDD(D, Arithmetic::add),
-    ANDA(A, Logic::and),
-    ANDB(B, Logic::and),
-    ANDCC(CC, Logic::and),
-    ASR(Shift::asr),
-    ASRA(A, Shift::asr),
-    ASRB(B, Shift::asr),
-    BCC(Branches::bcc),
-    BCS(Branches::bcs),
-    BEQ(Branches::beq),
-    BGE(Branches::bge),
-    BGT(Branches::bgt),
-    BHI(Branches::bhi),
-    BITA(A, Logic::bitTest),
-    BITB(B, Logic::bitTest),
-    BLE(Branches::ble),
-    BLS(Branches::bls),
-    BLT(Branches::blt),
-    BMI(Branches::bmi),
-    BNE(Branches::bne),
-    BPL(Branches::bpl),
-    BRA(Branches::bra),
-    BRN(Branches::brn),
-    BSR,
-    BVC(Branches::bvc),
-    BVS(Branches::bvs),
-    CLR(Logic::clear),
-    CLRA(A, Logic::clear),
-    CLRB(B, Logic::clear),
-    CMPA(A, Arithmetic::compare),
-    CMPB(B, Arithmetic::compare),
-    CMPD(D, Arithmetic::compare),
-    CMPS(S, Arithmetic::compare),
-    CMPU(U, Arithmetic::compare),
-    CMPX(X, Arithmetic::compare),
-    CMPY(Y, Arithmetic::compare),
-    COM(Logic::com),
-    COMA(A, Logic::com),
-    COMB(B, Logic::com),
+    ABX(of(Arithmetic::abx)),
+    ADCA(A, Task.of(Arithmetic::adc)),
+    ADCB(B, Task.of(Arithmetic::adc)),
+    ADDA(A, Task.of(Arithmetic::add)),
+    ADDB(B, Task.of(Arithmetic::add)),
+    ADDD(D, Task.of(Arithmetic::add)),
+    ANDA(A, Task.of(Logic::and)),
+    ANDB(B, Task.of(Logic::and)),
+    ANDCC(CC, Task.of(Logic::and)),
+    ASR(Task.of(Shift::asr)),
+    ASRA(A, Task.of(Shift::asr)),
+    ASRB(B, Task.of(Shift::asr)),
+    BCC(Task.of(Branches::bcc)),
+    BCS(Task.of(Branches::bcs)),
+    BEQ(Task.of(Branches::beq)),
+    BGE(Task.of(Branches::bge)),
+    BGT(Task.of(Branches::bgt)),
+    BHI(Task.of(Branches::bhi)),
+    BITA(A, Task.of(Logic::bit)),
+    BITB(B, Task.of(Logic::bit)),
+    BLE(Task.of(Branches::ble)),
+    BLS(Task.of(Branches::bls)),
+    BLT(Task.of(Branches::blt)),
+    BMI(Task.of(Branches::bmi)),
+    BNE(Task.of(Branches::bne)),
+    BPL(Task.of(Branches::bpl)),
+    BRA(Task.of(Branches::bra)),
+    BRN(Task.of(Branches::brn)),
+    BSR(Task.of(Branches::bsr)),
+    BVC(Task.of(Branches::bvc)),
+    BVS(Task.of(Branches::bvs)),
+    CLR(Task.of(Logic::clear)),
+    CLRA(A, Task.of(Logic::clear)),
+    CLRB(B, Task.of(Logic::clear)),
+    CMPA(A, Task.of(Arithmetic::compare)),
+    CMPB(B, Task.of(Arithmetic::compare)),
+    CMPD(D, Task.of(Arithmetic::compare)),
+    CMPS(S, Task.of(Arithmetic::compare)),
+    CMPU(U, Task.of(Arithmetic::compare)),
+    CMPX(X, Task.of(Arithmetic::compare)),
+    CMPY(Y, Task.of(Arithmetic::compare)),
+    COM(Task.of(Logic::complement)),
+    COMA(A, Task.of(Logic::complement)),
+    COMB(B, Task.of(Logic::complement)),
     CWAI,
     DAA,
-    DEC(Arithmetic::decrement),
-    DECA(A, Arithmetic::decrement),
-    DECB(B, Arithmetic::decrement),
-    EORA(A, Logic::xor),
-    EORB(B, Logic::xor),
-    EXG,
-    INC(Arithmetic::increment),
-    INCA(A, Arithmetic::increment),
-    INCB(B, Arithmetic::increment),
-    JMP(Branches::jump),
-    JSR,
-    LBCC(Branches::bcc),
-    LBCS(Branches::bcs),
-    LBEQ(Branches::beq),
-    LBGE(Branches::bge),
-    LBGT(Branches::bgt),
-    LBHI(Branches::bhi),
-    LBLE(Branches::ble),
-    LBLS(Branches::bls),
-    LBLT(Branches::blt),
-    LBMI(Branches::bmi),
-    LBNE(Branches::bne),
-    LBPL(Branches::bpl),
-    LBRA(Branches::bra),
-    LBRN(Branches::brn),
-    LBSR,
-    LBVC(Branches::bvc),
-    LBVS(Branches::bvs),
-    LDA(A, Register::load),
-    LDB(B, Register::load),
-    LDD(D, Register::load),
-    LDS(S, Register::load),
-    LDU(U, Register::load),
-    LDX(X, Register::load),
-    LDY(Y, Register::load),
-    LEAS(S, Register::loadAddress),
-    LEAU(U, Register::loadAddress),
-    LEAX(X, Register::loadAddress),
-    LEAY(Y, Register::loadAddress),
-    LSL(Shift::lsl),
-    LSLA(A, Shift::lsl),
-    LSLB(B, Shift::lsl),
-    LSR(Shift::lsr),
-    LSRA(A, Shift::lsr),
-    LSRB(B, Shift::lsr),
-    MUL(Arithmetic::mul),
-    NEG(Arithmetic::neg),
-    NEGA(A, Arithmetic::neg),
-    NEGB(B, Arithmetic::neg),
-    NOP(Branches::nop),
-    ORA(A, Logic::or),
-    ORB(B, Logic::or),
-    ORCC(CC, Logic::or),
-    PSHS(S),
-    PSHU(U),
-    PULS(S),
-    PULU(U),
-    ROL(Shift::rol),
-    ROLA(A, Shift::rol),
-    ROLB(B, Shift::rol),
-    ROR(Shift::ror),
-    RORA(A, Shift::ror),
-    RORB(B, Shift::ror),
-    RTI,
-    RTS,
-    SBCA(A, Arithmetic::sbc),
-    SBCB(B, Arithmetic::sbc),
-    SEX(Arithmetic::sex),
-    STA(A, Register::store),
-    STB(B, Register::store),
-    STD(D, Register::store),
-    STS(S, Register::store),
-    STU(U, Register::store),
-    STX(X, Register::store),
-    STY(Y, Register::store),
-    SUBA(A, Arithmetic::sub),
-    SUBB(B, Arithmetic::sub),
-    SUBD(D, Arithmetic::sub),
+    DEC(Task.of(Arithmetic::decrement)),
+    DECA(A, Task.of(Arithmetic::decrement)),
+    DECB(B, Task.of(Arithmetic::decrement)),
+    EORA(A, Task.of(Logic::xor)),
+    EORB(B, Task.of(Logic::xor)),
+    EXG((register, argument, stack, debug) -> debug.argument(Pair.registers(argument)).exchange()),
+    INC(Task.of(Arithmetic::increment)),
+    INCA(A, Task.of(Arithmetic::increment)),
+    INCB(B, Task.of(Arithmetic::increment)),
+    JMP(Task.of(Branches::jump)),
+    JSR(Task.of(Branches::jsr)),
+    LBCC(Task.of(Branches::bcc)),
+    LBCS(Task.of(Branches::bcs)),
+    LBEQ(Task.of(Branches::beq)),
+    LBGE(Task.of(Branches::bge)),
+    LBGT(Task.of(Branches::bgt)),
+    LBHI(Task.of(Branches::bhi)),
+    LBLE(Task.of(Branches::ble)),
+    LBLS(Task.of(Branches::bls)),
+    LBLT(Task.of(Branches::blt)),
+    LBMI(Task.of(Branches::bmi)),
+    LBNE(Task.of(Branches::bne)),
+    LBPL(Task.of(Branches::bpl)),
+    LBRA(Task.of(Branches::bra)),
+    LBRN(Task.of(Branches::brn)),
+    LBSR(Task.of(Branches::bsr)),
+    LBVC(Task.of(Branches::bvc)),
+    LBVS(Task.of(Branches::bvs)),
+    LDA(A, Task.of(Register::load)),
+    LDB(B, Task.of(Register::load)),
+    LDD(D, Task.of(Register::load)),
+    LDS(S, Task.of(Register::load)),
+    LDU(U, Task.of(Register::load)),
+    LDX(X, Task.of(Register::load)),
+    LDY(Y, Task.of(Register::load)),
+    LEAS(S, Task.of(Register::loadAddress)),
+    LEAU(U, Task.of(Register::loadAddress)),
+    LEAX(X, Task.of(Register::loadAddress)),
+    LEAY(Y, Task.of(Register::loadAddress)),
+    LSL(Task.of(Shift::lsl)),
+    LSLA(A, Task.of(Shift::lsl)),
+    LSLB(B, Task.of(Shift::lsl)),
+    LSR(Task.of(Shift::lsr)),
+    LSRA(A, Task.of(Shift::lsr)),
+    LSRB(B, Task.of(Shift::lsr)),
+    MUL(of(Arithmetic::mul)),
+    NEG(Task.of(Arithmetic::neg)),
+    NEGA(A, Task.of(Arithmetic::neg)),
+    NEGB(B, Task.of(Arithmetic::neg)),
+    NOP(of(Branches::nop)),
+    ORA(A, Task.of(Logic::or)),
+    ORB(B, Task.of(Logic::or)),
+    ORCC(CC, Task.of(Logic::or)),
+    PSHS(S, (register, argument, stack, debug) -> stack.pushAll(register, argument)),
+    PSHU(U, (register, argument, stack, debug) -> stack.pushAll(register, argument)),
+    PULS(S, (register, argument, stack, debug) -> stack.pullAll(register, argument)),
+    PULU(U, (register, argument, stack, debug) -> stack.pullAll(register, argument)),
+    ROL(Task.of(Shift::rol)),
+    ROLA(A, Task.of(Shift::rol)),
+    ROLB(B, Task.of(Shift::rol)),
+    ROR(Task.of(Shift::ror)),
+    RORA(A, Task.of(Shift::ror)),
+    RORB(B, Task.of(Shift::ror)),
+    RTI((register, argument, stack, debug) -> Branches.rti(stack)),
+    RTS((register, argument, stack, debug) -> Branches.rts(stack)),
+    SBCA(A, Task.of(Arithmetic::sbc)),
+    SBCB(B, Task.of(Arithmetic::sbc)),
+    SEX(of(Arithmetic::sex)),
+    STA(A, Task.of(Register::store)),
+    STB(B, Task.of(Register::store)),
+    STD(D, Task.of(Register::store)),
+    STS(S, Task.of(Register::store)),
+    STU(U, Task.of(Register::store)),
+    STX(X, Task.of(Register::store)),
+    STY(Y, Task.of(Register::store)),
+    SUBA(A, Task.of(Arithmetic::sub)),
+    SUBB(B, Task.of(Arithmetic::sub)),
+    SUBD(D, Task.of(Arithmetic::sub)),
     SWI,
     SWI2,
     SWI3,
     SYNC,
-    TFR,
-    TST(Arithmetic::test),
-    TSTA(A, Arithmetic::test),
-    TSTB(B, Arithmetic::test);
+    TFR((register, argument, stack, debug) -> debug.argument(Pair.registers(argument)).transfer()),
+    TST(Task.of(Arithmetic::test)),
+    TSTA(A, Task.of(Arithmetic::test)),
+    TSTB(B, Task.of(Arithmetic::test));
 
     private final Register register;
-    private final BiConsumer<Register, DataAccess> binaryOperation;
-    private final Consumer<DataAccess> unaryOperation;
-    private final Runnable inherentOperation;
+    private final Task task;
 
-    Mnemonic(Register register,
-             BiConsumer<Register, DataAccess> binaryOperation,
-             Consumer<DataAccess> unaryOperation,
-             Runnable inherentOperation) {
+    Mnemonic(Register register, Task task) {
         this.register = register;
-        this.binaryOperation = binaryOperation;
-        this.unaryOperation = unaryOperation;
-        this.inherentOperation = inherentOperation;
+        this.task = task;
     }
 
-    Mnemonic(Register register, BiConsumer<Register, DataAccess> binaryOperation) {
-        this(register, binaryOperation, null, null);
-    }
-
-    Mnemonic(Register register, Consumer<DataAccess> unaryOperation) {
-        this(register, null, unaryOperation, null);
-    }
-
-    Mnemonic(Consumer<DataAccess> unaryOperation) {
-        this(null, null, unaryOperation, null);
-    }
-
-    Mnemonic(Runnable inherentOperation) {
-        this(null, null, null, inherentOperation);
-    }
-
-    Mnemonic(Register register) {
-        this(register, null, null, null);
+    Mnemonic(Task task) {
+        this(null, task);
     }
 
     Mnemonic() {
-        this(null, null, null, null);
+        this(null, null);
     }
 
     @Override
@@ -197,15 +173,9 @@ public enum Mnemonic implements Described {
         return register;
     }
 
-    public DataAccess registerOr(DataAccess argument) {
-        return register != null ? register : argument;
-    }
-
-    public boolean execute(DataAccess argument) {
-        if (binaryOperation != null) binaryOperation.accept(register, argument);
-        else if (unaryOperation != null) unaryOperation.accept(registerOr(argument));
-        else if (inherentOperation != null) inherentOperation.run();
-        else return false;
+    public boolean execute(DataAccess argument, Stack stack, Debugger debug) {
+        if (task == null) return false;
+        task.execute(register, argument, stack, debug);
         return true;
     }
 }

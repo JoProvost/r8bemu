@@ -155,7 +155,7 @@ class LogicTest {
         @Test
         void overflowIsAlwaysClearAndCarryIsAlwaysSet() {
             Register.A.set(0b10101010);
-            Logic.com(Register.A);
+            Logic.complement(Register.A);
 
             assertEquals(0b01010101, Register.A.unsigned());
             assertTrue(Register.V.isClear());
@@ -167,7 +167,7 @@ class LogicTest {
         @Test
         void carryIsAlwaysSet() {
             Register.A.set(0b10101010);
-            Logic.com(Register.A);
+            Logic.complement(Register.A);
 
             assertEquals(0b01010101, Register.A.unsigned());
             assertTrue(Register.V.isClear());
@@ -179,7 +179,7 @@ class LogicTest {
         @Test
         void negative() {
             Register.A.set(0b00000000);
-            Logic.com(Register.A);
+            Logic.complement(Register.A);
 
             assertEquals(0b11111111, Register.A.unsigned());
             assertTrue(Register.V.isClear());
@@ -191,7 +191,7 @@ class LogicTest {
         @Test
         void zero() {
             Register.A.set(0b11111111);
-            Logic.com(Register.A);
+            Logic.complement(Register.A);
 
             assertEquals(0b00000000, Register.A.unsigned());
             assertTrue(Register.V.isClear());

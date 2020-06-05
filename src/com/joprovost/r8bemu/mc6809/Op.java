@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.mc6809;
 
+import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.memory.Addressing;
@@ -337,7 +338,7 @@ public class Op {
         this.addressing = addressing;
     }
 
-    public static Op next(MemoryMapped memory, Register programCounter) {
+    public static Op next(MemoryMapped memory, DataAccess programCounter) {
         final int code = nextCode(memory, programCounter);
         var instruction = ops.get(code);
         if (instruction == null)
@@ -345,7 +346,7 @@ public class Op {
         return instruction;
     }
 
-    private static int nextCode(MemoryMapped memory, Register programCounter) {
+    private static int nextCode(MemoryMapped memory, DataAccess programCounter) {
         int op = Reference.next(memory, Size.WORD_8, programCounter).unsigned();
         if (extended.contains(op)) op = op << 8 | Reference.next(memory, Size.WORD_8, programCounter).unsigned();
         return op;

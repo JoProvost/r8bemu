@@ -24,12 +24,13 @@ public class MC6809E implements ClockAware {
     private final MemoryMapped memory;
     private final Stack stack;
     private final Debugger debug;
-    private ClockState clock = new ClockState();
+    private final ClockState clock;
 
-    public MC6809E(MemoryMapped memory, Debugger debug) {
+    public MC6809E(MemoryMapped memory, Debugger debug, ClockState clock) {
         this.memory = memory;
         this.debug = debug;
-        this.stack = new Stack(memory);
+        this.clock = clock;
+        this.stack = new Stack(memory, this.clock);
     }
 
     public void tick(long tick) throws IOException {
@@ -43,46 +44,9 @@ public class MC6809E implements ClockAware {
 
         clock.busy(instruction.cycles());
 
-        if (!mnemonic.execute(argument)) {
-            switch (mnemonic) {
-                case TFR:
-                    debug.argument(Pair.registers(argument)).transfer();
-                    break;
-
-                case EXG:
-                    debug.argument(Pair.registers(argument)).exchange();
-                    break;
-
-                case PSHU: case PSHS:
-                    stack.pushAll(mnemonic.register(), argument, clock);
-                    break;
-
-                case PULU: case PULS:
-                    stack.pullAll(mnemonic.register(), argument, clock);
-                    break;
-
-                case JSR:
-                    Branches.jsr(argument, stack, clock);
-                    break;
-
-                case RTS:
-                    Branches.rts(stack, clock);
-                    break;
-
-                case RTI:
-                    Branches.rti(stack, clock);
-                    break;
-
-                case BSR: case LBSR:
-                    Branches.bsr(argument, stack, clock);
-                    break;
-
-                case SYNC:
-                    throw new EOFException("SYNC");
-
-                default:
-                    throw new IllegalStateException("Unexpected instruction: " + instruction + " at 0x" + Integer.toHexString(address));
-            }
+        if (!mnemonic.execute(argument, stack, debug)) {
+            if (mnemonic == Mnemonic.SYNC) throw new EOFException("SYNC");
+            throw new IllegalStateException("Unexpected instruction: " + instruction + " at 0x" + Integer.toHexString(address));
         }
         debug.instruction(mnemonic);
     }
@@ -96,19 +60,19 @@ public class MC6809E implements ClockAware {
 
     public void irq() {
         if (I.isSet()) return;
-        Branches.interrupt(Reference.of(memory, IRQ_VECTOR, Size.WORD_16), stack, clock);
+        Branches.interrupt(Reference.of(memory, IRQ_VECTOR, Size.WORD_16), stack);
         I.set();
     }
 
     public void firq() {
         if (F.isSet()) return;
-        Branches.fastInterrupt(Reference.of(memory, FIRQ_VECTOR, Size.WORD_16), stack, clock);
+        Branches.fastInterrupt(Reference.of(memory, FIRQ_VECTOR, Size.WORD_16), stack);
         F.set();
         I.set();
     }
 
     public void nmi() {
-        Branches.interrupt(Reference.of(memory, NMI_VECTOR, Size.WORD_16), stack, clock);
+        Branches.interrupt(Reference.of(memory, NMI_VECTOR, Size.WORD_16), stack);
         I.set();
         F.set();
     }

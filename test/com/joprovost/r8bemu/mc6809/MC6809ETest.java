@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.Debugger;
+import com.joprovost.r8bemu.clock.ClockState;
 import com.joprovost.r8bemu.memory.MemoryMapped;
 import com.joprovost.r8bemu.memory.Memory;
 import org.junit.jupiter.api.Assertions;
@@ -37,7 +38,7 @@ class MC6809ETest {
     @Test
     void nopTakesTwoTicks() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
-        MC6809E cpu = new MC6809E(new Memory(new byte[]{(byte) 0x12, (byte) 0x12}), debugger);
+        MC6809E cpu = new MC6809E(new Memory(new byte[]{(byte) 0x12, (byte) 0x12}), debugger, new ClockState());
         PC.set(0x0000);
         memory.write(0x00, 0x12, 0x12);
 
@@ -54,7 +55,7 @@ class MC6809ETest {
     @Test
     void abx() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
-        MC6809E cpu = new MC6809E(memory, debugger);
+        MC6809E cpu = new MC6809E(memory, debugger, new ClockState());
         B.set(0x15);
         X.set(0x1202);
         PC.set(0x0000);
@@ -69,7 +70,7 @@ class MC6809ETest {
     @Test
     void mul() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
-        MC6809E cpu = new MC6809E(memory, debugger);
+        MC6809E cpu = new MC6809E(memory, debugger, new ClockState());
         A.set(0x04);
         B.set(0x04);
 
@@ -84,7 +85,7 @@ class MC6809ETest {
     @Test
     void neg() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
-        MC6809E cpu = new MC6809E(memory, debugger);
+        MC6809E cpu = new MC6809E(memory, debugger, new ClockState());
         DP.set(0x04);
 
         memory.write(0x00, NEG_DIRECT, 0x01);
@@ -102,7 +103,7 @@ class MC6809ETest {
     @Test
     void neg0x0() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
-        MC6809E cpu = new MC6809E(memory, debugger);
+        MC6809E cpu = new MC6809E(memory, debugger, new ClockState());
         DP.set(0x04);
 
         memory.write(0x00, NEG_DIRECT, 0x01);
@@ -119,7 +120,7 @@ class MC6809ETest {
     @Test
     void neg0x00() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
-        MC6809E cpu = new MC6809E(memory, debugger);
+        MC6809E cpu = new MC6809E(memory, debugger, new ClockState());
         DP.set(0x04);
 
         memory.write(0x00, NEG_DIRECT, 0x01);
@@ -136,7 +137,7 @@ class MC6809ETest {
     @Test
     void cmpa() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
-        MC6809E cpu = new MC6809E(memory, debugger);
+        MC6809E cpu = new MC6809E(memory, debugger, new ClockState());
         A.set(0x10);
 
         memory.write(0x00, CMPA_INDEXED, EXTENDED_INDIRECT, 0x10, 0x00);
@@ -153,7 +154,7 @@ class MC6809ETest {
     @Test
     void sbca() throws IOException {
         MemoryMapped memory = new Memory(0xffff);
-        MC6809E cpu = new MC6809E(memory, debugger);
+        MC6809E cpu = new MC6809E(memory, debugger, new ClockState());
         A.set(0x10);
 
         memory.write(0x00, 0xa2, EXTENDED_INDIRECT, 0x10, 0x00);

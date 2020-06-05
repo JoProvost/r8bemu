@@ -33,7 +33,7 @@ public class Logic {
         Register.N.set(negative(register.unsigned(), register.mask()));
     }
 
-    public static void com(DataAccess argument) {
+    public static void complement(DataAccess argument) {
         argument.set(~argument.unsigned());
 
         Register.V.clear();
@@ -42,7 +42,7 @@ public class Logic {
         Register.N.set(negative(argument.unsigned(), argument.mask()));
     }
 
-    public static void bitTest(DataAccess register, DataAccess memory) {
+    public static void bit(DataAccess register, DataAccess memory) {
         int result = register.unsigned() & memory.unsigned();
         Register.N.set(negative(result, register.mask()));
         Register.Z.set(result == 0);

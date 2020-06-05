@@ -2,6 +2,7 @@ package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.clock.ClockFrequency;
 import com.joprovost.r8bemu.clock.ClockLoop;
+import com.joprovost.r8bemu.clock.ClockState;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6847;
 import com.joprovost.r8bemu.devices.MC6883;
@@ -42,7 +43,7 @@ public class CoCoII {
 
         Debugger debugger = Debugger.disassembler(Path.of("./doc/rom.asm"));
 
-        MC6809E cpu = clock.aware(new MC6809E(sam, debugger));
+        MC6809E cpu = clock.aware(new MC6809E(sam, debugger, new ClockState()));
         cpu.reset();
 
         var path = Paths.get("./autorun.bas");
