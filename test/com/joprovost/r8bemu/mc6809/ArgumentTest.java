@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.mc6809;
 
-import com.joprovost.r8bemu.clock.BusySource;
-import com.joprovost.r8bemu.clock.ClockState;
+import com.joprovost.r8bemu.clock.BusyState;
+import com.joprovost.r8bemu.clock.ClockAwareBusyState;
 import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.memory.Addressing;
@@ -17,7 +17,7 @@ import static com.joprovost.r8bemu.mc6809.Register.S;
 class ArgumentTest {
 
     Memory memory = new Memory(0xffff);
-    BusySource clock = new ClockState();
+    BusyState clock = new ClockAwareBusyState();
 
     @BeforeEach
     void setUp() {

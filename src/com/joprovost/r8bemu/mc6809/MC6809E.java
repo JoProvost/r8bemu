@@ -1,8 +1,8 @@
 package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.Debugger;
+import com.joprovost.r8bemu.clock.BusyState;
 import com.joprovost.r8bemu.clock.ClockAware;
-import com.joprovost.r8bemu.clock.ClockState;
 import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.memory.MemoryMapped;
@@ -24,9 +24,9 @@ public class MC6809E implements ClockAware {
     private final MemoryMapped memory;
     private final Stack stack;
     private final Debugger debug;
-    private final ClockState clock;
+    private final BusyState clock;
 
-    public MC6809E(MemoryMapped memory, Debugger debug, ClockState clock) {
+    public MC6809E(MemoryMapped memory, Debugger debug, BusyState clock) {
         this.memory = memory;
         this.debug = debug;
         this.clock = clock;
@@ -34,7 +34,7 @@ public class MC6809E implements ClockAware {
     }
 
     public void tick(long tick) throws IOException {
-        if (clock.at(tick).isBusy()) return;
+        if (clock.isBusy()) return;
 
         var address = PC.unsigned();
         debug.at(address);

@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.Debugger;
-import com.joprovost.r8bemu.clock.ClockState;
+import com.joprovost.r8bemu.clock.FakeBusyState;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.devices.MC6883;
 import com.joprovost.r8bemu.memory.Addressing;
@@ -290,7 +290,7 @@ class OpClockCyclesTest {
     private int cyclesOf(int op, int... next) throws IOException {
         Memory ram = new Memory(0x7fff);
         MC6883 sam = MC6883.ofRam(ram);
-        ClockState clock = new ClockState();
+        FakeBusyState clock = new FakeBusyState();
         MC6809E cpu = new MC6809E(sam, Debugger.none(), clock);
 
         ram.write(0x4000, op, next);
@@ -310,10 +310,7 @@ class OpClockCyclesTest {
         Register.D.set(0x2000);
 
         cpu.tick(0);
-        int cycles = 0;
-        //noinspection StatementWithEmptyBody
-        while (clock.at(++cycles).isBusy());
-        return cycles;
+        return clock.cycles();
     }
 
     private Addressing addressingOf(int op, int... next) {

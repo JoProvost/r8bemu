@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.clock;
 
-public interface BusySource {
+public interface BusyState {
+    boolean isBusy();
     void busy(long period);
 }

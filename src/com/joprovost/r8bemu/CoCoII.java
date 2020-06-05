@@ -1,8 +1,7 @@
 package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.clock.ClockFrequency;
-import com.joprovost.r8bemu.clock.ClockLoop;
-import com.joprovost.r8bemu.clock.ClockState;
+import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6847;
 import com.joprovost.r8bemu.devices.MC6883;
@@ -23,7 +22,7 @@ import java.nio.file.Paths;
 public class CoCoII {
 
     public static void main(String[] args) throws IOException {
-        var clock = new ClockLoop();
+        var clock = new Clock();
 
         clock.aware(new ClockFrequency(900));
 
@@ -43,7 +42,7 @@ public class CoCoII {
 
         Debugger debugger = Debugger.disassembler(Path.of("./doc/rom.asm"));
 
-        MC6809E cpu = clock.aware(new MC6809E(sam, debugger, new ClockState()));
+        MC6809E cpu = clock.aware(new MC6809E(sam, debugger, clock));
         cpu.reset();
 
         var path = Paths.get("./autorun.bas");

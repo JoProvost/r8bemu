@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.mc6809;
 
-import com.joprovost.r8bemu.clock.BusySource;
+import com.joprovost.r8bemu.clock.BusyState;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.DataAccessSubset;
 import com.joprovost.r8bemu.memory.MemoryMapped;
@@ -21,9 +21,9 @@ import static com.joprovost.r8bemu.mc6809.Register.Y;
 
 public class Stack {
     private final MemoryMapped memory;
-    private final BusySource clock;
+    private final BusyState clock;
 
-    public Stack(MemoryMapped memory, BusySource clock) {
+    public Stack(MemoryMapped memory, BusyState clock) {
         this.memory = memory;
         this.clock = clock;
     }

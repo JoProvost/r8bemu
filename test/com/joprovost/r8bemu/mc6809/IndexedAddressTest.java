@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.mc6809;
 
-import com.joprovost.r8bemu.clock.BusySource;
+import com.joprovost.r8bemu.clock.FakeBusyState;
 import com.joprovost.r8bemu.memory.Memory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -10,10 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class IndexedAddressTest {
 
-    long busy = 0;
-
     Memory memory = new Memory(0xffff);
-    BusySource clock = period -> busy += period;
+    FakeBusyState clock = new FakeBusyState();
 
     @BeforeEach
     void setup() {
@@ -40,7 +38,7 @@ class IndexedAddressTest {
 
                     assertEquals(1000 - 15, reference.unsigned());
                     assertEquals(1000, Register.X.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -51,7 +49,7 @@ class IndexedAddressTest {
 
                     assertEquals(1100 - 16, reference.unsigned());
                     assertEquals(1100, Register.Y.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -62,7 +60,7 @@ class IndexedAddressTest {
 
                     assertEquals(1200 + 2, reference.unsigned());
                     assertEquals(1200, Register.U.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -73,7 +71,7 @@ class IndexedAddressTest {
 
                     assertEquals(1300 + 15, reference.unsigned());
                     assertEquals(1300, Register.S.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
             }
 
@@ -87,7 +85,7 @@ class IndexedAddressTest {
 
                     assertEquals(1000 - 15, reference.unsigned());
                     assertEquals(1000, Register.X.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -98,7 +96,7 @@ class IndexedAddressTest {
 
                     assertEquals(1100 - 16, reference.unsigned());
                     assertEquals(1100, Register.Y.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -109,7 +107,7 @@ class IndexedAddressTest {
 
                     assertEquals(1200 + 2, reference.unsigned());
                     assertEquals(1200, Register.U.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -120,7 +118,7 @@ class IndexedAddressTest {
 
                     assertEquals(1300 + 15, reference.unsigned());
                     assertEquals(1300, Register.S.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
             }
 
@@ -134,7 +132,7 @@ class IndexedAddressTest {
 
                     assertEquals(1000 - 15, reference.unsigned());
                     assertEquals(1000, Register.X.unsigned());
-                    assertEquals(4, busy);
+                    assertEquals(4, clock.cycles());
                 }
 
                 @Test
@@ -145,7 +143,7 @@ class IndexedAddressTest {
 
                     assertEquals(1100 - 16, reference.unsigned());
                     assertEquals(1100, Register.Y.unsigned());
-                    assertEquals(4, busy);
+                    assertEquals(4, clock.cycles());
                 }
 
                 @Test
@@ -156,7 +154,7 @@ class IndexedAddressTest {
 
                     assertEquals(1200 + 258, reference.unsigned());
                     assertEquals(1200, Register.U.unsigned());
-                    assertEquals(4, busy);
+                    assertEquals(4, clock.cycles());
                 }
 
                 @Test
@@ -167,7 +165,7 @@ class IndexedAddressTest {
 
                     assertEquals(1300 + 527, reference.unsigned());
                     assertEquals(1300, Register.S.unsigned());
-                    assertEquals(4, busy);
+                    assertEquals(4, clock.cycles());
                 }
             }
         }
@@ -182,7 +180,7 @@ class IndexedAddressTest {
 
                 assertEquals(1000, reference.unsigned());
                 assertEquals(1000, Register.X.unsigned());
-                assertEquals(0, busy);
+                assertEquals(0, clock.cycles());
             }
 
             @Test
@@ -193,7 +191,7 @@ class IndexedAddressTest {
 
                 assertEquals(1100, reference.unsigned());
                 assertEquals(1100, Register.Y.unsigned());
-                assertEquals(0, busy);
+                assertEquals(0, clock.cycles());
             }
 
             @Test
@@ -204,7 +202,7 @@ class IndexedAddressTest {
 
                 assertEquals(1200, reference.unsigned());
                 assertEquals(1200, Register.U.unsigned());
-                assertEquals(0, busy);
+                assertEquals(0, clock.cycles());
             }
 
             @Test
@@ -215,7 +213,7 @@ class IndexedAddressTest {
 
                 assertEquals(1300, reference.unsigned());
                 assertEquals(1300, Register.S.unsigned());
-                assertEquals(0, busy);
+                assertEquals(0, clock.cycles());
             }
         }
 
@@ -231,7 +229,7 @@ class IndexedAddressTest {
 
                     assertEquals(1000, reference.unsigned());
                     assertEquals(1001, Register.X.unsigned());
-                    assertEquals(2, busy);
+                    assertEquals(2, clock.cycles());
                 }
 
                 @Test
@@ -242,7 +240,7 @@ class IndexedAddressTest {
 
                     assertEquals(1100, reference.unsigned());
                     assertEquals(1101, Register.Y.unsigned());
-                    assertEquals(2, busy);
+                    assertEquals(2, clock.cycles());
                 }
 
                 @Test
@@ -253,7 +251,7 @@ class IndexedAddressTest {
 
                     assertEquals(1200, reference.unsigned());
                     assertEquals(1201, Register.U.unsigned());
-                    assertEquals(2, busy);
+                    assertEquals(2, clock.cycles());
                 }
 
                 @Test
@@ -264,7 +262,7 @@ class IndexedAddressTest {
 
                     assertEquals(1300, reference.unsigned());
                     assertEquals(1301, Register.S.unsigned());
-                    assertEquals(2, busy);
+                    assertEquals(2, clock.cycles());
                 }
             }
 
@@ -278,7 +276,7 @@ class IndexedAddressTest {
 
                     assertEquals(1000, reference.unsigned());
                     assertEquals(1002, Register.X.unsigned());
-                    assertEquals(3, busy);
+                    assertEquals(3, clock.cycles());
                 }
 
                 @Test
@@ -289,7 +287,7 @@ class IndexedAddressTest {
 
                     assertEquals(1100, reference.unsigned());
                     assertEquals(1102, Register.Y.unsigned());
-                    assertEquals(3, busy);
+                    assertEquals(3, clock.cycles());
                 }
             }
 
@@ -303,7 +301,7 @@ class IndexedAddressTest {
 
                     assertEquals(999, reference.unsigned());
                     assertEquals(999, Register.X.unsigned());
-                    assertEquals(2, busy);
+                    assertEquals(2, clock.cycles());
                 }
 
                 @Test
@@ -314,7 +312,7 @@ class IndexedAddressTest {
 
                     assertEquals(1099, reference.unsigned());
                     assertEquals(1099, Register.Y.unsigned());
-                    assertEquals(2, busy);
+                    assertEquals(2, clock.cycles());
                 }
             }
 
@@ -328,7 +326,7 @@ class IndexedAddressTest {
 
                     assertEquals(998, reference.unsigned());
                     assertEquals(998, Register.X.unsigned());
-                    assertEquals(3, busy);
+                    assertEquals(3, clock.cycles());
                 }
 
                 @Test
@@ -339,7 +337,7 @@ class IndexedAddressTest {
 
                     assertEquals(1098, reference.unsigned());
                     assertEquals(1098, Register.Y.unsigned());
-                    assertEquals(3, busy);
+                    assertEquals(3, clock.cycles());
                 }
             }
         }
@@ -362,7 +360,7 @@ class IndexedAddressTest {
 
                     assertEquals(1000 - 16, reference.unsigned());
                     assertEquals(1000, Register.X.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -373,7 +371,7 @@ class IndexedAddressTest {
 
                     assertEquals(1100 - 16, reference.unsigned());
                     assertEquals(1100, Register.Y.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -384,7 +382,7 @@ class IndexedAddressTest {
 
                     assertEquals(1200 - 16, reference.unsigned());
                     assertEquals(1200, Register.U.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -395,7 +393,7 @@ class IndexedAddressTest {
 
                     assertEquals(1300 - 16, reference.unsigned());
                     assertEquals(1300, Register.S.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
             }
 
@@ -414,7 +412,7 @@ class IndexedAddressTest {
 
                     assertEquals(1000 + 32, reference.unsigned());
                     assertEquals(1000, Register.X.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -425,7 +423,7 @@ class IndexedAddressTest {
 
                     assertEquals(1100 + 32, reference.unsigned());
                     assertEquals(1100, Register.Y.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -436,7 +434,7 @@ class IndexedAddressTest {
 
                     assertEquals(1200 + 32, reference.unsigned());
                     assertEquals(1200, Register.U.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
 
                 @Test
@@ -447,7 +445,7 @@ class IndexedAddressTest {
 
                     assertEquals(1300 + 32, reference.unsigned());
                     assertEquals(1300, Register.S.unsigned());
-                    assertEquals(1, busy);
+                    assertEquals(1, clock.cycles());
                 }
             }
 
@@ -466,7 +464,7 @@ class IndexedAddressTest {
 
                     assertEquals(1000 - 512, reference.unsigned());
                     assertEquals(1000, Register.X.unsigned());
-                    assertEquals(4, busy);
+                    assertEquals(4, clock.cycles());
                 }
 
                 @Test
@@ -477,7 +475,7 @@ class IndexedAddressTest {
 
                     assertEquals(1100 - 512, reference.unsigned());
                     assertEquals(1100, Register.Y.unsigned());
-                    assertEquals(4, busy);
+                    assertEquals(4, clock.cycles());
                 }
 
                 @Test
@@ -488,7 +486,7 @@ class IndexedAddressTest {
 
                     assertEquals(1200 - 512, reference.unsigned());
                     assertEquals(1200, Register.U.unsigned());
-                    assertEquals(4, busy);
+                    assertEquals(4, clock.cycles());
                 }
 
                 @Test
@@ -499,7 +497,7 @@ class IndexedAddressTest {
 
                     assertEquals(1300 - 512, reference.unsigned());
                     assertEquals(1300, Register.S.unsigned());
-                    assertEquals(4, busy);
+                    assertEquals(4, clock.cycles());
                 }
             }
         }
@@ -514,7 +512,7 @@ class IndexedAddressTest {
                 assertEquals("-15,PC", reference.description());
 
                 assertEquals(0x1032 + 2 - 15, reference.unsigned());
-                assertEquals(1, busy);
+                assertEquals(1, clock.cycles());
             }
 
             @Test
@@ -525,7 +523,7 @@ class IndexedAddressTest {
                 assertEquals("511,PC", reference.description());
 
                 assertEquals(0x1032 + 3 + 511, reference.unsigned());
-                assertEquals(5, busy);
+                assertEquals(5, clock.cycles());
             }
         }
     }
@@ -540,7 +538,7 @@ class IndexedAddressTest {
             assertEquals("[$01ff]", reference.description());
 
             assertEquals(0xabcd, reference.unsigned());
-            assertEquals(5, busy);
+            assertEquals(5, clock.cycles());
         }
 
         @Nested
@@ -554,7 +552,7 @@ class IndexedAddressTest {
 
                 assertEquals(0x1234, reference.unsigned());
                 assertEquals(1000, Register.X.unsigned());
-                assertEquals(3, busy);
+                assertEquals(3, clock.cycles());
             }
         }
 
@@ -571,7 +569,7 @@ class IndexedAddressTest {
 
                     assertEquals(0xabcd, reference.unsigned());
                     assertEquals(1002, Register.X.unsigned());
-                    assertEquals(6, busy);
+                    assertEquals(6, clock.cycles());
                 }
 
                 @Test
@@ -584,7 +582,7 @@ class IndexedAddressTest {
 
                     assertEquals(0xabcd, reference.unsigned());
                     assertEquals(1102, Register.Y.unsigned());
-                    assertEquals(6, busy);
+                    assertEquals(6, clock.cycles());
                 }
             }
 
@@ -599,7 +597,7 @@ class IndexedAddressTest {
 
                     assertEquals(0xabcd, reference.unsigned());
                     assertEquals(998, Register.X.unsigned());
-                    assertEquals(6, busy);
+                    assertEquals(6, clock.cycles());
                 }
 
                 @Test
@@ -611,7 +609,7 @@ class IndexedAddressTest {
 
                     assertEquals(0xabcd, reference.unsigned());
                     assertEquals(1098, Register.Y.unsigned());
-                    assertEquals(6, busy);
+                    assertEquals(6, clock.cycles());
                 }
             }
         }
@@ -634,7 +632,7 @@ class IndexedAddressTest {
 
                     assertEquals(0x1234, reference.unsigned());
                     assertEquals(1000, Register.X.unsigned());
-                    assertEquals(4, busy);
+                    assertEquals(4, clock.cycles());
                 }
             }
         }
@@ -650,7 +648,7 @@ class IndexedAddressTest {
                 assertEquals("[-15,PC]", reference.description());
 
                 assertEquals(0xcdef, reference.unsigned());
-                assertEquals(4, busy);
+                assertEquals(4, clock.cycles());
             }
 
             @Test
@@ -662,7 +660,7 @@ class IndexedAddressTest {
                 assertEquals("[511,PC]", reference.description());
 
                 assertEquals(0xcdef, reference.unsigned());
-                assertEquals(8, busy);
+                assertEquals(8, clock.cycles());
             }
         }
     }

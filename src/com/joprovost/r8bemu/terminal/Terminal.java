@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu.terminal;
 
 import com.joprovost.r8bemu.clock.ClockAware;
+import com.joprovost.r8bemu.clock.ClockAwareBusyState;
 import com.joprovost.r8bemu.devices.keyboard.KeyboardBuffer;
 
 import java.io.EOFException;
@@ -17,6 +18,11 @@ public class Terminal implements Display, ClockAware {
     private static final int MARGIN_TOP = 1;
     private static final int MARGIN_LEFT = 4;
     private static final int HEIGHT = 16;
+
+    // At 900kHz, keys are fetched every 88ms
+    private static final int TYPE_DELAY = 80000;
+
+    private final ClockAwareBusyState clock = new ClockAwareBusyState();
     private final InputStream inputStream;
     private final PrintStream printStream;
     private final KeyboardBuffer keyboard;
@@ -66,6 +72,9 @@ public class Terminal implements Display, ClockAware {
 
     @Override
     public void tick(long tick) throws IOException {
+        if (clock.at(tick).isBusy()) return;
+        clock.busy(TYPE_DELAY);
+
         var terminalKey = readKey();
         if (terminalKey.filter(x -> x.charAt(0) == 3).isPresent()) {
             throw new EOFException("Closed by user");

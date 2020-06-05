@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.devices.keyboard;
 
-import com.joprovost.r8bemu.clock.ClockState;
+import com.joprovost.r8bemu.clock.ClockAwareBusyState;
 import com.joprovost.r8bemu.clock.ClockAware;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class KeyboardBuffer implements ClockAware {
     public static final int TYPE_DELAY = 40000;
     public static final int BOOT_DELAY = 1200000;
 
-    public final ClockState clock = new ClockState();
+    public final ClockAwareBusyState clock = new ClockAwareBusyState();
     private final Deque<List<KeyStroke>> buffer = new ArrayDeque<>();
     private final Keyboard keyboard;
 

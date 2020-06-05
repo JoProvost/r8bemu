@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClockBus implements ClockAware {
-    private List<ClockAware> devices = new ArrayList<>();
+    private final List<ClockAware> devices = new ArrayList<>();
 
     public <T extends ClockAware> T aware(T device) {
         devices.add(device);

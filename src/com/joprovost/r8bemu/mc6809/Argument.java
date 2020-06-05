@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.mc6809;
 
-import com.joprovost.r8bemu.clock.BusySource;
+import com.joprovost.r8bemu.clock.BusyState;
 import com.joprovost.r8bemu.memory.Addressing;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.memory.MemoryMapped;
@@ -13,7 +13,7 @@ import static com.joprovost.r8bemu.mc6809.Register.DP;
 public class Argument {
     public static final DataAccess NO_ARGUMENT = Value.of(0, 0).describedAs("");
 
-    public static DataAccess next(MemoryMapped memory, Addressing mode, Register register, BusySource clock) {
+    public static DataAccess next(MemoryMapped memory, Addressing mode, Register register, BusyState clock) {
         switch (mode) {
             case INHERENT:
                 return NO_ARGUMENT;
@@ -40,7 +40,7 @@ public class Argument {
         }
     }
 
-    private static DataAccess data(MemoryMapped memory, Addressing mode, Register register, BusySource clock) {
+    private static DataAccess data(MemoryMapped memory, Addressing mode, Register register, BusyState clock) {
         switch (mode) {
             case IMMEDIATE_VALUE_8:
             case IMMEDIATE_VALUE_16:
@@ -67,7 +67,7 @@ public class Argument {
         }
     }
 
-    private static DataAccess address(MemoryMapped memory, Addressing mode, Register register, BusySource clock) {
+    private static DataAccess address(MemoryMapped memory, Addressing mode, Register register, BusyState clock) {
         switch (mode) {
             case IMMEDIATE_VALUE_8:
             case IMMEDIATE_VALUE_16:
