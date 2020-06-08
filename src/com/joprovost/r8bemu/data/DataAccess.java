@@ -16,7 +16,6 @@ public interface DataAccess extends DataOutput, DataInput {
         return constant;
     }
 
-
     default DataAccess pre(Function<DataOutput, ? extends DataOutput> changes) {
         return update(changes);
     }
@@ -29,10 +28,5 @@ public interface DataAccess extends DataOutput, DataInput {
     default void set(boolean value) {
         if (value) set(mask());
         else set(0);
-    }
-
-    default DataAccess replace(DataOutput value) {
-        set(value);
-        return this;
     }
 }
