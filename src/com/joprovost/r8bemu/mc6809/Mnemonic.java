@@ -66,7 +66,7 @@ public enum Mnemonic implements Described {
     DECB(B, Task.of(Arithmetic::decrement)),
     EORA(A, Task.of(Logic::xor)),
     EORB(B, Task.of(Logic::xor)),
-    EXG((register, argument, stack, debug) -> debug.argument(Pair.registers(argument)).exchange()),
+    EXG((register, argument, stack, debug) -> debug.argument(RegisterPair.registers(argument)).exchange()),
     INC(Task.of(Arithmetic::increment)),
     INCA(A, Task.of(Arithmetic::increment)),
     INCB(B, Task.of(Arithmetic::increment)),
@@ -143,7 +143,7 @@ public enum Mnemonic implements Described {
     SWI2,
     SWI3,
     SYNC,
-    TFR((register, argument, stack, debug) -> debug.argument(Pair.registers(argument)).transfer()),
+    TFR((register, argument, stack, debug) -> debug.argument(RegisterPair.registers(argument)).transfer()),
     TST(Task.of(Arithmetic::test)),
     TSTA(A, Task.of(Arithmetic::test)),
     TSTB(B, Task.of(Arithmetic::test));

@@ -1,6 +1,8 @@
 package com.joprovost.r8bemu;
 
+import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.data.Described;
+import com.joprovost.r8bemu.data.Value;
 import com.joprovost.r8bemu.mc6809.Register;
 
 import java.nio.file.Path;
@@ -8,11 +10,7 @@ import java.nio.file.Path;
 public abstract class Debugger {
 
     protected int address;
-    protected Described argument;
-
-    public static Trace trace() {
-        return new Trace();
-    }
+    protected DataOutput argument;
 
     public static Debugger disassembler(Path file) {
         return new Disassembler(file);
@@ -20,10 +18,6 @@ public abstract class Debugger {
 
     public static Debugger none() {
         return new Debugger() {
-            @Override
-            public void log(String text) {
-
-            }
 
             @Override
             public void instruction(Described mnemonic) {
@@ -32,24 +26,18 @@ public abstract class Debugger {
         };
     }
 
-    public abstract void log(String text);
-
     public void at(int address) {
         this.address = address;
-        this.argument = Described.EMPTY;
+        this.argument = Value.NONE;
     }
 
     public abstract void instruction(Described mnemonic);
-
-    protected String leftPad(String padding, String string) {
-        return padding.substring(string.length()) + string;
-    }
 
     protected String column(int size, Object string) {
         return string + " ".repeat(size - string.toString().length());
     }
 
-    public <T extends Described> T argument(T argument) {
+    public <T extends DataOutput> T argument(T argument) {
         this.argument = argument;
         return argument;
     }
@@ -57,9 +45,8 @@ public abstract class Debugger {
     protected String describe(Described mnemonic) {
         return String.join(
                 "",
-                column(16, leftPad("0000", Integer.toHexString(address)) + " :"),
                 column(8, mnemonic.description()),
-                column(24, argument.description()),
+                column(24, argument.description() + (isJump(mnemonic) ? " ;" + argument.hex() : "")),
                 "; ",
                 column(12, Register.A),
                 column(12, Register.B),
@@ -71,5 +58,18 @@ public abstract class Debugger {
                 column(12, Register.DP),
                 column(12, Register.CC)
         );
+    }
+
+    boolean isJump(Described mnemonic) {
+        switch (mnemonic.description()) {
+            case "BCC": case "BCS": case "BEQ": case "BGE": case "BGT": case "BHI": case "BLE": case "BLS": case "BLT":
+            case "BMI": case "BNE": case "BPL": case "BRA": case "BRN": case "BSR": case "BVC": case "BVS":
+            case "LBCC": case "LBCS": case "LBEQ": case "LBGE": case "LBGT": case "LBHI": case "LBLE": case "LBLS":
+            case "LBLT": case "LBMI": case "LBNE": case "LBPL": case "LBRA": case "LBRN": case "LBSR": case "LBVC":
+            case "LBVS": case "JMP": case "JSR":
+                return true;
+            default:
+                return false;
+        }
     }
 }

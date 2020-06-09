@@ -3,7 +3,7 @@ package com.joprovost.r8bemu.data;
 import java.util.Optional;
 
 public class Value implements DataAccess {
-    public static final Value ZERO = of(0, 0b1);
+    public static final DataOutput NONE = of(0, 0).describedAs("");
     public static final Value ONE = of(1, 0b1);
     public static final Value TWO = of(2, 0b11);
 
