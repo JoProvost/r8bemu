@@ -8,6 +8,7 @@ import com.joprovost.r8bemu.devices.MC6883;
 import com.joprovost.r8bemu.devices.keyboard.Keyboard;
 import com.joprovost.r8bemu.devices.keyboard.KeyboardBuffer;
 import com.joprovost.r8bemu.mc6809.MC6809E;
+import com.joprovost.r8bemu.mc6809.Signal;
 import com.joprovost.r8bemu.memory.Demo;
 import com.joprovost.r8bemu.memory.Memory;
 import com.joprovost.r8bemu.memory.MemoryMapped;
@@ -26,18 +27,19 @@ public class CoCoII {
 
         clock.aware(new ClockFrequency(900));
 
-        var cs4 = new MC6821();
+        var cs4 = new MC6821(Signal.IRQ, Signal.IRQ);
         var keyboard = clock.aware(new Keyboard(cs4));
         var buffer = clock.aware(new KeyboardBuffer(keyboard));
-        var terminal = clock.aware(new Terminal(System.in, System.out, buffer));
+        var display = clock.aware(new Terminal(System.in, System.out, buffer));
+        var vdg = clock.aware(new MC6847(display, cs4.a::control, cs4.b::control));
 
         var sam = MC6883.ofRam(new Memory(0x7fff))
                         .withRom0(rom("rom/extbas.rom"))
                         .withRom1(rom("rom/bas.rom"))
-                        .withDisplay(new MC6847(terminal))
+                        .withDisplay(vdg)
                         .withCS4(cs4)
-                        .withCS5(new MC6821())
-                        .withCS6(new MC6821())
+                        .withCS5(new MC6821(Signal.FIRQ, Signal.FIRQ))
+                        .withCS6(new MC6821(Signal.none(), Signal.none()))
                         .withRom2(new Memory(0x1f));
 
         Debugger debugger = Debugger.disassembler(Path.of("./doc/rom.asm"));

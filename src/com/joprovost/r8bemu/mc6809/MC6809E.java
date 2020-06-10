@@ -35,7 +35,12 @@ public class MC6809E implements ClockAware {
 
     public void tick(long tick) throws IOException {
         if (clock.isBusy()) return;
+        if (Signal.FIRQ.isSet() && F.isClear()) firq();
+        else if (Signal.IRQ.isSet() && I.isClear()) irq();
+        else execute();
+    }
 
+    private void execute() throws EOFException {
         var address = PC.unsigned();
         debug.at(address);
         var instruction = Op.next(memory, PC);
@@ -58,14 +63,14 @@ public class MC6809E implements ClockAware {
         Branches.jump(Reference.of(memory, RESET_VECTOR, Size.WORD_16));
     }
 
-    public void irq() {
-        if (I.isSet()) return;
+    private void irq() {
+        clock.busy(6);
         Branches.interrupt(Reference.of(memory, IRQ_VECTOR, Size.WORD_16), stack);
         I.set();
     }
 
-    public void firq() {
-        if (F.isSet()) return;
+    private void firq() {
+        clock.busy(6);
         Branches.fastInterrupt(Reference.of(memory, FIRQ_VECTOR, Size.WORD_16), stack);
         F.set();
         I.set();

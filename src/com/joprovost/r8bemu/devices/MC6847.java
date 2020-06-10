@@ -1,5 +1,7 @@
 package com.joprovost.r8bemu.devices;
 
+import com.joprovost.r8bemu.clock.ClockAware;
+import com.joprovost.r8bemu.clock.ClockAwareBusyState;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.DataAccessSubset;
 import com.joprovost.r8bemu.data.Variable;
@@ -18,7 +20,7 @@ import static com.joprovost.r8bemu.terminal.Color.RED;
 import static com.joprovost.r8bemu.terminal.Color.YELLOW;
 
 // VideoDisplayGenerator
-public class MC6847 implements MemoryMapped {
+public class MC6847 implements MemoryMapped, ClockAware {
     public static final int WIDTH = 32;
     public static final int MASK = 0x01ff;
 
@@ -39,10 +41,17 @@ public class MC6847 implements MemoryMapped {
     private final DataAccess SGM4_CHROMA = DataAccessSubset.of(VDG_DATA_BUS, 0b01110000);
     private final DataAccess SGM4_LUMA = DataAccessSubset.of(VDG_DATA_BUS, 0b00001111);
 
-    private final Display display;
+    private final ClockAwareBusyState hClock = new ClockAwareBusyState();
+    private final ClockAwareBusyState vClock = new ClockAwareBusyState();
 
-    public MC6847(Display display) {
+    private final Display display;
+    private final Runnable hsync;
+    private final Runnable vsync;
+
+    public MC6847(Display display, Runnable hsync, Runnable vsync) {
         this.display = display;
+        this.hsync = hsync;
+        this.vsync = vsync;
     }
 
     @Override
@@ -72,6 +81,18 @@ public class MC6847 implements MemoryMapped {
             case 6: return MAGENTA;
             case 7: return ORANGE;
             default: return BLACK;
+        }
+    }
+
+    @Override
+    public void tick(long tick) {
+        if (!hClock.at(tick).isBusy()) {
+            hClock.busy(60); // 15 kHz @ 900 kHz
+            hsync.run();
+        }
+        if (!vClock.at(tick).isBusy()) {
+            vClock.busy(15000); // 60 Hz @ 900 kHz
+            vsync.run();
         }
     }
 }

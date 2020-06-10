@@ -22,4 +22,8 @@ public class FakeBusyState implements BusyState {
     public int cycles() {
         return busy;
     }
+
+    public void reset() {
+        busy = 0;
+    }
 }
