@@ -5,18 +5,18 @@ import com.joprovost.r8bemu.memory.MemoryMapped;
 
 public class MC6821 implements MemoryMapped {
 
-    public final MC6821Port a;
-    public final MC6821Port b;
+    private final MC6821Port portA;
+    private final MC6821Port portB;
 
     public MC6821(DataInput irqa, DataInput irqb) {
-        a = new MC6821Port(irqa);
-        b = new MC6821Port(irqb);
+        portA = new MC6821Port(irqa);
+        portB = new MC6821Port(irqb);
     }
 
     private MC6821Port port(int address) {
         int rs1 = address & 0b10;
-        if (rs1 == 0) return a;
-        else return b;
+        if (rs1 == 0) return portA;
+        else return portB;
     }
 
     @Override
@@ -27,5 +27,13 @@ public class MC6821 implements MemoryMapped {
     @Override
     public void write(int address, int data) {
         port(address).write(address, data);
+    }
+
+    public MC6821Port portA() {
+        return portA;
+    }
+
+    public MC6821Port portB() {
+        return portB;
     }
 }

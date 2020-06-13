@@ -5,8 +5,7 @@ import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6847;
 import com.joprovost.r8bemu.devices.MC6883;
-import com.joprovost.r8bemu.devices.keyboard.Keyboard;
-import com.joprovost.r8bemu.devices.keyboard.KeyboardBuffer;
+import com.joprovost.r8bemu.devices.keyboard.KeyboardAdapter;
 import com.joprovost.r8bemu.mc6809.MC6809E;
 import com.joprovost.r8bemu.mc6809.Signal;
 import com.joprovost.r8bemu.memory.Demo;
@@ -14,6 +13,7 @@ import com.joprovost.r8bemu.memory.Memory;
 import com.joprovost.r8bemu.memory.MemoryMapped;
 import com.joprovost.r8bemu.memory.ReadOnly;
 import com.joprovost.r8bemu.terminal.Terminal;
+import com.joprovost.r8bemu.terminal.Keyboard;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,10 +28,9 @@ public class CoCoII {
         clock.aware(new ClockFrequency(900));
 
         var cs4 = new MC6821(Signal.IRQ, Signal.IRQ);
-        var keyboard = clock.aware(new Keyboard(cs4));
-        var buffer = clock.aware(new KeyboardBuffer(keyboard));
-        var display = clock.aware(new Terminal(System.in, System.out, buffer));
-        var vdg = clock.aware(new MC6847(display, cs4.a::control, cs4.b::control));
+        var keyboard = clock.aware(new Keyboard(System.in, clock.aware(new KeyboardAdapter(cs4))));
+        var display = new Terminal(System.out);
+        var vdg = clock.aware(new MC6847(display, cs4.portA()::control, cs4.portB()::control));
 
         var sam = MC6883.ofRam(new Memory(0x7fff))
                         .withRom0(rom("rom/extbas.rom"))
@@ -48,7 +47,7 @@ public class CoCoII {
         cpu.reset();
 
         var path = Paths.get("./autorun.bas");
-        if (Files.exists(path)) buffer.script(path);
+        if (Files.exists(path)) keyboard.script(path);
 
         clock.run();
     }

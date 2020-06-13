@@ -1,10 +1,10 @@
 package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.memory.AddressRange;
-import com.joprovost.r8bemu.data.Value;
 import com.joprovost.r8bemu.data.DataAccessSubset;
+import com.joprovost.r8bemu.data.Value;
 import com.joprovost.r8bemu.data.Variable;
+import com.joprovost.r8bemu.memory.AddressRange;
 import com.joprovost.r8bemu.memory.ChipSelect;
 import com.joprovost.r8bemu.memory.InvalidDevice;
 import com.joprovost.r8bemu.memory.MemoryBus;

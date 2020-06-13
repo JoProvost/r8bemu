@@ -1,15 +1,19 @@
 package com.joprovost.r8bemu.devices;
 
+import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.mc6809.Signal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MC6821PortTest {
 
-    private static int DATA_REGISTER = 0;
-    private static int CONTROL_REGISTER = 1;
+    private static final int DATA_REGISTER = 0;
+    private static final int CONTROL_REGISTER = 1;
 
     MC6821Port port = new MC6821Port(Signal.IRQ);
 
@@ -22,7 +26,7 @@ class MC6821PortTest {
     @Test
     void allPinsIn() {
         direction(0b00000000);
-        port.in().set(0x32);
+        port.input().set(0x32);
         assertEquals(0x32, port.read(DATA_REGISTER));
     }
 
@@ -30,13 +34,13 @@ class MC6821PortTest {
     void allPinsOut() {
         direction(0b11111111);
         port.write(DATA_REGISTER, 0x95);
-        assertEquals(0x95, port.out().unsigned());
+        assertEquals(0x95, port.output().unsigned());
     }
 
     @Test
     void halfPinsIn() {
         direction(0b00001111);
-        port.in().set(0x32);
+        port.input().set(0x32);
         assertEquals(0x30, port.read(DATA_REGISTER));
     }
 
@@ -44,7 +48,7 @@ class MC6821PortTest {
     void halfPinsOut() {
         direction(0b11110000);
         port.write(DATA_REGISTER, 0x95);
-        assertEquals(0x90, port.out().unsigned());
+        assertEquals(0x90, port.output().unsigned());
     }
 
     @Test
@@ -80,6 +84,23 @@ class MC6821PortTest {
         Signal.IRQ.set();
         port.read(DATA_REGISTER);
         assertTrue(Signal.IRQ.isSet());
+    }
+
+    @Test
+    void feedsFromFeeder() {
+        direction(0b00000000);
+        port.feeder(input -> input.set(0x32));
+        assertEquals(0x32, port.read(DATA_REGISTER));
+    }
+
+    @Test
+    void notifiesConsumer() {
+        List<DataOutput> consumer = new ArrayList<>();
+        direction(0b11111111);
+        port.consumer(consumer::add);
+        port.write(DATA_REGISTER, 0x95);
+        assertEquals(1, consumer.size());
+        assertEquals(0x95, consumer.get(0).unsigned());
     }
 
     private boolean irq1IsSet() {

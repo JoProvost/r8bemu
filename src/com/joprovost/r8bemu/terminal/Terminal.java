@@ -1,17 +1,11 @@
 package com.joprovost.r8bemu.terminal;
 
-import com.joprovost.r8bemu.clock.ClockAware;
-import com.joprovost.r8bemu.clock.ClockAwareBusyState;
-import com.joprovost.r8bemu.devices.keyboard.KeyboardBuffer;
+import com.joprovost.r8bemu.Display;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Optional;
 
 
-public class Terminal implements Display, ClockAware {
+public class Terminal implements Display {
     public static final String ASCII_CHARSET = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]↑← !\"#$%&'()*+,-./0123456789:;<=>?";
     public static final String SGM4_CHARSET = " ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█";
 
@@ -19,18 +13,10 @@ public class Terminal implements Display, ClockAware {
     private static final int MARGIN_LEFT = 4;
     private static final int HEIGHT = 16;
 
-    // At 900kHz, keys are fetched every 88ms
-    private static final int TYPE_DELAY = 80000;
-
-    private final ClockAwareBusyState clock = new ClockAwareBusyState();
-    private final InputStream inputStream;
     private final PrintStream printStream;
-    private final KeyboardBuffer keyboard;
 
-    public Terminal(InputStream inputStream, PrintStream printStream, KeyboardBuffer keyboard) {
-        this.inputStream = inputStream;
+    public Terminal(PrintStream printStream) {
         this.printStream = printStream;
-        this.keyboard = keyboard;
     }
 
     @Override
@@ -66,29 +52,22 @@ public class Terminal implements Display, ClockAware {
     }
 
     public void color(Color fg, Color bg) {
-        printStream.print("\u001b[38;5;" + fg.ansi256 + "m");
-        printStream.print("\u001b[48;5;" + bg.ansi256 + "m");
+        printStream.print("\u001b[38;5;" + ansi256(fg) + "m");
+        printStream.print("\u001b[48;5;" + ansi256(bg) + "m");
     }
 
-    @Override
-    public void tick(long tick) throws IOException {
-        if (clock.at(tick).isBusy()) return;
-        clock.busy(TYPE_DELAY);
-
-        var terminalKey = readKey();
-        if (terminalKey.filter(x -> x.charAt(0) == 3).isPresent()) {
-            throw new EOFException("Closed by user");
+    private int ansi256(Color color){
+        switch(color) {
+            case GREEN: return 2;
+            case YELLOW: return 3;
+            case BLUE: return 4;
+            case RED: return 1;
+            case BUFF: return 236;
+            case CYAN: return 6;
+            case MAGENTA: return 5;
+            case ORANGE: return 214;
+            case BLACK: return 0;
+            default: return 0;
         }
-
-        terminalKey.ifPresent(keyboard::type);
-    }
-
-    private Optional<String> readKey() throws IOException {
-        byte[] buffer = new byte[16];
-        if (inputStream.available() > 0) {
-            int len = inputStream.read(buffer);
-            return Optional.of(new String(buffer).substring(0, len));
-        }
-        return Optional.empty();
     }
 }

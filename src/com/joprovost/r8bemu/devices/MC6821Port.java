@@ -1,14 +1,17 @@
 package com.joprovost.r8bemu.devices;
 
-import com.joprovost.r8bemu.data.DataInput;
-import com.joprovost.r8bemu.data.DataOutputComplement;
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.DataOutput;
-import com.joprovost.r8bemu.data.Filter;
 import com.joprovost.r8bemu.data.DataAccessSubset;
-import com.joprovost.r8bemu.data.Variable;
+import com.joprovost.r8bemu.data.DataInput;
+import com.joprovost.r8bemu.data.DataOutput;
+import com.joprovost.r8bemu.data.DataOutputComplement;
 import com.joprovost.r8bemu.data.DataPort;
+import com.joprovost.r8bemu.data.Filter;
+import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.memory.MemoryMapped;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MC6821Port implements MemoryMapped, DataPort {
 
@@ -50,6 +53,11 @@ public class MC6821Port implements MemoryMapped, DataPort {
     // Data Direction Register A
     private final Variable DATA_DIRECTION_REGISTER = Variable.ofMask(0xff);
 
+    private final List<DataFeeder> feeders = new ArrayList<>();
+    private final List<DataConsumer> consumers = new ArrayList<>();
+    private final Filter input = Filter.of(PERIPHERAL_REGISTER, DataOutputComplement.of(DATA_DIRECTION_REGISTER));
+    private final Filter output = Filter.of(PERIPHERAL_REGISTER, DATA_DIRECTION_REGISTER);
+
     private final DataInput irq;
 
     public MC6821Port(DataInput irq) {
@@ -58,13 +66,13 @@ public class MC6821Port implements MemoryMapped, DataPort {
     // 1=output 0=input
 
     @Override
-    public DataAccess in() {
-        return Filter.of(PERIPHERAL_REGISTER, DataOutputComplement.of(DATA_DIRECTION_REGISTER));
+    public DataAccess input() {
+        return input;
     }
 
     @Override
-    public DataOutput out() {
-        return Filter.of(PERIPHERAL_REGISTER, DATA_DIRECTION_REGISTER);
+    public DataOutput output() {
+        return output;
     }
 
     @Override
@@ -74,6 +82,7 @@ public class MC6821Port implements MemoryMapped, DataPort {
             if (DDR_ACCESS.isSet()) {
                 IRQA1_FLAG.clear();
                 if (CA1_IRQ_ENABLED.isSet()) irq.clear();
+                feeders.forEach(it -> it.feed(input));
                 return PERIPHERAL_REGISTER.unsigned();
             } else return DATA_DIRECTION_REGISTER.unsigned();
         } else {
@@ -85,7 +94,10 @@ public class MC6821Port implements MemoryMapped, DataPort {
     public void write(int address, int data) {
         int rs0 = address & 0b1;
         if (rs0 == 0) {
-            if (DDR_ACCESS.isSet()) PERIPHERAL_REGISTER.set(data);
+            if (DDR_ACCESS.isSet()) {
+                PERIPHERAL_REGISTER.set(data);
+                consumers.forEach(it -> it.consume(output));
+            }
             else DATA_DIRECTION_REGISTER.set(data);
         } else {
             CONTROL_REGISTER.set(data);
@@ -96,5 +108,15 @@ public class MC6821Port implements MemoryMapped, DataPort {
     public void control() {
         IRQA1_FLAG.set();
         if (CA1_IRQ_ENABLED.isSet()) irq.set();
+    }
+
+    @Override
+    public void feeder(DataFeeder feeder) {
+        feeders.add(feeder);
+    }
+
+    @Override
+    public void consumer(DataConsumer consumer) {
+        consumers.add(consumer);
     }
 }

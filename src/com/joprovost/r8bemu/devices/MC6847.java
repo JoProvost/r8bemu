@@ -1,23 +1,22 @@
 package com.joprovost.r8bemu.devices;
 
+import com.joprovost.r8bemu.Display;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.clock.ClockAwareBusyState;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.DataAccessSubset;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.memory.MemoryMapped;
-import com.joprovost.r8bemu.terminal.Color;
-import com.joprovost.r8bemu.terminal.Display;
 
-import static com.joprovost.r8bemu.terminal.Color.BLACK;
-import static com.joprovost.r8bemu.terminal.Color.BLUE;
-import static com.joprovost.r8bemu.terminal.Color.BUFF;
-import static com.joprovost.r8bemu.terminal.Color.CYAN;
-import static com.joprovost.r8bemu.terminal.Color.GREEN;
-import static com.joprovost.r8bemu.terminal.Color.MAGENTA;
-import static com.joprovost.r8bemu.terminal.Color.ORANGE;
-import static com.joprovost.r8bemu.terminal.Color.RED;
-import static com.joprovost.r8bemu.terminal.Color.YELLOW;
+import static com.joprovost.r8bemu.Display.Color.BLACK;
+import static com.joprovost.r8bemu.Display.Color.BLUE;
+import static com.joprovost.r8bemu.Display.Color.BUFF;
+import static com.joprovost.r8bemu.Display.Color.CYAN;
+import static com.joprovost.r8bemu.Display.Color.GREEN;
+import static com.joprovost.r8bemu.Display.Color.MAGENTA;
+import static com.joprovost.r8bemu.Display.Color.ORANGE;
+import static com.joprovost.r8bemu.Display.Color.RED;
+import static com.joprovost.r8bemu.Display.Color.YELLOW;
 
 // VideoDisplayGenerator
 public class MC6847 implements MemoryMapped, ClockAware {
@@ -26,16 +25,8 @@ public class MC6847 implements MemoryMapped, ClockAware {
 
     private final Variable VDG_DATA_BUS = Variable.ofMask(0xff);
 
-    private final DataAccess DD0 = DataAccessSubset.bit(VDG_DATA_BUS, 0);
-    private final DataAccess DD1 = DataAccessSubset.bit(VDG_DATA_BUS, 1);
-    private final DataAccess DD2 = DataAccessSubset.bit(VDG_DATA_BUS, 2);
-    private final DataAccess DD3 = DataAccessSubset.bit(VDG_DATA_BUS, 3);
-    private final DataAccess DD4 = DataAccessSubset.bit(VDG_DATA_BUS, 4);
-    private final DataAccess DD5 = DataAccessSubset.bit(VDG_DATA_BUS, 5);
-    private final DataAccess DD6 = DataAccessSubset.bit(VDG_DATA_BUS, 6);
-    private final DataAccess DD7 = DataAccessSubset.bit(VDG_DATA_BUS, 7);
-    private final DataAccess INV = DD6;
-    private final DataAccess AS = DD7;
+    private final DataAccess INV = DataAccessSubset.bit(VDG_DATA_BUS, 6);
+    private final DataAccess AS = DataAccessSubset.bit(VDG_DATA_BUS, 7);
 
     private final DataAccess ASCII_CODE = DataAccessSubset.of(VDG_DATA_BUS, 0b00111111);
     private final DataAccess SGM4_CHROMA = DataAccessSubset.of(VDG_DATA_BUS, 0b01110000);
@@ -70,7 +61,7 @@ public class MC6847 implements MemoryMapped, ClockAware {
         }
     }
 
-    private static Color color(int chroma) {
+    private static Display.Color color(int chroma) {
         switch (chroma) {
             case 0: return GREEN;
             case 1: return YELLOW;
