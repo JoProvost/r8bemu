@@ -12,7 +12,7 @@ public class ClockBus implements ClockAware {
         return device;
     }
 
-    public void tick(long tick) throws IOException {
-        for (var device : devices) device.tick(tick);
+    public void tick(Clock clock) throws IOException {
+        for (var device : devices) device.tick(clock);
     }
 }

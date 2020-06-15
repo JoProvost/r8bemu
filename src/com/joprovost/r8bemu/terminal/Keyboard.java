@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.terminal;
 
+import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.clock.ClockAwareBusyState;
 import com.joprovost.r8bemu.devices.keyboard.Key;
@@ -17,7 +18,7 @@ public class Keyboard implements ClockAware {
     // At 900kHz, keys are fetched every 88ms
     private static final int TYPE_DELAY = 80000;
 
-    private final ClockAwareBusyState clock = new ClockAwareBusyState();
+    private final ClockAwareBusyState state = new ClockAwareBusyState();
 
     private final InputStream inputStream;
     private final KeyboardBuffer keyboard;
@@ -48,9 +49,9 @@ public class Keyboard implements ClockAware {
     }
 
     @Override
-    public void tick(long tick) throws IOException {
-        if (clock.at(tick).isBusy()) return;
-        clock.busy(TYPE_DELAY);
+    public void tick(Clock clock) throws IOException {
+        if (state.at(clock).isBusy()) return;
+        state.busy(TYPE_DELAY);
         read();
     }
 

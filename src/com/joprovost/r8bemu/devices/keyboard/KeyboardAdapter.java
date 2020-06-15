@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.devices.keyboard;
 
+import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.clock.ClockAwareBusyState;
 import com.joprovost.r8bemu.data.DataAccess;
@@ -17,27 +18,27 @@ public class KeyboardAdapter implements KeyboardBuffer, ClockAware {
     public static final int TYPE_DELAY = 40000;
     public static final int BOOT_DELAY = 1200000;
 
-    private final ClockAwareBusyState clock = new ClockAwareBusyState();
+    private final ClockAwareBusyState state = new ClockAwareBusyState();
     private final Deque<List<Key>> buffer = new ArrayDeque<>();
     private final DataAccess row;
-    private List<Key> state = List.of();
+    private List<Key> keyboard = List.of();
 
     public KeyboardAdapter(MC6821 pia) {
         row = DataAccessSubset.of(pia.portA().input(), 0x7f);
         pia.portB().consumer(this::keyScan);
-        clock.busy(BOOT_DELAY);
+        state.busy(BOOT_DELAY);
     }
 
     @Override
-    public void tick(long tick) {
-        if (clock.at(tick).isBusy()) return;
+    public void tick(Clock clock) {
+        if (state.at(clock).isBusy()) return;
 
-        clock.busy(TYPE_DELAY);
-        if (state.isEmpty()) {
+        state.busy(TYPE_DELAY);
+        if (keyboard.isEmpty()) {
             if (!buffer.isEmpty())
-                state = buffer.poll();
+                keyboard = buffer.poll();
         } else {
-            state = List.of();
+            keyboard = List.of();
         }
     }
 
@@ -47,11 +48,11 @@ public class KeyboardAdapter implements KeyboardBuffer, ClockAware {
     }
 
     private void keyScan(DataOutput column) {
-        if (state.isEmpty()) {
+        if (keyboard.isEmpty()) {
             row.set(0xff);
         } else {
             int portA = 0xff;
-            for (var key : state) {
+            for (var key : keyboard) {
                 portA &= key.row(column.unsigned());
             }
             row.set(portA);

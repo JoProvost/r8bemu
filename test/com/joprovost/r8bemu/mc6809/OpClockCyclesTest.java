@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.Debugger;
+import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.FakeBusyState;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.devices.MC6883;
@@ -309,7 +310,7 @@ class OpClockCyclesTest {
         Register.S.set(0x2000);
         Register.D.set(0x2000);
 
-        cpu.tick(0);
+        cpu.tick(Clock.zero());
         return clock.cycles();
     }
 

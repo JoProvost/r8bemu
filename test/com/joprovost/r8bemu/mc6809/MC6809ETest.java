@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.Debugger;
+import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.FakeBusyState;
 import com.joprovost.r8bemu.memory.Memory;
 import com.joprovost.r8bemu.memory.MemoryMapped;
@@ -62,7 +63,7 @@ class MC6809ETest {
             PC.set(0x0000);
             memory.write(0x00, NOP, NOP);
 
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
             assertEquals(0x0001, PC.unsigned());
             clock.assertBusyFor(2);
         }
@@ -74,7 +75,7 @@ class MC6809ETest {
             PC.set(0x0000);
             memory.write(0x00, 0x3a);
 
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
             assertEquals(0x15, B.unsigned());
             assertEquals(0x1217, X.unsigned());
             assertEquals(0x0001, PC.unsigned());
@@ -87,7 +88,7 @@ class MC6809ETest {
 
             memory.write(0x00, MUL_INHERENT);
 
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
             assertEquals(0x10, D.unsigned());
             assertEquals(0x0001, PC.unsigned());
         }
@@ -99,7 +100,7 @@ class MC6809ETest {
             memory.write(0x00, NEG_DIRECT, 0x01);
             memory.write(0x0401, 0x01);
 
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
             assertEquals(0xff, memory.read(0x0401));
             assertEquals(0x01, N.unsigned());
             assertEquals(0x00, V.unsigned());
@@ -114,7 +115,7 @@ class MC6809ETest {
             memory.write(0x00, NEG_DIRECT, 0x01);
             memory.write(0x0401, 0x80);
 
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
             assertEquals(0x80, memory.read(0x0401));
             assertEquals(0x01, N.unsigned());
             assertEquals(0x01, V.unsigned());
@@ -129,7 +130,7 @@ class MC6809ETest {
             memory.write(0x00, NEG_DIRECT, 0x01);
             memory.write(0x0401, 0x00);
 
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
             assertEquals(0x00, memory.read(0x0401));
             assertEquals(0x00, N.unsigned());
             assertEquals(0x00, V.unsigned());
@@ -145,7 +146,7 @@ class MC6809ETest {
             memory.write(0x1000, 0x20, 0x00);
             memory.write(0x2000, 0x10);
 
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
             assertEquals(0x00, N.unsigned());
             assertEquals(0x00, V.unsigned());
             assertEquals(0x01, Z.unsigned());
@@ -160,7 +161,7 @@ class MC6809ETest {
             memory.write(0x1000, 0x20, 0x00);
             memory.write(0x2000, 0x10);
 
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
             assertEquals(0x00, N.unsigned());
             assertEquals(0x00, V.unsigned());
             assertEquals(0x01, Z.unsigned());
@@ -186,7 +187,7 @@ class MC6809ETest {
             S.set(0x8000);
 
             Signal.IRQ.set();
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
 
             assertEquals(0xabcd, PC.unsigned());
             assertEquals(0x7ff4, S.unsigned());
@@ -224,7 +225,7 @@ class MC6809ETest {
 
             Signal.IRQ.set();
             I.set();
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
 
             assertEquals(0x0001, PC.unsigned());
             assertEquals(0x8000, S.unsigned());
@@ -245,7 +246,7 @@ class MC6809ETest {
             S.set(0x8000);
 
             Signal.FIRQ.set();
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
 
             assertEquals(0xabcd, PC.unsigned());
             assertEquals(0x7ffd, S.unsigned());
@@ -272,7 +273,7 @@ class MC6809ETest {
 
             Signal.FIRQ.set();
             F.set();
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
 
             assertEquals(0x0001, PC.unsigned());
             assertEquals(0x8000, S.unsigned());
@@ -289,7 +290,7 @@ class MC6809ETest {
 
             Signal.IRQ.set();
             Signal.FIRQ.set();
-            cpu.tick(0);
+            cpu.tick(Clock.zero());
 
             assertEquals(0xabcd, PC.unsigned());
         }

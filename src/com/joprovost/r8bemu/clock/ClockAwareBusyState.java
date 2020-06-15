@@ -1,26 +1,26 @@
 package com.joprovost.r8bemu.clock;
 
 public class ClockAwareBusyState implements BusyState, ClockAware {
-    private long tick;
+    private long ticks;
     private long busy;
 
-    public ClockAwareBusyState at(long tick) {
-        tick(tick);
+    public ClockAwareBusyState at(Clock clock) {
+        tick(clock);
         return this;
     }
 
     public boolean isBusy() {
-        return tick < busy;
+        return ticks < busy;
     }
 
     @Override
     public void busy(long period) {
-        if (busy < tick) busy = tick;
+        if (busy < ticks) busy = ticks;
         busy += period;
     }
 
     @Override
-    public void tick(long tick) {
-        this.tick = tick;
+    public void tick(Clock clock) {
+        this.ticks = clock.ticks();
     }
 }

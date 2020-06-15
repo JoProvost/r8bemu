@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.Display;
+import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.clock.ClockAwareBusyState;
 import com.joprovost.r8bemu.data.DataAccess;
@@ -76,12 +77,12 @@ public class MC6847 implements MemoryMapped, ClockAware {
     }
 
     @Override
-    public void tick(long tick) {
-        if (!hClock.at(tick).isBusy()) {
+    public void tick(Clock clock) {
+        if (!hClock.at(clock).isBusy()) {
             hClock.busy(60); // 15 kHz @ 900 kHz
             hsync.run();
         }
-        if (!vClock.at(tick).isBusy()) {
+        if (!vClock.at(clock).isBusy()) {
             vClock.busy(15000); // 60 Hz @ 900 kHz
             vsync.run();
         }

@@ -2,6 +2,7 @@ package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.Debugger;
 import com.joprovost.r8bemu.clock.BusyState;
+import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
@@ -33,7 +34,7 @@ public class MC6809E implements ClockAware {
         this.stack = new Stack(memory, this.clock);
     }
 
-    public void tick(long tick) throws IOException {
+    public void tick(Clock unused) throws IOException {
         if (clock.isBusy()) return;
         if (Signal.FIRQ.isSet() && F.isClear()) firq();
         else if (Signal.IRQ.isSet() && I.isClear()) irq();
