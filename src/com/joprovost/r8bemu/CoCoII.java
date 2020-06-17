@@ -17,12 +17,15 @@ import com.joprovost.r8bemu.memory.ReadOnly;
 import com.joprovost.r8bemu.terminal.Keyboard;
 import com.joprovost.r8bemu.terminal.Terminal;
 
+import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class CoCoII {
+    private static final String OS = System.getProperty("os.name");
+    public static final boolean LINUX = OS.toLowerCase().contains("linux");
 
     public static void main(String[] args) throws IOException {
         var clock = new ClockGenerator();
@@ -35,7 +38,7 @@ public class CoCoII {
         var vdg = clock.aware(new MC6847(display, cs4.portA()::control, cs4.portB()::control));
         var cs5 = new MC6821(Signal.FIRQ, Signal.FIRQ);
 
-        Speaker speaker = new Speaker();
+        Speaker speaker = new Speaker(new AudioFormat(44100, 8, 1, LINUX, false));
         Thread speakerThread = new Thread(speaker);
         cs5.portA().consumer(new SC77526(uptime, speaker));
 

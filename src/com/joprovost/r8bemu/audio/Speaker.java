@@ -5,17 +5,24 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 
 public class Speaker implements AudioSink, Runnable {
 
-    public static final AudioFormat AUDIO_FORMAT = new AudioFormat(44100, 8, 1, true, false);
-    public static final int BUFFER_LENGTH = (int) (AUDIO_FORMAT.getSampleRate() / 10);
-    private final Buffer buffer = new Buffer(BUFFER_LENGTH, 10);
+    private final AudioFormat format;
+    private final Buffer buffer;
+    private final InputStream input;
     private long last = 0;
 
+    public Speaker(AudioFormat format) {
+        this.format = format;
+        buffer = new Buffer((int) (format.getSampleRate() / 10), 10);
+        input = buffer.input();
+    }
+
     private long position(long nanoTime) {
-        return (nanoTime * (long) AUDIO_FORMAT.getSampleRate() / 1000000000);
+        return (nanoTime * (long) format.getSampleRate() / 1000000000);
     }
 
     @Override
@@ -36,10 +43,10 @@ public class Speaker implements AudioSink, Runnable {
     @Override
     public void run() {
         try {
-            SourceDataLine audio = AudioSystem.getSourceDataLine(AUDIO_FORMAT);
-            audio.open(AUDIO_FORMAT, BUFFER_LENGTH / 2);
+            SourceDataLine audio = AudioSystem.getSourceDataLine(format);
+            audio.open(format, buffer.size() / 2);
             while (audio.isOpen()) {
-                var bytes = buffer.readNBytes(audio.available());
+                var bytes = input.readNBytes(audio.available());
                 audio.write(bytes, 0, bytes.length);
                 audio.start();
             }

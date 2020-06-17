@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 
-public class Buffer extends InputStream {
+public class Buffer {
     private final byte[] buffer;
     private final int timeout;
 
@@ -18,13 +18,20 @@ public class Buffer extends InputStream {
         this.timeout = timeout;
     }
 
-    public synchronized int read() throws IOException {
-        checkAvailability();
-        if (isEmpty()) return -1;
-        int value = buffer[read++] & 255;
-        read %= buffer.length;
-        if (write == read) empty = true;
-        return value;
+    public InputStream input() {
+        return new InputStream() {
+            @Override
+            public int read() throws IOException {
+                synchronized (Buffer.this) {
+                    checkAvailability();
+                    if (isEmpty()) return -1;
+                    int value = buffer[read++] & 255;
+                    read %= buffer.length;
+                    if (write == read) empty = true;
+                    return value;
+                }
+            }
+        };
     }
 
     public boolean isEmpty() {
@@ -33,6 +40,10 @@ public class Buffer extends InputStream {
 
     public boolean isFull() {
         return write == read && !empty;
+    }
+
+    public int size() {
+        return buffer.length;
     }
 
     public synchronized void write(int value) throws IOException {
