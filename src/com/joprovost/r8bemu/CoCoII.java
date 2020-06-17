@@ -1,8 +1,9 @@
 package com.joprovost.r8bemu;
 
+import com.joprovost.r8bemu.audio.Speaker;
 import com.joprovost.r8bemu.clock.ClockFrequency;
 import com.joprovost.r8bemu.clock.ClockGenerator;
-import com.joprovost.r8bemu.devices.Sound;
+import com.joprovost.r8bemu.devices.SC77526;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6847;
 import com.joprovost.r8bemu.devices.MC6883;
@@ -16,7 +17,6 @@ import com.joprovost.r8bemu.memory.ReadOnly;
 import com.joprovost.r8bemu.terminal.Keyboard;
 import com.joprovost.r8bemu.terminal.Terminal;
 
-import javax.sound.sampled.LineUnavailableException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 
 public class CoCoII {
 
-    public static void main(String[] args) throws IOException, LineUnavailableException {
+    public static void main(String[] args) throws IOException {
         var clock = new ClockGenerator();
 
         var uptime = clock.aware(new ClockFrequency(900, clock));
@@ -34,7 +34,10 @@ public class CoCoII {
         var display = new Terminal(System.out);
         var vdg = clock.aware(new MC6847(display, cs4.portA()::control, cs4.portB()::control));
         var cs5 = new MC6821(Signal.FIRQ, Signal.FIRQ);
-        cs5.portA().consumer(clock.aware(new Sound(uptime)));
+
+        Speaker speaker = new Speaker();
+        Thread speakerThread = new Thread(speaker);
+        cs5.portA().consumer(new SC77526(uptime, speaker));
 
         var sam = MC6883.ofRam(new Memory(0x7fff))
                         .withRom0(rom("rom/extbas.rom"))
@@ -53,7 +56,12 @@ public class CoCoII {
         var path = Paths.get("./autorun.bas");
         if (Files.exists(path)) keyboard.script(path);
 
-        clock.run();
+        try {
+            speakerThread.start();
+            clock.run();
+        } finally {
+            speakerThread.interrupt();
+        }
     }
 
     public static MemoryMapped rom(String rom) throws IOException {
