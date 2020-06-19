@@ -1,5 +1,7 @@
 package com.joprovost.r8bemu.audio;
 
+import com.joprovost.r8bemu.clock.Uptime;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
@@ -8,16 +10,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 
-public class Speaker implements AudioSink, Runnable {
+import static javax.sound.sampled.AudioFormat.Encoding.PCM_UNSIGNED;
 
+public class Speaker implements Runnable {
+
+    public static final int TIMEOUT_MS = 10;
     private final AudioFormat format;
+    private final Uptime uptime;
     private final Buffer buffer;
     private final InputStream input;
     private long last = 0;
 
-    public Speaker(AudioFormat format) {
+    public Speaker(AudioFormat format, Uptime uptime) {
         this.format = format;
-        buffer = new Buffer((int) (format.getSampleRate() / 10), 10);
+        this.uptime = uptime;
+        buffer = new Buffer(
+                (int) (format.getSampleRate() / 10),
+                TIMEOUT_MS,
+                format.getEncoding() == PCM_UNSIGNED ? 128:0
+        );
         input = buffer.input();
     }
 
@@ -25,19 +36,20 @@ public class Speaker implements AudioSink, Runnable {
         return (nanoTime * (long) format.getSampleRate() / 1000000000);
     }
 
-    @Override
-    public void sample(int amplitude, long atNanoTime) {
-        try {
-            var pos = position(atNanoTime);
-            int count = (int) (pos - last);
-            if (count > 0) {
-                buffer.skip(count - 1);
-                buffer.write(amplitude);
+    public AudioSink input() {
+        return amplitude -> {
+            try {
+                var pos = position(uptime.nanoTime());
+                int count = (int) (pos - last);
+                if (count > 0) {
+                    buffer.skip(count - 1);
+                    buffer.write(amplitude);
+                }
+                last = pos;
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
-            last = pos;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        };
     }
 
     @Override

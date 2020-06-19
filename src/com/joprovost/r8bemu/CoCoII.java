@@ -1,12 +1,14 @@
 package com.joprovost.r8bemu;
 
+import com.joprovost.r8bemu.audio.AudioSink;
 import com.joprovost.r8bemu.audio.Speaker;
+import com.joprovost.r8bemu.audio.TapeRecorder;
 import com.joprovost.r8bemu.clock.ClockFrequency;
 import com.joprovost.r8bemu.clock.ClockGenerator;
-import com.joprovost.r8bemu.devices.SC77526;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6847;
 import com.joprovost.r8bemu.devices.MC6883;
+import com.joprovost.r8bemu.devices.SC77526;
 import com.joprovost.r8bemu.devices.keyboard.KeyboardAdapter;
 import com.joprovost.r8bemu.mc6809.MC6809E;
 import com.joprovost.r8bemu.mc6809.Signal;
@@ -35,12 +37,14 @@ public class CoCoII {
         var cs4 = new MC6821(Signal.IRQ, Signal.IRQ);
         var keyboard = clock.aware(new Keyboard(System.in, clock.aware(new KeyboardAdapter(cs4))));
         var display = new Terminal(System.out);
-        var vdg = clock.aware(new MC6847(display, cs4.portA()::control, cs4.portB()::control));
+        var vdg = clock.aware(new MC6847(display, cs4.portA()::interrupt, cs4.portB()::interrupt));
         var cs5 = new MC6821(Signal.FIRQ, Signal.FIRQ);
 
-        Speaker speaker = new Speaker(new AudioFormat(44100, 8, 1, LINUX, false));
+        TapeRecorder recorder = new TapeRecorder(uptime, "recording.wav");
+        Speaker speaker = new Speaker(new AudioFormat(44100, 8, 1, LINUX, false), uptime);
         Thread speakerThread = new Thread(speaker);
-        cs5.portA().consumer(new SC77526(uptime, speaker));
+        cs5.portA().outputTo(new SC77526(AudioSink.broadcast(speaker.input(), recorder.input())));
+        cs5.portA().controlTo(recorder.motor());
 
         var sam = MC6883.ofRam(new Memory(0x7fff))
                         .withRom0(rom("rom/extbas.rom"))

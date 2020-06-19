@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.data;
 
-public interface DataOutput extends Described {
+public interface DataOutput extends LogicOutput, Described {
 
     static int signed(int value, int mask) {
         int uvalue = value & mask;
@@ -29,6 +29,7 @@ public interface DataOutput extends Described {
         return signed(unsigned(), mask());
     }
 
+    @Override
     default boolean isSet() {
         return unsigned() != 0;
     }
@@ -41,6 +42,7 @@ public interface DataOutput extends Described {
         return toString();
     }
 
+    @Override
     default boolean isClear() {
         return unsigned() == 0;
     }

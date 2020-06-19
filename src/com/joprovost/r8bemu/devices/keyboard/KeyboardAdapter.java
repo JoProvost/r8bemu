@@ -25,7 +25,7 @@ public class KeyboardAdapter implements KeyboardBuffer, ClockAware {
 
     public KeyboardAdapter(MC6821 pia) {
         row = DataAccessSubset.of(pia.portA().input(), 0x7f);
-        pia.portB().consumer(this::keyScan);
+        pia.portB().outputTo(this::keyScan);
         state.busy(BOOT_DELAY);
     }
 

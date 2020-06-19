@@ -2,7 +2,7 @@ package com.joprovost.r8bemu.data;
 
 import java.util.function.Function;
 
-public interface DataAccess extends DataOutput, DataInput {
+public interface DataAccess extends DataOutput, DataInput, LogicAccess {
 
     String description();
 

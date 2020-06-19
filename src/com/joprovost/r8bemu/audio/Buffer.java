@@ -11,11 +11,12 @@ public class Buffer {
     private int write = 0;
     private int read = 0;
     private boolean empty = true;
-    private int last = 0;
+    private int last;
 
-    public Buffer(int size, int timeout) {
+    public Buffer(int size, int timeout, int initialValue) {
         buffer = new byte[size];
         this.timeout = timeout;
+        this.last = initialValue;
     }
 
     public InputStream input() {

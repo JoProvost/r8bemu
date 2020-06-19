@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BufferTest {
 
-    Buffer buffer = new Buffer(4, 1);
+    Buffer buffer = new Buffer(4, 1, 128);
     InputStream input = buffer.input();
 
     @Test
@@ -54,6 +54,14 @@ class BufferTest {
         assertEquals(1, input.read());
         assertEquals(1, input.read());
         assertEquals(1, input.read());
+    }
+
+    @Test
+    void skipWritesInitialValue() throws IOException {
+        buffer.skip(3);
+        assertEquals(128, input.read());
+        assertEquals(128, input.read());
+        assertEquals(128, input.read());
     }
 
     @Test
