@@ -30,8 +30,8 @@ public class DataOutputSubset implements DataOutput {
     }
 
     @Override
-    public int unsigned() {
-        return (origin.unsigned() & mask) >> Integer.numberOfTrailingZeros(mask);
+    public int value() {
+        return (origin.value() & mask) >> Integer.numberOfTrailingZeros(mask);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class DataOutputSubset implements DataOutput {
     }
 
     public boolean matches(int value) {
-        return (origin.unsigned() & mask) == (value & mask);
+        return (origin.value() & mask) == (value & mask);
     }
 
     @Override

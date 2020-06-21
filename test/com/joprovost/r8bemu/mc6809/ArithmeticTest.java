@@ -19,7 +19,7 @@ class ArithmeticTest {
     class SignExtended {
         @Test
         void affectsRegisterDWithSignedValueOfRegisterB() {
-            Register.B.set(-24);
+            Register.B.value(-24);
             Arithmetic.sex();
             assertEquals(-24, Register.D.signed());
             assertTrue(Register.N.isSet());
@@ -28,7 +28,7 @@ class ArithmeticTest {
 
         @Test
         void positive() {
-            Register.B.set(50);
+            Register.B.value(50);
             Arithmetic.sex();
             assertEquals(50, Register.D.signed());
             assertTrue(Register.N.isClear());
@@ -37,8 +37,8 @@ class ArithmeticTest {
 
         @Test
         void ignoresRegisterA() {
-            Register.A.set(100);
-            Register.B.set(50);
+            Register.A.value(100);
+            Register.B.value(50);
             Arithmetic.sex();
             assertEquals(50, Register.D.signed());
             assertTrue(Register.N.isClear());
@@ -47,7 +47,7 @@ class ArithmeticTest {
 
         @Test
         void zero() {
-            Register.B.set(0);
+            Register.B.value(0);
             Arithmetic.sex();
             assertEquals(0, Register.D.signed());
             assertTrue(Register.N.isClear());
@@ -59,30 +59,30 @@ class ArithmeticTest {
     class Multiply {
         @Test
         void unsigned() {
-            Register.A.set(150);
-            Register.B.set(200);
+            Register.A.value(150);
+            Register.B.value(200);
             Arithmetic.mul();
-            assertEquals(150 * 200, Register.D.unsigned());
+            assertEquals(150 * 200, Register.D.value());
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
         }
 
         @Test
         void affectsCarryFlag() {
-            Register.A.set(64);
-            Register.B.set(2);
+            Register.A.value(64);
+            Register.B.value(2);
             Arithmetic.mul();
-            assertEquals(128, Register.D.unsigned());
+            assertEquals(128, Register.D.value());
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isSet());
         }
 
         @Test
         void affectsZeroFlag() {
-            Register.A.set(64);
-            Register.B.set(0);
+            Register.A.value(64);
+            Register.B.value(0);
             Arithmetic.mul();
-            assertEquals(0, Register.D.unsigned());
+            assertEquals(0, Register.D.value());
             assertTrue(Register.Z.isSet());
             assertTrue(Register.C.isClear());
         }
@@ -92,10 +92,10 @@ class ArithmeticTest {
     class AddBToX {
         @Test
         void unsigned() {
-            Register.B.set(200);
-            Register.X.set(17000);
+            Register.B.value(200);
+            Register.X.value(17000);
             Arithmetic.abx();
-            assertEquals(17200, Register.X.unsigned());
+            assertEquals(17200, Register.X.value());
         }
     }
 
@@ -103,7 +103,7 @@ class ArithmeticTest {
     class Negate {
         @Test
         void signed() {
-            Register.X.set(-1024);
+            Register.X.value(-1024);
             Arithmetic.neg(Register.X);
             assertEquals(1024, Register.X.signed());
             assertTrue(Register.Z.isClear());
@@ -114,7 +114,7 @@ class ArithmeticTest {
 
         @Test
         void negative() {
-            Register.X.set(1024);
+            Register.X.value(1024);
             Arithmetic.neg(Register.X);
             assertEquals(-1024, Register.X.signed());
             assertTrue(Register.Z.isClear());
@@ -125,7 +125,7 @@ class ArithmeticTest {
 
         @Test
         void zero() {
-            Register.X.set(0);
+            Register.X.value(0);
             Arithmetic.neg(Register.X);
             assertEquals(0, Register.X.signed());
             assertTrue(Register.Z.isSet());
@@ -136,9 +136,9 @@ class ArithmeticTest {
 
         @Test
         void overflow() {
-            Register.X.set(0b1000000000000000);
+            Register.X.value(0b1000000000000000);
             Arithmetic.neg(Register.X);
-            assertEquals(0b1000000000000000, Register.X.unsigned());
+            assertEquals(0b1000000000000000, Register.X.value());
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
             assertTrue(Register.N.isSet());
@@ -150,8 +150,8 @@ class ArithmeticTest {
     class AddWithCarry {
         @Test
         void signed() {
-            Register.A.set(20);
-            Register.C.set(1);
+            Register.A.value(20);
+            Register.C.value(1);
             Value argument = Value.asByte(-10);
 
             Arithmetic.adc(Register.A, argument);
@@ -164,8 +164,8 @@ class ArithmeticTest {
 
         @Test
         void zero() {
-            Register.A.set(20);
-            Register.C.set(1);
+            Register.A.value(20);
+            Register.C.value(1);
             Value argument  = Value.asByte(-21);
 
             Arithmetic.adc(Register.A, argument);
@@ -178,8 +178,8 @@ class ArithmeticTest {
 
         @Test
         void negative() {
-            Register.A.set(20);
-            Register.C.set(1);
+            Register.A.value(20);
+            Register.C.value(1);
             Value argument = Value.asByte(-22);
 
             Arithmetic.adc(Register.A, argument);
@@ -192,12 +192,12 @@ class ArithmeticTest {
 
         @Test
         void positiveOverflow() {
-            Register.A.set(127);
-            Register.C.set(1);
+            Register.A.value(127);
+            Register.C.value(1);
             Value argument = Value.asByte(127);
 
             Arithmetic.adc(Register.A, argument);
-            assertEquals(255, Register.A.unsigned());
+            assertEquals(255, Register.A.value());
             assertEquals(-1, Register.A.signed());
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -207,8 +207,8 @@ class ArithmeticTest {
 
         @Test
         void negativeOverflowAndCarry() {
-            Register.A.set(-127);
-            Register.C.set(1);
+            Register.A.value(-127);
+            Register.C.value(1);
             Value argument = Value.asByte(-127);
 
             Arithmetic.adc(Register.A, argument);
@@ -221,8 +221,8 @@ class ArithmeticTest {
 
         @Test
         void positiveHalfCarry() {
-            Register.A.set(0x1e);
-            Register.C.set(1);
+            Register.A.value(0x1e);
+            Register.C.value(1);
             Value argument = Value.asByte(0x01);
 
             Arithmetic.adc(Register.A, argument);
@@ -236,8 +236,8 @@ class ArithmeticTest {
 
         @Test
         void noHalfCarry() {
-            Register.A.set(0x1d);
-            Register.C.set(1);
+            Register.A.value(0x1d);
+            Register.C.value(1);
             Value argument = Value.asByte(0x01);
 
             Arithmetic.adc(Register.A, argument);
@@ -254,7 +254,7 @@ class ArithmeticTest {
     class Add {
         @Test
         void signed() {
-            Register.A.set(20);
+            Register.A.value(20);
             Value argument = Value.asByte(-10);
 
             Arithmetic.add(Register.A, argument);
@@ -267,7 +267,7 @@ class ArithmeticTest {
 
         @Test
         void zero() {
-            Register.A.set(20);
+            Register.A.value(20);
             Value argument = Value.asByte(-20);
 
             Arithmetic.add(Register.A, argument);
@@ -280,7 +280,7 @@ class ArithmeticTest {
 
         @Test
         void negative() {
-            Register.A.set(20);
+            Register.A.value(20);
             Value argument = Value.asByte(-21);
 
             Arithmetic.adc(Register.A, argument);
@@ -293,11 +293,11 @@ class ArithmeticTest {
 
         @Test
         void positiveOverflow() {
-            Register.A.set(127);
+            Register.A.value(127);
             Value argument = Value.asByte(127);
 
             Arithmetic.adc(Register.A, argument);
-            assertEquals(254, Register.A.unsigned());
+            assertEquals(254, Register.A.value());
             assertEquals(-2, Register.A.signed());
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -307,7 +307,7 @@ class ArithmeticTest {
 
         @Test
         void negativeOverflowAndCarry() {
-            Register.A.set(-127);
+            Register.A.value(-127);
             Value argument = Value.asByte(-127);
 
             Arithmetic.adc(Register.A, argument);
@@ -320,7 +320,7 @@ class ArithmeticTest {
 
         @Test
         void positiveHalfCarry() {
-            Register.A.set(0x1e);
+            Register.A.value(0x1e);
             Value argument = Value.asByte(0x02);
 
             Arithmetic.adc(Register.A, argument);
@@ -334,7 +334,7 @@ class ArithmeticTest {
 
         @Test
         void noHalfCarry() {
-            Register.A.set(0x1d);
+            Register.A.value(0x1d);
             Value argument = Value.asByte(0x02);
 
             Arithmetic.adc(Register.A, argument);
@@ -352,8 +352,8 @@ class ArithmeticTest {
     class SubtractionWithCarry {
         @Test
         void signed() {
-            Register.A.set(20);
-            Register.C.set(1);
+            Register.A.value(20);
+            Register.C.value(1);
             Value argument = Value.asByte(10);
 
             Arithmetic.sbc(Register.A, argument);
@@ -366,8 +366,8 @@ class ArithmeticTest {
 
         @Test
         void zero() {
-            Register.A.set(20);
-            Register.C.set(1);
+            Register.A.value(20);
+            Register.C.value(1);
             Value argument = Value.asByte(19);
 
             Arithmetic.sbc(Register.A, argument);
@@ -380,8 +380,8 @@ class ArithmeticTest {
 
         @Test
         void negative() {
-            Register.A.set(-20);
-            Register.C.set(1);
+            Register.A.value(-20);
+            Register.C.value(1);
             Value argument = Value.asByte(21);
 
             Arithmetic.sbc(Register.A, argument);
@@ -394,8 +394,8 @@ class ArithmeticTest {
 
         @Test
         void carry() {
-            Register.A.set(20);
-            Register.C.set(1);
+            Register.A.value(20);
+            Register.C.value(1);
             Value argument = Value.asByte(21);
 
             Arithmetic.sbc(Register.A, argument);
@@ -411,7 +411,7 @@ class ArithmeticTest {
     class Subtraction {
         @Test
         void signed() {
-            Register.A.set(20);
+            Register.A.value(20);
             Value argument = Value.asByte(10);
 
             Arithmetic.sub(Register.A, argument);
@@ -424,7 +424,7 @@ class ArithmeticTest {
 
         @Test
         void zero() {
-            Register.A.set(20);
+            Register.A.value(20);
             Value argument = Value.asByte(20);
 
             Arithmetic.sub(Register.A, argument);
@@ -437,7 +437,7 @@ class ArithmeticTest {
 
         @Test
         void negative() {
-            Register.A.set(-20);
+            Register.A.value(-20);
             Value argument = Value.asByte(21);
 
             Arithmetic.sub(Register.A, argument);
@@ -450,7 +450,7 @@ class ArithmeticTest {
 
         @Test
         void carry() {
-            Register.A.set(20);
+            Register.A.value(20);
             Value argument = Value.asByte(21);
 
             Arithmetic.sbc(Register.A, argument);

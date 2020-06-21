@@ -22,19 +22,19 @@ public interface DataOutput extends LogicOutput, Described {
     }
 
     default String hex() {
-        return hex(unsigned(), mask());
+        return hex(value(), mask());
     }
 
     default int signed() {
-        return signed(unsigned(), mask());
+        return signed(value(), mask());
     }
 
     @Override
     default boolean isSet() {
-        return unsigned() != 0;
+        return value() != 0;
     }
 
-    int unsigned();
+    int value();
 
     int mask();
 
@@ -44,7 +44,7 @@ public interface DataOutput extends LogicOutput, Described {
 
     @Override
     default boolean isClear() {
-        return unsigned() == 0;
+        return value() == 0;
     }
 
     default DataOutput plus(DataOutput offset) {

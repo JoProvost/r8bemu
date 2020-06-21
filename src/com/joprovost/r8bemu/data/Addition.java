@@ -26,8 +26,8 @@ public class Addition implements DataOutput {
     }
 
     @Override
-    public int unsigned() {
-        return (origin.unsigned() + offset.unsigned()) & mask();
+    public int value() {
+        return (origin.value() + offset.value()) & mask();
     }
 
     @Override

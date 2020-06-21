@@ -303,12 +303,12 @@ class OpClockCyclesTest {
         }
 
         Register.reset();
-        Register.PC.set(0x4000);
-        Register.X.set(0x2000);
-        Register.Y.set(0x2000);
-        Register.U.set(0x2000);
-        Register.S.set(0x2000);
-        Register.D.set(0x2000);
+        Register.PC.value(0x4000);
+        Register.X.value(0x2000);
+        Register.Y.value(0x2000);
+        Register.U.value(0x2000);
+        Register.S.value(0x2000);
+        Register.D.value(0x2000);
 
         cpu.tick(Clock.zero());
         return clock.cycles();
@@ -317,7 +317,7 @@ class OpClockCyclesTest {
     private Addressing addressingOf(int op, int... next) {
         var mem = new Memory(0xff);
         mem.write(0x00, op, next);
-        Register.PC.set(0);
+        Register.PC.value(0);
         return Op.next(mem, Variable.ofMask(0xffff)).addressing();
     }
 }

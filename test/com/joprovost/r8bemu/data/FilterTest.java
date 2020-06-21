@@ -16,57 +16,57 @@ class FilterTest {
 
     @Test
     void filterAllowOutput() {
-        variable.set(0xff);
+        variable.value(0xff);
 
-        filterMask.set(0xff);
-        assertEquals(0xff, filtered.unsigned());
+        filterMask.value(0xff);
+        assertEquals(0xff, filtered.value());
 
-        filterMask.set(0x55);
-        assertEquals(0x55, filtered.unsigned());
+        filterMask.value(0x55);
+        assertEquals(0x55, filtered.value());
 
-        variable.set(0x55);
-        filterMask.set(0xff);
-        assertEquals(0x55, filtered.unsigned());
+        variable.value(0x55);
+        filterMask.value(0xff);
+        assertEquals(0x55, filtered.value());
 
-        variable.set(0xf0);
-        filterMask.set(0x0f);
-        assertEquals(0x00, filtered.unsigned());
+        variable.value(0xf0);
+        filterMask.value(0x0f);
+        assertEquals(0x00, filtered.value());
     }
 
     @Test
     void filterAllowInput() {
-        variable.set(0x00);
-        filterMask.set(0xff);
-        filtered.set(0xff);
-        assertEquals(0xff, variable.unsigned());
+        variable.value(0x00);
+        filterMask.value(0xff);
+        filtered.value(0xff);
+        assertEquals(0xff, variable.value());
 
-        variable.set(0x00);
-        filterMask.set(0x55);
-        filtered.set(0xff);
-        assertEquals(0x55, variable.unsigned());
+        variable.value(0x00);
+        filterMask.value(0x55);
+        filtered.value(0xff);
+        assertEquals(0x55, variable.value());
 
-        variable.set(0xff);
-        filterMask.set(0x55);
-        filtered.set(0x00);
-        assertEquals(0xaa, variable.unsigned());
+        variable.value(0xff);
+        filterMask.value(0x55);
+        filtered.value(0x00);
+        assertEquals(0xaa, variable.value());
 
-        variable.set(0x00);
-        filterMask.set(0xf0);
-        filtered.set(0x0f);
-        assertEquals(0x00, variable.unsigned());
+        variable.value(0x00);
+        filterMask.value(0xf0);
+        filtered.value(0x0f);
+        assertEquals(0x00, variable.value());
     }
 
     @Test
     void keepUnFilteredBitsUntouched() {
-        variable.set(0xaa);
-        filterMask.set(0x0f);
-        filtered.set(0x00);
-        assertEquals(0xa0, variable.unsigned());
+        variable.value(0xaa);
+        filterMask.value(0x0f);
+        filtered.value(0x00);
+        assertEquals(0xa0, variable.value());
 
-        variable.set(0xaa);
-        filterMask.set(0x0f);
-        filtered.set(0xff);
-        assertEquals(0xaf, variable.unsigned());
+        variable.value(0xaa);
+        filterMask.value(0x0f);
+        filtered.value(0xff);
+        assertEquals(0xaf, variable.value());
     }
 
     public void assertEquals(int expected, int actual) {

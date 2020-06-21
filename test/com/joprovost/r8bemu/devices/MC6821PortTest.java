@@ -28,7 +28,7 @@ class MC6821PortTest {
     @Test
     void allPinsIn() {
         direction(0b00000000);
-        port.input().set(0x32);
+        port.input().value(0x32);
         assertEquals(0x32, port.read(DATA_REGISTER));
     }
 
@@ -36,13 +36,13 @@ class MC6821PortTest {
     void allPinsOut() {
         direction(0b11111111);
         port.write(DATA_REGISTER, 0x95);
-        assertEquals(0x95, port.output().unsigned());
+        assertEquals(0x95, port.output().value());
     }
 
     @Test
     void halfPinsIn() {
         direction(0b00001111);
-        port.input().set(0x32);
+        port.input().value(0x32);
         assertEquals(0x30, port.read(DATA_REGISTER));
     }
 
@@ -50,13 +50,13 @@ class MC6821PortTest {
     void halfPinsOut() {
         direction(0b11110000);
         port.write(DATA_REGISTER, 0x95);
-        assertEquals(0x90, port.output().unsigned());
+        assertEquals(0x90, port.output().value());
     }
 
     @Test
     void feedsFromFeeder() {
         direction(0b00000000);
-        port.inputFrom(input -> input.set(0x32));
+        port.inputFrom(input -> input.value(0x32));
         assertEquals(0x32, port.read(DATA_REGISTER));
     }
 
@@ -67,7 +67,7 @@ class MC6821PortTest {
         port.outputTo(consumer::add);
         port.write(DATA_REGISTER, 0x95);
         assertEquals(1, consumer.size());
-        assertEquals(0x95, consumer.get(0).unsigned());
+        assertEquals(0x95, consumer.get(0).value());
     }
 
     @Nested

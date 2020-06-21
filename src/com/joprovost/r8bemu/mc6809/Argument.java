@@ -75,7 +75,7 @@ public class Argument {
             case EXTENDED_ADDRESS:
             case EXTENDED_DATA_8:
             case EXTENDED_DATA_16:
-                return Address.extended(Reference.next(memory, Size.WORD_16, register).unsigned());
+                return Address.extended(Reference.next(memory, Size.WORD_16, register).value());
             case RELATIVE_ADDRESS_8:
                 return Address.offset(Reference.next(memory, Size.WORD_8, register).signed(), register);
             case RELATIVE_ADDRESS_16:
@@ -83,7 +83,7 @@ public class Argument {
             case DIRECT_ADDRESS:
             case DIRECT_DATA_8:
             case DIRECT_DATA_16:
-                return Address.direct(Reference.next(memory, Size.WORD_8, register).unsigned(), DP);
+                return Address.direct(Reference.next(memory, Size.WORD_8, register).value(), DP);
             case INDEXED_ADDRESS:
             case INDEXED_DATA_8:
             case INDEXED_DATA_16:

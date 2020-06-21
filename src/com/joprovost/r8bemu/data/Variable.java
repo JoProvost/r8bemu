@@ -14,12 +14,12 @@ public class Variable implements DataAccess {
     }
 
     @Override
-    public void set(int value) {
+    public void value(int value) {
         this.variable = value & mask();
     }
 
     @Override
-    public int unsigned() {
+    public int value() {
         return variable & mask();
     }
 

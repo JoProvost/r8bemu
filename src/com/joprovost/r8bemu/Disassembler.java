@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 
 import static com.joprovost.r8bemu.data.DataOutput.hex;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -14,30 +15,31 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 
 class Disassembler extends Debugger {
+    private static final boolean DEBUG = false;
     private final String[] code;
-    private final boolean[] label;
+    private final String[] label;
     private final long[] ticks;
     private final Path file;
-    private boolean isFirstInstruction = true;
     private long tick = 0;
+    private ArrayDeque<String> stack = new ArrayDeque<>();
 
-    public Disassembler(Path file) {
+    public Disassembler(Path file, int reset, int irq, int firq, int nmi) {
         this.file = file;
         code = new String[65536];
-        label = new boolean[65536];
+        label = new String[65536];
         ticks = new long[65536];
+
+        label[reset] = "RESET";
+        label[irq] = "IRQ";
+        label[firq] = "FIRQ";
+        label[nmi] = "NMI";
     }
 
     public void instruction(Described mnemonic) {
         ticks[address] = tick++;
 
-        if (isFirstInstruction) {
-            label[address] = true;
-            isFirstInstruction = false;
-        }
-
         if (isJump(mnemonic)) {
-            label[argument.unsigned()] = true;
+            label[argument.value()] = hex(argument.value(), 0xffff);
         }
 
         if (code[address] == null) {
@@ -47,14 +49,22 @@ class Disassembler extends Debugger {
                 for (int addr = 0; addr < code.length; addr++) {
                     var line = code[addr];
                     if (line != null) {
-                        if (label[addr]) out.write("\n".getBytes());
-                        var address = label[addr] ? hex(addr, 0xffff) + ":" : "";
-                        out.write((column(16, address) + line + ticks[addr] + "\n").getBytes());
+                        if (label[addr] != null) {
+                            out.write("\n".getBytes());
+                            out.write((column(16, label[addr] + ":") + line + ticks[addr] + "\n").getBytes());
+                        } else {
+                            out.write((column(16, "") + line + ticks[addr] + "\n").getBytes());
+                        }
                     }
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
+        }
+
+        if (DEBUG) {
+            stack.addLast(column(16, label[address] != null ? label[address] + ":" : "") + describe(mnemonic));
+            if (stack.size() > 80) stack.removeFirst();
         }
     }
 }

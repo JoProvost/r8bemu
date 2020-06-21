@@ -87,10 +87,10 @@ public class MC6821Port implements MemoryMapped, DataPort, ControlPort {
                 CA2_IRQ_FLAG.clear();
                 if (CA1_IRQ_ENABLED.isSet() || CA2_IRQ_ENABLED.isSet()) irq.clear();
                 inputProviders.forEach(it -> it.provide(input));
-                return PERIPHERAL_REGISTER.unsigned();
-            } else return DATA_DIRECTION_REGISTER.unsigned();
+                return PERIPHERAL_REGISTER.value();
+            } else return DATA_DIRECTION_REGISTER.value();
         } else {
-            return CONTROL_REGISTER.unsigned();
+            return CONTROL_REGISTER.value();
         }
     }
 
@@ -99,12 +99,12 @@ public class MC6821Port implements MemoryMapped, DataPort, ControlPort {
         int rs0 = address & 0b1;
         if (rs0 == 0) {
             if (DDR_ACCESS.isSet()) {
-                PERIPHERAL_REGISTER.set(data);
+                PERIPHERAL_REGISTER.value(data);
                 outputHandlers.forEach(it -> it.handle(output));
             }
-            else DATA_DIRECTION_REGISTER.set(data);
+            else DATA_DIRECTION_REGISTER.value(data);
         } else {
-            CONTROL_REGISTER.set(data);
+            CONTROL_REGISTER.value(data);
             if (CA2_OUTPUT_MODE.isSet()) {
                 controlHandlers.forEach(it -> it.handle(CA2_OUTPUT_STATE));
             }

@@ -23,7 +23,7 @@ public class Branches {
     }
 
     public static void jump(DataOutput address) {
-        PC.set(address);
+        PC.value(address);
     }
 
     public static void bvs(DataAccess argument) {

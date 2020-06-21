@@ -29,7 +29,7 @@ public final class Signal implements LogicAccess {
     }
 
     public static void reset() {
-        SIGNALS.set(0);
+        SIGNALS.value(0);
     }
 
     public static LogicInput none() {

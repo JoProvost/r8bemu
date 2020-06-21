@@ -20,21 +20,21 @@ public class Filter implements DataAccess {
 
     @Override
     public void set(boolean value) {
-        set(data.mask() & filter.unsigned());
+        value(data.mask() & filter.value());
     }
 
     @Override
-    public void set(int value) {
-        data.set((data.unsigned() & ~filter.unsigned()) | (value & filter.unsigned()));
+    public void value(int value) {
+        data.value((data.value() & ~filter.value()) | (value & filter.value()));
     }
 
     @Override
-    public int unsigned() {
-        return data.unsigned() & mask();
+    public int value() {
+        return data.value() & mask();
     }
 
     @Override
     public int mask() {
-        return filter.unsigned();
+        return filter.value();
     }
 }

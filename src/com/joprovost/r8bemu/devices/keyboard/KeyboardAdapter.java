@@ -49,13 +49,13 @@ public class KeyboardAdapter implements KeyboardBuffer, ClockAware {
 
     private void keyScan(DataOutput column) {
         if (keyboard.isEmpty()) {
-            row.set(0xff);
+            row.value(0xff);
         } else {
             int portA = 0xff;
             for (var key : keyboard) {
-                portA &= key.row(column.unsigned());
+                portA &= key.row(column.value());
             }
-            row.set(portA);
+            row.value(portA);
         }
     }
 }

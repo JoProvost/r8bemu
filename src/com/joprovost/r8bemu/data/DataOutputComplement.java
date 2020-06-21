@@ -12,8 +12,8 @@ public class DataOutputComplement implements DataOutput {
     }
 
     @Override
-    public int unsigned() {
-        return (~origin.unsigned()) & mask();
+    public int value() {
+        return (~origin.value()) & mask();
     }
 
     @Override

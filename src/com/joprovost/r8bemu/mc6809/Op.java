@@ -347,8 +347,8 @@ public class Op {
     }
 
     private static int nextCode(MemoryMapped memory, DataAccess programCounter) {
-        int op = Reference.next(memory, Size.WORD_8, programCounter).unsigned();
-        if (extended.contains(op)) op = op << 8 | Reference.next(memory, Size.WORD_8, programCounter).unsigned();
+        int op = Reference.next(memory, Size.WORD_8, programCounter).value();
+        if (extended.contains(op)) op = op << 8 | Reference.next(memory, Size.WORD_8, programCounter).value();
         return op;
     }
 

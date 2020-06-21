@@ -80,18 +80,18 @@ public class IndexedAddress {
                     break;
 
                 case 0b1111: // Extended
-                    address = Address.extended(Reference.next(memory, Size.WORD_16, PC).unsigned());
+                    address = Address.extended(Reference.next(memory, Size.WORD_16, PC).value());
                     clock.busy(2);
                     break;
                 default:
-                    throw new UnsupportedOperationException("Unsupported indexed access : 0b" + Integer.toBinaryString(postByte) + " at 0x" + Integer.toHexString(PC.unsigned()));
+                    throw new UnsupportedOperationException("Unsupported indexed access : 0b" + Integer.toBinaryString(postByte) + " at 0x" + Integer.toHexString(PC.value()));
             }
         }
 
         // indirect or not
         if ((postByte & 0b10010000) == 0b10010000) {
             clock.busy(3);
-            return Reference.of(memory, address.unsigned(), Size.WORD_16, "[" + address.description() + "]");
+            return Reference.of(memory, address.value(), Size.WORD_16, "[" + address.description() + "]");
         } else {
             return address;
         }
@@ -108,6 +108,6 @@ public class IndexedAddress {
     }
 
     public static DataAccess next(MemoryMapped memory, Register register, BusyState clock) {
-        return from(memory, Reference.next(memory, Size.WORD_8, register).unsigned(), clock);
+        return from(memory, Reference.next(memory, Size.WORD_8, register).value(), clock);
     }
 }

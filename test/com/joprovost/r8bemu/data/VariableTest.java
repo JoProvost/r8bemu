@@ -8,15 +8,15 @@ class VariableTest {
     @Test
     void storesNumberBasedOnMask() {
         var word8 = Variable.ofMask(0xff);
-        word8.set(0xabc);
+        word8.value(0xabc);
 
-        assertEquals(0xbc, word8.unsigned());
+        assertEquals(0xbc, word8.value());
         assertEquals(0xff, word8.mask());
 
         var word16 = Variable.ofMask(0xffff);
-        word16.set(0xabc);
+        word16.value(0xabc);
 
-        assertEquals(0xabc, word16.unsigned());
+        assertEquals(0xabc, word16.value());
         assertEquals(0xffff, word16.mask());
     }
 

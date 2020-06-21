@@ -17,7 +17,7 @@ public class Address {
     }
 
     public static Value direct(int offset, Register page) {
-        return address((page.unsigned() << 8) | (offset & 0xff), ">$" + hex(offset, 0xff));
+        return address((page.value() << 8) | (offset & 0xff), ">$" + hex(offset, 0xff));
     }
 
     public static Value extended(int address) {
@@ -25,22 +25,22 @@ public class Address {
     }
 
     public static Value register(Register register) {
-        return address(register.unsigned(), "," + register.description());
+        return address(register.value(), "," + register.description());
     }
 
     public static Value incrementBy(Value offset, Register register) {
-        return address(register.post(Addition.incrementBy(offset)), "," + register.description() + "+".repeat(offset.unsigned()));
+        return address(register.post(Addition.incrementBy(offset)), "," + register.description() + "+".repeat(offset.value()));
     }
 
     public static Value decrementBy(Value offset, Register register) {
-        return address(register.pre(Subtraction.decrementBy(offset)), "," + "-".repeat(offset.unsigned()) + register.description());
+        return address(register.pre(Subtraction.decrementBy(offset)), "," + "-".repeat(offset.value()) + register.description());
     }
 
     public static Value offset(int offset, Register register) {
-        return address(offset + register.unsigned(), offset + "," + register.description());
+        return address(offset + register.value(), offset + "," + register.description());
     }
 
     public static Value accumulatorOffset(Register accumulator, Register register) {
-        return address(accumulator.signed() + register.unsigned(), accumulator.description() + "," + register.description());
+        return address(accumulator.signed() + register.value(), accumulator.description() + "," + register.description());
     }
 }

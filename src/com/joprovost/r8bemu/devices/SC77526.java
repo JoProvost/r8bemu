@@ -18,7 +18,7 @@ public class SC77526 implements DataOutputHandler {
 
     @Override
     public void handle(DataOutput output) {
-        CS5_PA_OUT.set(output.unsigned());
-        audioSink.sample(DAC.unsigned() * 2);
+        CS5_PA_OUT.value(output.value());
+        audioSink.sample(DAC.value() * 4);
     }
 }

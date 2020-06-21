@@ -2,9 +2,12 @@ package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.audio.AudioSink;
 import com.joprovost.r8bemu.audio.Speaker;
+import com.joprovost.r8bemu.audio.TapePlayback;
 import com.joprovost.r8bemu.audio.TapeRecorder;
 import com.joprovost.r8bemu.clock.ClockFrequency;
 import com.joprovost.r8bemu.clock.ClockGenerator;
+import com.joprovost.r8bemu.data.Reference;
+import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6847;
 import com.joprovost.r8bemu.devices.MC6883;
@@ -25,6 +28,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static com.joprovost.r8bemu.mc6809.MC6809E.FIRQ_VECTOR;
+import static com.joprovost.r8bemu.mc6809.MC6809E.IRQ_VECTOR;
+import static com.joprovost.r8bemu.mc6809.MC6809E.NMI_VECTOR;
+import static com.joprovost.r8bemu.mc6809.MC6809E.RESET_VECTOR;
+
 public class CoCoII {
     private static final String OS = System.getProperty("os.name");
     public static final boolean LINUX = OS.toLowerCase().contains("linux");
@@ -32,7 +40,7 @@ public class CoCoII {
     public static void main(String[] args) throws IOException {
         var clock = new ClockGenerator();
 
-        var uptime = clock.aware(new ClockFrequency(900, clock));
+        var uptime = clock.aware(new ClockFrequency(895, clock));
 
         var cs4 = new MC6821(Signal.IRQ, Signal.IRQ);
         var keyboard = clock.aware(new Keyboard(System.in, clock.aware(new KeyboardAdapter(cs4))));
@@ -41,12 +49,16 @@ public class CoCoII {
         var cs5 = new MC6821(Signal.FIRQ, Signal.FIRQ);
 
         TapeRecorder recorder = new TapeRecorder(uptime, "recording.wav");
+        TapePlayback playback = new TapePlayback(uptime, "playback.wav");
         Speaker speaker = new Speaker(new AudioFormat(44100, 8, 1, LINUX, false), uptime);
         Thread speakerThread = new Thread(speaker);
+
+        cs5.portA().inputFrom(playback.output(0));
         cs5.portA().outputTo(new SC77526(AudioSink.broadcast(speaker.input(), recorder.input())));
         cs5.portA().controlTo(recorder.motor());
+        cs5.portA().controlTo(playback.motor());
 
-        var sam = MC6883.ofRam(new Memory(0x7fff))
+        var sam = MC6883.ofRam(new Memory(0xffff))
                         .withRom0(rom("rom/extbas.rom"))
                         .withRom1(rom("rom/bas.rom"))
                         .withDisplay(vdg)
@@ -55,7 +67,11 @@ public class CoCoII {
                         .withCS6(new MC6821(Signal.none(), Signal.none()))
                         .withRom2(new Memory(0x1f));
 
-        Debugger debugger = Debugger.disassembler(Path.of("./doc/rom.asm"));
+        Debugger debugger = new Disassembler(Path.of("./doc/rom.asm"),
+                                             Reference.of(sam, RESET_VECTOR, Size.WORD_16).value(),
+                                             Reference.of(sam, IRQ_VECTOR, Size.WORD_16).value(),
+                                             Reference.of(sam, FIRQ_VECTOR, Size.WORD_16).value(),
+                                             Reference.of(sam, NMI_VECTOR, Size.WORD_16).value());
 
         MC6809E cpu = clock.aware(new MC6809E(sam, debugger, clock));
         cpu.reset();

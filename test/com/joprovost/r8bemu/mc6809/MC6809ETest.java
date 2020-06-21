@@ -60,112 +60,112 @@ class MC6809ETest {
     class OpCodes {
         @Test
         void nopTakesTwoTicks() throws IOException {
-            PC.set(0x0000);
+            PC.value(0x0000);
             memory.write(0x00, NOP, NOP);
 
             cpu.tick(Clock.zero());
-            assertEquals(0x0001, PC.unsigned());
+            assertEquals(0x0001, PC.value());
             clock.assertBusyFor(2);
         }
 
         @Test
         void abx() throws IOException {
-            B.set(0x15);
-            X.set(0x1202);
-            PC.set(0x0000);
+            B.value(0x15);
+            X.value(0x1202);
+            PC.value(0x0000);
             memory.write(0x00, 0x3a);
 
             cpu.tick(Clock.zero());
-            assertEquals(0x15, B.unsigned());
-            assertEquals(0x1217, X.unsigned());
-            assertEquals(0x0001, PC.unsigned());
+            assertEquals(0x15, B.value());
+            assertEquals(0x1217, X.value());
+            assertEquals(0x0001, PC.value());
         }
 
         @Test
         void mul() throws IOException {
-            A.set(0x04);
-            B.set(0x04);
+            A.value(0x04);
+            B.value(0x04);
 
             memory.write(0x00, MUL_INHERENT);
 
             cpu.tick(Clock.zero());
-            assertEquals(0x10, D.unsigned());
-            assertEquals(0x0001, PC.unsigned());
+            assertEquals(0x10, D.value());
+            assertEquals(0x0001, PC.value());
         }
 
         @Test
         void neg() throws IOException {
-            DP.set(0x04);
+            DP.value(0x04);
 
             memory.write(0x00, NEG_DIRECT, 0x01);
             memory.write(0x0401, 0x01);
 
             cpu.tick(Clock.zero());
             assertEquals(0xff, memory.read(0x0401));
-            assertEquals(0x01, N.unsigned());
-            assertEquals(0x00, V.unsigned());
-            assertEquals(0x00, Z.unsigned());
-            assertEquals(0x00, C.unsigned());
+            assertEquals(0x01, N.value());
+            assertEquals(0x00, V.value());
+            assertEquals(0x00, Z.value());
+            assertEquals(0x00, C.value());
         }
 
         @Test
         void neg0x0() throws IOException {
-            DP.set(0x04);
+            DP.value(0x04);
 
             memory.write(0x00, NEG_DIRECT, 0x01);
             memory.write(0x0401, 0x80);
 
             cpu.tick(Clock.zero());
             assertEquals(0x80, memory.read(0x0401));
-            assertEquals(0x01, N.unsigned());
-            assertEquals(0x01, V.unsigned());
-            assertEquals(0x00, Z.unsigned());
-            assertEquals(0x00, C.unsigned());
+            assertEquals(0x01, N.value());
+            assertEquals(0x01, V.value());
+            assertEquals(0x00, Z.value());
+            assertEquals(0x00, C.value());
         }
 
         @Test
         void neg0x00() throws IOException {
-            DP.set(0x04);
+            DP.value(0x04);
 
             memory.write(0x00, NEG_DIRECT, 0x01);
             memory.write(0x0401, 0x00);
 
             cpu.tick(Clock.zero());
             assertEquals(0x00, memory.read(0x0401));
-            assertEquals(0x00, N.unsigned());
-            assertEquals(0x00, V.unsigned());
-            assertEquals(0x01, Z.unsigned());
-            assertEquals(0x01, C.unsigned());
+            assertEquals(0x00, N.value());
+            assertEquals(0x00, V.value());
+            assertEquals(0x01, Z.value());
+            assertEquals(0x01, C.value());
         }
 
         @Test
         void cmpa() throws IOException {
-            A.set(0x10);
+            A.value(0x10);
 
             memory.write(0x00, CMPA_INDEXED, EXTENDED_INDIRECT, 0x10, 0x00);
             memory.write(0x1000, 0x20, 0x00);
             memory.write(0x2000, 0x10);
 
             cpu.tick(Clock.zero());
-            assertEquals(0x00, N.unsigned());
-            assertEquals(0x00, V.unsigned());
-            assertEquals(0x01, Z.unsigned());
-            assertEquals(0x00, C.unsigned());
+            assertEquals(0x00, N.value());
+            assertEquals(0x00, V.value());
+            assertEquals(0x01, Z.value());
+            assertEquals(0x00, C.value());
         }
 
         @Test
         void sbca() throws IOException {
-            A.set(0x10);
+            A.value(0x10);
 
             memory.write(0x00, 0xa2, EXTENDED_INDIRECT, 0x10, 0x00);
             memory.write(0x1000, 0x20, 0x00);
             memory.write(0x2000, 0x10);
 
             cpu.tick(Clock.zero());
-            assertEquals(0x00, N.unsigned());
-            assertEquals(0x00, V.unsigned());
-            assertEquals(0x01, Z.unsigned());
-            assertEquals(0x00, C.unsigned());
+            assertEquals(0x00, N.value());
+            assertEquals(0x00, V.value());
+            assertEquals(0x01, Z.value());
+            assertEquals(0x00, C.value());
         }
     }
 
@@ -175,22 +175,22 @@ class MC6809ETest {
         void savesFullStateAndLoadsCounterFrom0xfff8() throws IOException {
             memory.write(IRQ_VECTOR, 0xab, 0xcd);
 
-            CC.set(0x01);
-            A.set(0x02);
-            B.set(0x03);
-            DP.set(0x04);
-            X.set(0x0506);
-            Y.set(0x0708);
-            U.set(0x090a);
-            PC.set(0x0b0c);
+            CC.value(0x01);
+            A.value(0x02);
+            B.value(0x03);
+            DP.value(0x04);
+            X.value(0x0506);
+            Y.value(0x0708);
+            U.value(0x090a);
+            PC.value(0x0b0c);
 
-            S.set(0x8000);
+            S.value(0x8000);
 
             Signal.IRQ.set();
             cpu.tick(Clock.zero());
 
-            assertEquals(0xabcd, PC.unsigned());
-            assertEquals(0x7ff4, S.unsigned());
+            assertEquals(0xabcd, PC.value());
+            assertEquals(0x7ff4, S.value());
 
             // Stack content
             assertEquals(0x81, memory.read(0x7ff4)); // CC + E
@@ -209,7 +209,7 @@ class MC6809ETest {
             // avoid re-entrant irq
             assertTrue(I.isSet());
 
-            clock.assertBusyFor(12 + 6);
+            clock.assertBusyFor(18);
         }
 
         @Test
@@ -220,15 +220,15 @@ class MC6809ETest {
             var clock = new FakeBusyState();
             MC6809E cpu = new MC6809E(memory, debugger, clock);
 
-            PC.set(0x0000);
-            S.set(0x8000);
+            PC.value(0x0000);
+            S.value(0x8000);
 
             Signal.IRQ.set();
             I.set();
             cpu.tick(Clock.zero());
 
-            assertEquals(0x0001, PC.unsigned());
-            assertEquals(0x8000, S.unsigned());
+            assertEquals(0x0001, PC.value());
+            assertEquals(0x8000, S.value());
 
             clock.assertBusyFor(2);
         }
@@ -240,16 +240,16 @@ class MC6809ETest {
         void savesProgramCounterAndLoadsCounterFrom0xfff6() throws IOException {
             memory.write(FIRQ_VECTOR, 0xab, 0xcd);
 
-            CC.set(0x01);
-            PC.set(0x0b0c);
+            CC.value(0x01);
+            PC.value(0x0b0c);
 
-            S.set(0x8000);
+            S.value(0x8000);
 
             Signal.FIRQ.set();
             cpu.tick(Clock.zero());
 
-            assertEquals(0xabcd, PC.unsigned());
-            assertEquals(0x7ffd, S.unsigned());
+            assertEquals(0xabcd, PC.value());
+            assertEquals(0x7ffd, S.value());
 
             // Stack content
             assertEquals(0x01, memory.read(0x7ffd)); // CC
@@ -268,15 +268,15 @@ class MC6809ETest {
             memory.write(FIRQ_VECTOR, 0xab, 0xcd);
             memory.write(0x0000, NOP);
 
-            PC.set(0x0000);
-            S.set(0x8000);
+            PC.value(0x0000);
+            S.value(0x8000);
 
             Signal.FIRQ.set();
             F.set();
             cpu.tick(Clock.zero());
 
-            assertEquals(0x0001, PC.unsigned());
-            assertEquals(0x8000, S.unsigned());
+            assertEquals(0x0001, PC.value());
+            assertEquals(0x8000, S.value());
 
             clock.assertBusyFor(2);
         }
@@ -286,13 +286,13 @@ class MC6809ETest {
             memory.write(FIRQ_VECTOR, 0xab, 0xcd);
             memory.write(IRQ_VECTOR, 0x00, 0x00);
 
-            PC.set(0x0b0c);
+            PC.value(0x0b0c);
 
             Signal.IRQ.set();
             Signal.FIRQ.set();
             cpu.tick(Clock.zero());
 
-            assertEquals(0xabcd, PC.unsigned());
+            assertEquals(0xabcd, PC.value());
         }
     }
 }

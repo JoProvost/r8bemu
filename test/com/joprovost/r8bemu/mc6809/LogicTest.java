@@ -19,11 +19,11 @@ class LogicTest {
     class Conjunction {
         @Test
         void overflowIsAlwaysClear() {
-            Register.A.set(0b10010010);
+            Register.A.value(0b10010010);
             var memory = Value.of(0b00100110, 0xff);
             Logic.and(Register.A, memory);
 
-            assertEquals(0b00000010, Register.A.unsigned());
+            assertEquals(0b00000010, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.N.isClear());
             assertTrue(Register.Z.isClear());
@@ -31,11 +31,11 @@ class LogicTest {
 
         @Test
         void negative() {
-            Register.A.set(0b10010010);
+            Register.A.value(0b10010010);
             var memory = Value.of(0b10100110, 0xff);
             Logic.and(Register.A, memory);
 
-            assertEquals(0b10000010, Register.A.unsigned());
+            assertEquals(0b10000010, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.N.isSet());
             assertTrue(Register.Z.isClear());
@@ -43,11 +43,11 @@ class LogicTest {
 
         @Test
         void zero() {
-            Register.A.set(0b010010010);
+            Register.A.value(0b010010010);
             var memory = Value.of(0b101101101, 0xff);
             Logic.and(Register.A, memory);
 
-            assertEquals(0b00000000, Register.A.unsigned());
+            assertEquals(0b00000000, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.N.isClear());
             assertTrue(Register.Z.isSet());
@@ -55,11 +55,11 @@ class LogicTest {
 
         @Test
         void conditionCodesRegisterParticularCase() {
-            Register.CC.set(0b10010010);
+            Register.CC.value(0b10010010);
             var memory = Value.of(0b00100110, 0xff);
             Logic.and(Register.CC, memory);
 
-            assertEquals(0b00000010, Register.CC.unsigned());
+            assertEquals(0b00000010, Register.CC.value());
         }
     }
 
@@ -67,11 +67,11 @@ class LogicTest {
     class Disjunction {
         @Test
         void overflowIsAlwaysClear() {
-            Register.A.set(0b00010010);
+            Register.A.value(0b00010010);
             var memory = Value.of(0b00100110, 0xff);
             Logic.or(Register.A, memory);
 
-            assertEquals(0b00110110, Register.A.unsigned());
+            assertEquals(0b00110110, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.N.isClear());
             assertTrue(Register.Z.isClear());
@@ -79,11 +79,11 @@ class LogicTest {
 
         @Test
         void negative() {
-            Register.A.set(0b10010010);
+            Register.A.value(0b10010010);
             var memory = Value.of(0b00100110, 0xff);
             Logic.or(Register.A, memory);
 
-            assertEquals(0b10110110, Register.A.unsigned());
+            assertEquals(0b10110110, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.N.isSet());
             assertTrue(Register.Z.isClear());
@@ -91,11 +91,11 @@ class LogicTest {
 
         @Test
         void zero() {
-            Register.A.set(0b000000000);
+            Register.A.value(0b000000000);
             var memory = Value.of(0b000000000, 0xff);
             Logic.or(Register.A, memory);
 
-            assertEquals(0b00000000, Register.A.unsigned());
+            assertEquals(0b00000000, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.N.isClear());
             assertTrue(Register.Z.isSet());
@@ -103,11 +103,11 @@ class LogicTest {
 
         @Test
         void conditionCodesRegisterParticularCase() {
-            Register.CC.set(0b10010010);
+            Register.CC.value(0b10010010);
             var memory = Value.of(0b00100110, 0xff);
             Logic.or(Register.CC, memory);
 
-            assertEquals(0b10110110, Register.CC.unsigned());
+            assertEquals(0b10110110, Register.CC.value());
         }
     }
 
@@ -115,11 +115,11 @@ class LogicTest {
     class ExclusiveConjunction {
         @Test
         void overflowIsAlwaysClear() {
-            Register.A.set(0b10010010);
+            Register.A.value(0b10010010);
             var memory = Value.of(0b10100110, 0xff);
             Logic.xor(Register.A, memory);
 
-            assertEquals(0b00110100, Register.A.unsigned());
+            assertEquals(0b00110100, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.N.isClear());
             assertTrue(Register.Z.isClear());
@@ -127,11 +127,11 @@ class LogicTest {
 
         @Test
         void negative() {
-            Register.A.set(0b10010010);
+            Register.A.value(0b10010010);
             var memory = Value.of(0b00100110, 0xff);
             Logic.xor(Register.A, memory);
 
-            assertEquals(0b10110100, Register.A.unsigned());
+            assertEquals(0b10110100, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.N.isSet());
             assertTrue(Register.Z.isClear());
@@ -139,11 +139,11 @@ class LogicTest {
 
         @Test
         void zero() {
-            Register.A.set(0b010010010);
+            Register.A.value(0b010010010);
             var memory = Value.of(0b010010010, 0xff);
             Logic.xor(Register.A, memory);
 
-            assertEquals(0b00000000, Register.A.unsigned());
+            assertEquals(0b00000000, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.N.isClear());
             assertTrue(Register.Z.isSet());
@@ -154,10 +154,10 @@ class LogicTest {
     class Complement {
         @Test
         void overflowIsAlwaysClearAndCarryIsAlwaysSet() {
-            Register.A.set(0b10101010);
+            Register.A.value(0b10101010);
             Logic.complement(Register.A);
 
-            assertEquals(0b01010101, Register.A.unsigned());
+            assertEquals(0b01010101, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.C.isSet());
             assertTrue(Register.N.isClear());
@@ -166,10 +166,10 @@ class LogicTest {
 
         @Test
         void carryIsAlwaysSet() {
-            Register.A.set(0b10101010);
+            Register.A.value(0b10101010);
             Logic.complement(Register.A);
 
-            assertEquals(0b01010101, Register.A.unsigned());
+            assertEquals(0b01010101, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.C.isSet());
             assertTrue(Register.N.isClear());
@@ -178,10 +178,10 @@ class LogicTest {
 
         @Test
         void negative() {
-            Register.A.set(0b00000000);
+            Register.A.value(0b00000000);
             Logic.complement(Register.A);
 
-            assertEquals(0b11111111, Register.A.unsigned());
+            assertEquals(0b11111111, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.C.isSet());
             assertTrue(Register.N.isSet());
@@ -190,10 +190,10 @@ class LogicTest {
 
         @Test
         void zero() {
-            Register.A.set(0b11111111);
+            Register.A.value(0b11111111);
             Logic.complement(Register.A);
 
-            assertEquals(0b00000000, Register.A.unsigned());
+            assertEquals(0b00000000, Register.A.value());
             assertTrue(Register.V.isClear());
             assertTrue(Register.C.isSet());
             assertTrue(Register.N.isClear());

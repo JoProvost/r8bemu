@@ -5,16 +5,10 @@ import com.joprovost.r8bemu.data.Described;
 import com.joprovost.r8bemu.data.Value;
 import com.joprovost.r8bemu.mc6809.Register;
 
-import java.nio.file.Path;
-
 public abstract class Debugger {
 
     protected int address;
     protected DataOutput argument;
-
-    public static Debugger disassembler(Path file) {
-        return new Disassembler(file);
-    }
 
     public static Debugger none() {
         return new Debugger() {

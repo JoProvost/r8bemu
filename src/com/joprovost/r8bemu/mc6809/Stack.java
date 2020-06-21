@@ -99,12 +99,12 @@ public class Stack {
     }
 
     private void pushByte(DataAccess data, Register stack) {
-        memory.write(stack.pre(decrement()), data.unsigned());
+        memory.write(stack.pre(decrement()), data.value());
         this.clock.busy(1);
     }
 
     private void pullByte(DataAccess data, Register stack) {
-        data.set(memory.read(stack.post(increment())));
+        data.value(memory.read(stack.post(increment())));
         this.clock.busy(1);
     }
 

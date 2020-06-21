@@ -41,7 +41,7 @@ class DataOutputTest {
 
     private DataOutput data(int unsigned, int mask) {
         return new DataOutput() {
-            public int unsigned() { return unsigned; }
+            public int value() { return unsigned; }
             public int mask() { return mask; }
         };
     }

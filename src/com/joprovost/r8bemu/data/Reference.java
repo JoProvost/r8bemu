@@ -1,6 +1,5 @@
 package com.joprovost.r8bemu.data;
 
-import com.joprovost.r8bemu.mc6809.Register;
 import com.joprovost.r8bemu.memory.MemoryMapped;
 
 import java.util.Optional;
@@ -33,7 +32,7 @@ public class Reference implements DataAccess {
     }
 
     public static Reference of(MemoryMapped device, DataOutput address, Size size) {
-        return new Reference(device, address.unsigned(), size, address.description());
+        return new Reference(device, address.value(), size, address.description());
     }
 
     public static DataAccess next(MemoryMapped memory, Size size, DataAccess register) {
@@ -41,7 +40,7 @@ public class Reference implements DataAccess {
     }
 
     @Override
-    public void set(int value) {
+    public void value(int value) {
         switch (size) {
             case WORD_8:
                 device.write(address, value & mask());
@@ -56,7 +55,7 @@ public class Reference implements DataAccess {
     }
 
     @Override
-    public int unsigned() {
+    public int value() {
         switch (size) {
             case WORD_8:
                 return device.read(address);
@@ -79,6 +78,6 @@ public class Reference implements DataAccess {
 
     @Override
     public String toString() {
-        return "#$" + Integer.toHexString(unsigned())  + " at ($" + Integer.toHexString(address) + ")";
+        return "#$" + Integer.toHexString(value())  + " at ($" + Integer.toHexString(address) + ")";
     }
 }

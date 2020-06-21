@@ -27,10 +27,10 @@ public interface MemoryMapped {
     }
 
     default int read(DataOutput address) {
-        return read(address.unsigned());
+        return read(address.value());
     }
 
     default void write(DataOutput address, int value) {
-        write(address.unsigned(), value);
+        write(address.value(), value);
     }
 }

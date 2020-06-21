@@ -42,7 +42,7 @@ public class MC6809E implements ClockAware {
     }
 
     private void execute() throws EOFException {
-        var address = PC.unsigned();
+        var address = PC.value();
         debug.at(address);
         var instruction = Op.next(memory, PC);
         var mnemonic = instruction.mnemonic();
@@ -60,7 +60,7 @@ public class MC6809E implements ClockAware {
     public void reset() {
         I.set(true);
         F.set(true);
-        Register.DP.set(0x00);
+        Register.DP.value(0x00);
         Branches.jump(Reference.of(memory, RESET_VECTOR, Size.WORD_16));
     }
 

@@ -34,13 +34,13 @@ public class DataAccessSubset implements DataAccess {
     }
 
     @Override
-    public void set(int value) {
-        origin.set((origin.unsigned() & ~mask) | ((value & mask()) << Integer.numberOfTrailingZeros(mask)));
+    public void value(int value) {
+        origin.value((origin.value() & ~mask) | ((value & mask()) << Integer.numberOfTrailingZeros(mask)));
     }
 
     @Override
-    public int unsigned() {
-        return (origin.unsigned() & mask) >> Integer.numberOfTrailingZeros(mask);
+    public int value() {
+        return (origin.value() & mask) >> Integer.numberOfTrailingZeros(mask);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class DataAccessSubset implements DataAccess {
     }
 
     public boolean matches(int value) {
-        return (origin.unsigned() & mask) == (value & mask);
+        return (origin.value() & mask) == (value & mask);
     }
 
     @Override

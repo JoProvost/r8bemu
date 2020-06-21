@@ -22,7 +22,7 @@ class DataOutputSubsetTest {
         assertEquals(0b1, b1.mask());
         assertEquals(0b1, b15.mask());
 
-        source.set(0b1111111111111111);
+        source.value(0b1111111111111111);
         assertTrue(b0.isSet());
         assertTrue(b1.isSet());
         assertTrue(b7.isSet());
@@ -34,7 +34,7 @@ class DataOutputSubsetTest {
         assertFalse(b8.isClear());
         assertFalse(b15.isClear());
 
-        source.set(0b0000000000000000);
+        source.value(0b0000000000000000);
         assertTrue(b0.isClear());
         assertTrue(b1.isClear());
         assertTrue(b7.isClear());
@@ -46,7 +46,7 @@ class DataOutputSubsetTest {
         assertFalse(b8.isSet());
         assertFalse(b15.isSet());
 
-        source.set(0b0_000000_1_0_11111_0_1);
+        source.value(0b0_000000_1_0_11111_0_1);
         assertTrue(b0.isSet());
         assertTrue(b1.isClear());
         assertTrue(b7.isClear());
@@ -59,17 +59,17 @@ class DataOutputSubsetTest {
         var middle = DataOutputSubset.of(source, 0b0000001111111100);
         assertEquals(0xff, middle.mask());
 
-        source.set(0b111111_11111111_11);
-        assertEquals(0b11111111, middle.unsigned());
+        source.value(0b111111_11111111_11);
+        assertEquals(0b11111111, middle.value());
 
-        source.set(0b111111_00000000_11);
-        assertEquals(0b00000000, middle.unsigned());
+        source.value(0b111111_00000000_11);
+        assertEquals(0b00000000, middle.value());
 
-        source.set(0b111111_10001000_11);
-        assertEquals(0b10001000, middle.unsigned());
+        source.value(0b111111_10001000_11);
+        assertEquals(0b10001000, middle.value());
 
-        source.set(0b101010_10101010_10);
-        assertEquals(0xaa, middle.unsigned());
+        source.value(0b101010_10101010_10);
+        assertEquals(0xaa, middle.value());
     }
 
     public void assertEquals(int expected, int actual) {

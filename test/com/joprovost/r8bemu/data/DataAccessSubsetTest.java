@@ -16,15 +16,15 @@ class DataAccessSubsetTest {
 
         assertEquals(0xff, lsb.mask());
 
-        source.set(0xfa1a);
-        assertEquals(0x1a, lsb.unsigned());
+        source.value(0xfa1a);
+        assertEquals(0x1a, lsb.value());
 
-        lsb.set(0xde);
-        assertEquals(0xfade, source.unsigned());
+        lsb.value(0xde);
+        assertEquals(0xfade, source.value());
 
         // No overflow
-        lsb.set(0x872398de);
-        assertEquals(0xfade, source.unsigned());
+        lsb.value(0x872398de);
+        assertEquals(0xfade, source.value());
     }
 
     @Test
@@ -33,15 +33,15 @@ class DataAccessSubsetTest {
 
         assertEquals(0xff, msb.mask());
 
-        source.set(0xfa1a);
-        assertEquals(0xfa, msb.unsigned());
+        source.value(0xfa1a);
+        assertEquals(0xfa, msb.value());
 
-        msb.set(0xd0);
-        assertEquals(0xd01a, source.unsigned());
+        msb.value(0xd0);
+        assertEquals(0xd01a, source.value());
 
         // No overflow
-        msb.set(0x872398d0);
-        assertEquals(0xd01a, source.unsigned());
+        msb.value(0x872398d0);
+        assertEquals(0xd01a, source.value());
     }
 
     @Test
@@ -56,7 +56,7 @@ class DataAccessSubsetTest {
         assertEquals(0b1, b1.mask());
         assertEquals(0b1, b15.mask());
 
-        source.set(0b1111111111111111);
+        source.value(0b1111111111111111);
         assertTrue(b0.isSet());
         assertTrue(b1.isSet());
         assertTrue(b7.isSet());
@@ -68,7 +68,7 @@ class DataAccessSubsetTest {
         assertFalse(b8.isClear());
         assertFalse(b15.isClear());
 
-        source.set(0b0000000000000000);
+        source.value(0b0000000000000000);
         assertTrue(b0.isClear());
         assertTrue(b1.isClear());
         assertTrue(b7.isClear());
@@ -80,19 +80,19 @@ class DataAccessSubsetTest {
         assertFalse(b8.isSet());
         assertFalse(b15.isSet());
 
-        source.set(0b0_000000_1_0_11111_0_1);
+        source.value(0b0_000000_1_0_11111_0_1);
         assertTrue(b0.isSet());
         assertTrue(b1.isClear());
         assertTrue(b7.isClear());
         assertTrue(b8.isSet());
         assertTrue(b15.isClear());
 
-        source.set(0xff00);
+        source.value(0xff00);
         b0.set();
         b1.set();
         b7.set();
         b15.clear();
-        assertEquals(0x7f83, source.unsigned());
+        assertEquals(0x7f83, source.value());
     }
 
     @Test
@@ -100,19 +100,19 @@ class DataAccessSubsetTest {
         var middle = DataAccessSubset.of(source, 0b0000001111111100);
         assertEquals(0xff, middle.mask());
 
-        source.set(0b111111_11111111_11);
-        assertEquals(0b11111111, middle.unsigned());
+        source.value(0b111111_11111111_11);
+        assertEquals(0b11111111, middle.value());
 
-        source.set(0b111111_00000000_11);
-        assertEquals(0b00000000, middle.unsigned());
+        source.value(0b111111_00000000_11);
+        assertEquals(0b00000000, middle.value());
 
-        source.set(0b111111_10001000_11);
-        assertEquals(0b10001000, middle.unsigned());
+        source.value(0b111111_10001000_11);
+        assertEquals(0b10001000, middle.value());
 
-        source.set(0b101010_10101010_10);
-        assertEquals(0xaa, middle.unsigned());
-        middle.set(0x55);
-        assertEquals(0b101010_01010101_10, source.unsigned());
+        source.value(0b101010_10101010_10);
+        assertEquals(0xaa, middle.value());
+        middle.value(0x55);
+        assertEquals(0b101010_01010101_10, source.value());
     }
 
     public void assertEquals(int expected, int actual) {

@@ -1,9 +1,9 @@
 package com.joprovost.r8bemu.data;
 
 public interface DataInput extends LogicInput {
-    default void set(DataOutput value) {
-        set(value.unsigned());
+    default void value(DataOutput value) {
+        value(value.value());
     }
 
-    void set(int value);
+    void value(int value);
 }

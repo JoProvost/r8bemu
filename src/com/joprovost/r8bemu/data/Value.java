@@ -30,19 +30,19 @@ public class Value implements DataAccess {
     }
 
     public static Value of(DataOutput address, String description) {
-        return Value.of(address.unsigned(), address.mask(), description);
+        return Value.of(address.value(), address.mask(), description);
     }
 
     public static Value value(DataAccess data) {
-        return Value.of(data.unsigned(), data.mask(), "$" + data.hex());
+        return Value.of(data.value(), data.mask(), "$" + data.hex());
     }
 
     public static Value of(DataOutput dataAccess) {
-        return Value.of(dataAccess.unsigned(), dataAccess.mask(), dataAccess.description());
+        return Value.of(dataAccess.value(), dataAccess.mask(), dataAccess.description());
     }
 
     @Override
-    public int unsigned() { return value & mask(); }
+    public int value() { return value & mask(); }
 
     @Override
     public int mask() { return mask; }
@@ -53,7 +53,7 @@ public class Value implements DataAccess {
     }
 
     @Override
-    public void set(int value) {
+    public void value(int value) {
         throw new UnsupportedOperationException("Constant value");
     }
 

@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 public class TapeRecorder {
-    public static final int FREQUENCY = 44100;
+    public static final int FREQUENCY = 9600;
+
+    // TODO: See why the pitch has to be lowered?
+    //       Required in order to read files from https://colorcomputerarchive.com/repo/Cassettes
+    private static final double PITCH = 0.9;
 
     private final Uptime uptime;
     private final String file;
@@ -31,8 +35,8 @@ public class TapeRecorder {
             int count = (int) (pos - this.pos);
             if (count > 0) {
                 skip(count - 1);
-                recording.write(amplitude + 128);
-                last = amplitude + 128;
+                recording.write(amplitude);
+                last = amplitude;
             }
             this.pos = pos;
         };
@@ -49,7 +53,7 @@ public class TapeRecorder {
     }
 
     private long position(long nanoTime) {
-        return (long) (nanoTime * FREQUENCY / 1000000000.0d);
+        return Math.round(nanoTime * PITCH * FREQUENCY / 1000000000.0d);
     }
 
     private void motor(boolean state) {
@@ -64,7 +68,7 @@ public class TapeRecorder {
                 skip(position(uptime.nanoTime() - offset) - this.pos);
 
                 try {
-                    WavFileFormat.save(file, recording, FREQUENCY);
+                    WaveFile.save(file, recording, FREQUENCY);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }

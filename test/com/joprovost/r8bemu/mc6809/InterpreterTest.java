@@ -22,7 +22,7 @@ class InterpreterTest {
         var instruction = Op.next(memory, PC);
 
         assertEquals(Mnemonic.NOP, instruction.mnemonic());
-        assertEquals(0x01, PC.unsigned());
+        assertEquals(0x01, PC.value());
     }
 
     @Test
@@ -31,6 +31,6 @@ class InterpreterTest {
         var instruction = Op.next(memory, PC);
 
         assertEquals(Mnemonic.LBRN, instruction.mnemonic());
-        assertEquals(0x02, PC.unsigned());
+        assertEquals(0x02, PC.value());
     }
 }

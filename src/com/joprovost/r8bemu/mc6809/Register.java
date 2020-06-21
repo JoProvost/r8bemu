@@ -48,35 +48,35 @@ public final class Register implements DataAccess {
     }
 
     public static void reset() {
-        D.set(0);
-        X.set(0);
-        Y.set(0);
-        U.set(0);
-        S.set(0);
-        S.set(0);
-        DP.set(0);
-        CC.set(0);
-        PC.set(0);
+        D.value(0);
+        X.value(0);
+        Y.value(0);
+        U.value(0);
+        S.value(0);
+        S.value(0);
+        DP.value(0);
+        CC.value(0);
+        PC.value(0);
     }
 
     public static void store(Register register, DataAccess memory) {
-        int result = register.unsigned();
+        int result = register.value();
         Register.N.set(negative(result, register.mask()));
         Register.Z.set(result == 0);
         Register.V.clear();
-        memory.set(result);
+        memory.value(result);
     }
 
     public static void load(Register register, DataAccess memory) {
-        int result = memory.unsigned();
+        int result = memory.value();
         Register.N.set(negative(result, register.mask()));
         Register.Z.set(result == 0);
         Register.V.clear();
-        register.set(result);
+        register.value(result);
     }
 
     public static void loadAddress(Register register, DataAccess argument) {
-        register.set(argument.unsigned());
+        register.value(argument.value());
         if (register == X || register == Y)
             Z.set(register.isClear());
     }
@@ -87,8 +87,8 @@ public final class Register implements DataAccess {
     }
 
     @Override
-    public int unsigned() {
-        return register.unsigned();
+    public int value() {
+        return register.value();
     }
 
     @Override
@@ -97,8 +97,8 @@ public final class Register implements DataAccess {
     }
 
     @Override
-    public void set(int value) {
-        register.set(value);
+    public void value(int value) {
+        register.value(value);
     }
 
     @Override

@@ -23,6 +23,7 @@ import static com.joprovost.r8bemu.Display.Color.YELLOW;
 public class MC6847 implements MemoryMapped, ClockAware {
     public static final int WIDTH = 32;
     public static final int MASK = 0x01ff;
+    public static final int LINES = 250;
 
     private final Variable VDG_DATA_BUS = Variable.ofMask(0xff);
 
@@ -48,17 +49,17 @@ public class MC6847 implements MemoryMapped, ClockAware {
 
     @Override
     public void write(int address, int data) {
-        VDG_DATA_BUS.set(data);
+        VDG_DATA_BUS.value(data);
 
         address &= MASK;
         var row = address / WIDTH + 1;
         var column = address % WIDTH + 1;
 
         if (AS.isSet()) {
-            display.sgm4(row, column, color(SGM4_CHROMA.unsigned()), BLACK, SGM4_LUMA.unsigned());
+            display.sgm4(row, column, color(SGM4_CHROMA.value()), BLACK, SGM4_LUMA.value());
         } else {
-            if (INV.isSet()) display.ascii(row, column, BLACK, GREEN, ASCII_CODE.unsigned());
-            else display.ascii(row, column, GREEN, BLACK, ASCII_CODE.unsigned());
+            if (INV.isSet()) display.ascii(row, column, BLACK, GREEN, ASCII_CODE.value());
+            else display.ascii(row, column, GREEN, BLACK, ASCII_CODE.value());
         }
     }
 
@@ -79,11 +80,11 @@ public class MC6847 implements MemoryMapped, ClockAware {
     @Override
     public void tick(Clock clock) {
         if (!hClock.at(clock).isBusy()) {
-            hClock.busy(60); // 15 kHz @ 900 kHz
+            hClock.busy(14917 / LINES); // @ 895 kHz
             hsync.run();
         }
         if (!vClock.at(clock).isBusy()) {
-            vClock.busy(15000); // 60 Hz @ 900 kHz
+            vClock.busy(14917); // 60 Hz @ 895 kHz => 14916,6666
             vsync.run();
         }
     }

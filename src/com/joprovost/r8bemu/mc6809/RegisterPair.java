@@ -15,7 +15,7 @@ public class RegisterPair implements DataOutput {
     }
 
     private static Register register(DataOutput registerCode) {
-        switch (registerCode.unsigned()) {
+        switch (registerCode.value()) {
             case 0b0000: return Register.D;
             case 0b0001: return Register.X;
             case 0b0010: return Register.Y;
@@ -27,7 +27,7 @@ public class RegisterPair implements DataOutput {
             case 0b1010: return Register.CC;
             case 0b1011: return Register.DP;
             default:
-                throw new UnsupportedOperationException("Unknown register code: 0b" + Integer.toBinaryString(registerCode.unsigned()));
+                throw new UnsupportedOperationException("Unknown register code: 0b" + Integer.toBinaryString(registerCode.value()));
         }
     }
 
@@ -40,8 +40,8 @@ public class RegisterPair implements DataOutput {
     }
 
     @Override
-    public int unsigned() {
-        return registers.unsigned();
+    public int value() {
+        return registers.value();
 
     }
 
@@ -55,10 +55,10 @@ public class RegisterPair implements DataOutput {
     }
 
     public void exchange() {
-        left().set(right().post(unused -> left()));
+        left().value(right().post(unused -> left()));
     }
 
     public void transfer() {
-        right().set(left());
+        right().value(left());
     }
 }

@@ -154,8 +154,8 @@ public class MC6883 implements MemoryMapped {
         public void write(int address, int data) {
             Value addressRegister = Value.of(address, 0xffff);
             if (DataAccessSubset.of(addressRegister, REGISTER_ADDRESS_PREFIX_MASK).matches(REGISTER_ADDRESS)) {
-                DataAccessSubset.bit(SAM_CONTROL_REGISTER, DataAccessSubset.of(addressRegister, REGISTER_ADDRESS_BIT_MASK).unsigned())
-                                .set(DataAccessSubset.of(addressRegister, REGISTER_ADDRESS_VALUE_MASK));
+                DataAccessSubset.bit(SAM_CONTROL_REGISTER, DataAccessSubset.of(addressRegister, REGISTER_ADDRESS_BIT_MASK).value())
+                                .value(DataAccessSubset.of(addressRegister, REGISTER_ADDRESS_VALUE_MASK));
             }
         }
     }
@@ -168,7 +168,7 @@ public class MC6883 implements MemoryMapped {
 
         @Override
         public void write(int address, int data) {
-            switch (MEMORY_SIZE.unsigned()) {
+            switch (MEMORY_SIZE.value()) {
                 case MEMORY_SIZE_4K_BANK:
                 case MEMORY_SIZE_16K_BANK:
                     sam.write(0x8000 | address, data);

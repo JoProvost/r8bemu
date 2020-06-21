@@ -21,8 +21,8 @@ public enum Size implements DataOutput {
     }
 
     @Override
-    public int unsigned() {
-        return bytes.unsigned();
+    public int value() {
+        return bytes.value();
     }
 
     public int mask() {

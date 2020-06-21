@@ -21,12 +21,20 @@ public interface DataAccess extends DataOutput, DataInput, LogicAccess {
     }
 
     default DataAccess update(Function<DataOutput, ? extends DataOutput> changes) {
-        set(changes.apply(this));
+        value(changes.apply(this));
         return this;
     }
 
+    default void set(int bits) {
+        value(value() | bits);
+    }
+
+    default void clear(int bits) {
+        value(value() & (~bits));
+    }
+
     default void set(boolean value) {
-        if (value) set(mask());
-        else set(0);
+        if (value) value(mask());
+        else value(0);
     }
 }
