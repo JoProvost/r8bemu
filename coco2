@@ -5,8 +5,16 @@ trap cleanup EXIT
 set -e
 cd "$(dirname "$(realpath $0)")"
 javac -d ./classes $(find ./src -name '*.java')
+
+[ -f "./cassette/$1.wav" ] \
+  && ln -sf "$1.wav" "./cassette/playback.wav" \
+  || rm -f "./cassette/playback.wav"
+
+[ -f "./script/$1.bas" ] \
+  && ln -sf "$1.bas" "./script/autorun.bas" \
+  || rm -f "./script/autorun.bas"
+
 clear
 stty raw -echo
 java -classpath ./classes com.joprovost.r8bemu.CoCoII
 stty cooked echo 2>/dev/null
-

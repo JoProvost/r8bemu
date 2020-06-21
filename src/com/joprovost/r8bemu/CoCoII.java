@@ -48,8 +48,8 @@ public class CoCoII {
         var vdg = clock.aware(new MC6847(display, cs4.portA()::interrupt, cs4.portB()::interrupt));
         var cs5 = new MC6821(Signal.FIRQ, Signal.FIRQ);
 
-        TapeRecorder recorder = new TapeRecorder(uptime, "recording.wav");
-        TapePlayback playback = new TapePlayback(uptime, "playback.wav");
+        TapeRecorder recorder = new TapeRecorder(uptime, "cassette/recording.wav");
+        TapePlayback playback = new TapePlayback(uptime, "cassette/playback.wav");
         Speaker speaker = new Speaker(new AudioFormat(44100, 8, 1, LINUX, false), uptime);
         Thread speakerThread = new Thread(speaker);
 
@@ -76,7 +76,7 @@ public class CoCoII {
         MC6809E cpu = clock.aware(new MC6809E(sam, debugger, clock));
         cpu.reset();
 
-        var path = Paths.get("./autorun.bas");
+        var path = Paths.get("./script/autorun.bas");
         if (Files.exists(path)) keyboard.script(path);
 
         try {
