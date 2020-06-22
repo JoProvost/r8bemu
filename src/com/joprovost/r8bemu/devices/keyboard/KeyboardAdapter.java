@@ -14,7 +14,6 @@ import java.util.List;
 
 public class KeyboardAdapter implements KeyboardBuffer, ClockAware {
 
-    // At 900kHz, each key is pressed 44ms and released 44ms
     public static final int TYPE_DELAY = 40000;
     public static final int BOOT_DELAY = 1200000;
 
@@ -47,6 +46,11 @@ public class KeyboardAdapter implements KeyboardBuffer, ClockAware {
     @Override
     public void type(List<Key> key) {
         buffer.add(key);
+    }
+
+    @Override
+    public void pause(int delay) {
+        for (int i = 0; i < delay; i++) buffer.add(List.of());
     }
 
     private void keyScan(DataAccess input) {

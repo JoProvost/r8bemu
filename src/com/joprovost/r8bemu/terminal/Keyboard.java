@@ -43,7 +43,7 @@ public class Keyboard implements ClockAware {
             lines.forEach(sequence -> {
                 sequence(sequence);
                 keyboard.type(List.of(Key.ENTER));
-                keyboard.type(List.of());
+                keyboard.pause(4);
             });
         }
     }

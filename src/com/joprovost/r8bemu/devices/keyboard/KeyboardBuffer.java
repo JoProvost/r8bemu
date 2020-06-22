@@ -4,4 +4,5 @@ import java.util.List;
 
 public interface KeyboardBuffer {
     void type(List<Key> key);
+    void pause(int delay);
 }
