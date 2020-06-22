@@ -20,12 +20,14 @@ public class KeyboardAdapter implements KeyboardBuffer, ClockAware {
 
     private final ClockAwareBusyState state = new ClockAwareBusyState();
     private final Deque<List<Key>> buffer = new ArrayDeque<>();
-    private final DataAccess row;
+    private final DataOutput column;
+    private final DataAccessSubset row;
     private List<Key> keyboard = List.of();
 
     public KeyboardAdapter(MC6821 pia) {
+        column = pia.portB().output();
         row = DataAccessSubset.of(pia.portA().input(), 0x7f);
-        pia.portB().outputTo(this::keyScan);
+        pia.portA().inputFrom(this::keyScan);
         state.busy(BOOT_DELAY);
     }
 
@@ -47,15 +49,10 @@ public class KeyboardAdapter implements KeyboardBuffer, ClockAware {
         buffer.add(key);
     }
 
-    private void keyScan(DataOutput column) {
-        if (keyboard.isEmpty()) {
-            row.value(0xff);
-        } else {
-            int portA = 0xff;
-            for (var key : keyboard) {
-                portA &= key.row(column.value());
-            }
-            row.value(portA);
+    private void keyScan(DataAccess input) {
+        row.value(0xff);
+        for (var key : keyboard) {
+            row.clear(~key.row(column.value()));
         }
     }
 }
