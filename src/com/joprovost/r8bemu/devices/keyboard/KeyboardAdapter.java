@@ -12,7 +12,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
-public class KeyboardAdapter implements KeyboardBuffer, ClockAware {
+public class KeyboardAdapter implements Keyboard, ClockAware {
 
     public static final int TYPE_DELAY = 40000;
     public static final int BOOT_DELAY = 1200000;

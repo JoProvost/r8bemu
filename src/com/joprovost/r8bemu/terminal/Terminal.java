@@ -6,9 +6,6 @@ import java.io.PrintStream;
 
 
 public class Terminal implements Display {
-    public static final String ASCII_CHARSET = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]↑← !\"#$%&'()*+,-./0123456789:;<=>?";
-    public static final String SGM4_CHARSET = " ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█";
-
     private static final int MARGIN_TOP = 1;
     private static final int MARGIN_LEFT = 4;
     private static final int HEIGHT = 16;
@@ -20,21 +17,17 @@ public class Terminal implements Display {
     }
 
     @Override
-    public void ascii(int row, int column, Color fg, Color bg, int code) {
+    public void character(int row, int column, Color fg, Color bg, char character) {
         begin();
         move(row, column);
         color(fg, bg);
-        printStream.print(ASCII_CHARSET.charAt(code));
+        printStream.print(character);
         end();
     }
 
     @Override
-    public void sgm4(int row, int column, Color fg, Color bg, int luma) {
-        begin();
-        move(row, column);
-        color(fg, bg);
-        printStream.print(SGM4_CHARSET.charAt(luma));
-        end();
+    public void pixel(int x, int y, Color color) {
+        throw new UnsupportedOperationException();
     }
 
     public void begin() {

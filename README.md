@@ -12,19 +12,25 @@ __Just for fun!__
 ## Usage
 
     # From an ANSI compatible terminal
-    ./coco2
+    ./r8bemu-terminal
+
+    # From any desktop environment
+    ./r8bemu
 
 ### Boot ROM
-In order to use this emulator, you must provide a ROM to boot on.  You can download the bytes from an actual CoCo 2 you
+In order to use this emulator, you must provide the ROM to boot on.  You can download it from an actual CoCo 2 you
 own and put the content of `Color Basic` in `./rom/bas.rom` and the `Extended Color Basic` in `./rom/extbas.rom` or
 craft your own :
 
  * __`bas.rom`__ starts at __0xA000__ ending at __0xBFFF__, boot vector must be at __0xBFFE__ ;
  * __`extbas.rom`__ starts at __0x8000__ ending at __0x9FFF__ .
 
-### Boot scripting
-In order to perform integration tests the content of __`autorun.bas`__ is typed on the emulator keyboard at boot. This
-is actually the only way to load a basic program. 
+### Scripting
+In order to perform integration tests the content of a script may be is typed on the emulator keyboard.
+To do so, start the application with `--script <path-to-file>`.
+
+### Tape cassette
+To load a program from a `.wav` file, start the application with `--playback <path-to-file>` and type `CLOAD` or `CLOADM` at the prompt. To save on tape, start the application with `--recording <path-to-file>` and type `CSAVE "<file-name>"`.
 
 ## Demo!
 

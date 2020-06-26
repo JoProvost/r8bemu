@@ -5,10 +5,11 @@ import com.joprovost.r8bemu.port.DataInputProvider;
 import com.joprovost.r8bemu.port.LogicOutputHandler;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class TapePlayback {
     private final Uptime uptime;
-    private final String file;
+    private final Path file;
     private WaveFile playback = WaveFile.empty();
 
     // TODO: See why the pitch has to be lowered?
@@ -19,7 +20,7 @@ public class TapePlayback {
     private long motorOff = 0;
     private boolean motor;
 
-    public TapePlayback(Uptime uptime, String file) {
+    public TapePlayback(Uptime uptime, Path file) {
         this.uptime = uptime;
         this.file = file;
     }

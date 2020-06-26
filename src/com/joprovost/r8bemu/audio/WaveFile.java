@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 
 public class WaveFile {
     public static final int BLOCK_SIZE = 0x10;
@@ -24,9 +25,9 @@ public class WaveFile {
         return new WaveFile(44100, new byte[0]);
     }
 
-    public static WaveFile load(String file) throws IOException {
+    public static WaveFile load(Path path) throws IOException {
 
-        try (FileInputStream in = new FileInputStream(file)) {
+        try (FileInputStream in = new FileInputStream(path.toFile())) {
             if (!string(in, 4).equals("RIFF")) throw new IOException();
             int fileSize = le32(in);
             if (!string(in, 4).equals("WAVE")) throw new IOException();
@@ -58,8 +59,8 @@ public class WaveFile {
         }
     }
 
-    public static void save(String file, ByteArrayOutputStream recording, int frequency) throws IOException {
-        FileOutputStream out = new FileOutputStream(file);
+    public static void save(Path path, ByteArrayOutputStream recording, int frequency) throws IOException {
+        FileOutputStream out = new FileOutputStream(path.toFile());
 
         out.write(string("RIFF"));
         out.write(fileSize(recording));

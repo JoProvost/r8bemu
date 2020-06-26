@@ -56,10 +56,10 @@ public class MC6847 implements MemoryMapped, ClockAware {
         var column = address % WIDTH + 1;
 
         if (AS.isSet()) {
-            display.sgm4(row, column, color(SGM4_CHROMA.value()), BLACK, SGM4_LUMA.value());
+            display.graphics4(row, column, color(SGM4_CHROMA.value()), BLACK, SGM4_LUMA.value());
         } else {
-            if (INV.isSet()) display.ascii(row, column, BLACK, GREEN, ASCII_CODE.value());
-            else display.ascii(row, column, GREEN, BLACK, ASCII_CODE.value());
+            if (INV.isSet()) display.character(row, column, BLACK, GREEN, ASCII_CODE.value());
+            else display.character(row, column, GREEN, BLACK, ASCII_CODE.value());
         }
     }
 

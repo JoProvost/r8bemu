@@ -6,6 +6,7 @@ import com.joprovost.r8bemu.port.LogicOutputHandler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 
 public class TapeRecorder {
     public static final int FREQUENCY = 9600;
@@ -15,7 +16,7 @@ public class TapeRecorder {
     private static final double PITCH = 0.9;
 
     private final Uptime uptime;
-    private final String file;
+    private final Path file;
     private final ByteArrayOutputStream recording = new ByteArrayOutputStream();
 
     private int last = 128;
@@ -23,7 +24,7 @@ public class TapeRecorder {
     private long offset = 0;
     private boolean motor;
 
-    public TapeRecorder(Uptime uptime, String file) {
+    public TapeRecorder(Uptime uptime, Path file) {
         this.uptime = uptime;
         this.file = file;
     }

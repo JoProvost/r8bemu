@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+APP_HOME="$(dirname "$(realpath $0)")"
+javac -d "$APP_HOME/classes" $(find $APP_HOME/src -name '*.java')
+
+java -classpath "$APP_HOME/classes" com.joprovost.r8bemu.R8BEmu --home "$APP_HOME" "$@"
