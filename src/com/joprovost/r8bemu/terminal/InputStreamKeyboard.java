@@ -1,6 +1,5 @@
 package com.joprovost.r8bemu.terminal;
 
-import com.joprovost.r8bemu.devices.keyboard.KeyboardMapping;
 import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.clock.ClockAwareBusyState;
@@ -10,10 +9,7 @@ import com.joprovost.r8bemu.devices.keyboard.Keyboard;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class InputStreamKeyboard implements ClockAware {
     // At 900kHz, keys are fetched every 88ms
@@ -29,24 +25,31 @@ public class InputStreamKeyboard implements ClockAware {
         this.keyboard = keyboard;
     }
 
+    public static List<Key> keys(String keystroke) {
+        List<Key> keys = Key.character(keystroke.charAt(0));
+
+        if (!keys.isEmpty()) return keys;
+
+        switch (keystroke.charAt(0)) {
+            case '\r': return List.of(Key.ENTER);
+            case 127: return List.of(Key.LEFT); // BACKSPACE KEY
+
+            case 27:
+                if (keystroke.length() < 3) return List.of(Key.BREAK);
+                switch (keystroke.substring(1)) {
+                    case "[A": return List.of(Key.UP);
+                    case "[B": return List.of(Key.DOWN);
+                    case "[D": return List.of(Key.LEFT);
+                    case "[C": return List.of(Key.RIGHT);
+                    case "[1~": return List.of(Key.CLEAR); // HOME KEY
+                    case "[3~": return List.of(Key.CLEAR); // DEL KEY
+                }
+        }
+        return List.of();
+    }
+
     public void type(String keystroke) {
-        keyboard.type(KeyboardMapping.keystroke(keystroke));
-    }
-
-    public void sequence(String sequence) {
-        for (var key : sequence.toCharArray()) {
-            type(String.valueOf(key));
-        }
-    }
-
-    public void script(Path path) throws IOException {
-        try (Stream<String> lines = Files.lines(path)) {
-            lines.forEach(sequence -> {
-                sequence(sequence);
-                keyboard.type(List.of(Key.ENTER));
-                keyboard.pause(4);
-            });
-        }
+        keyboard.type(keys(keystroke));
     }
 
     @Override
@@ -64,5 +67,4 @@ public class InputStreamKeyboard implements ClockAware {
             type(new String(buffer).substring(0, len));
         }
     }
-
 }

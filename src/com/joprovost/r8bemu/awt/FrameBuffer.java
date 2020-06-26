@@ -9,8 +9,8 @@ import java.awt.image.BufferedImage;
 import static java.awt.Color.BLACK;
 import static java.awt.Color.BLUE;
 import static java.awt.Color.CYAN;
-import static java.awt.Color.GRAY;
 import static java.awt.Color.GREEN;
+import static java.awt.Color.LIGHT_GRAY;
 import static java.awt.Color.MAGENTA;
 import static java.awt.Color.ORANGE;
 import static java.awt.Color.RED;
@@ -60,7 +60,7 @@ public class FrameBuffer extends Canvas implements Display {
                 break;
             case RED: image.setRGB(x, y, RED.getRGB());
                 break;
-            case BUFF: image.setRGB(x, y, GRAY.getRGB());
+            case BUFF: image.setRGB(x, y, LIGHT_GRAY.getRGB());
                 break;
             case CYAN: image.setRGB(x, y, CYAN.getRGB());
                 break;

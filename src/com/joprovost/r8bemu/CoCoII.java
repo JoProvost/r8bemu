@@ -78,7 +78,7 @@ public class CoCoII {
         MC6809E cpu = clock.aware(new MC6809E(sam, debugger, clock));
         cpu.reset();
 
-        if (Files.exists(script)) keyboard.script(script);
+        if (Files.exists(script)) keyboard.script(Files.readString(script));
 
         try {
             speakerThread.start();
