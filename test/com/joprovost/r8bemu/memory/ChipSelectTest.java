@@ -13,9 +13,9 @@ class ChipSelectTest {
         MemoryMapped third = new Memory(0xf);
 
         MemoryMapped bus = MemoryBus.bus(
-                ChipSelect.mapping(AddressRange.of(0x0, 0xf), first),
-                ChipSelect.mapping(AddressRange.of(0x10, 0x1f), second),
-                ChipSelect.mapping(AddressRange.of(0x20, 0x2f), third)
+                ChipSelect.mapping(first, AddressRange.of(0x0, 0xf)),
+                ChipSelect.mapping(second, AddressRange.of(0x10, 0x1f)),
+                ChipSelect.mapping(third, AddressRange.of(0x20, 0x2f))
         );
 
         bus.write(0x10, 100);
@@ -31,9 +31,9 @@ class ChipSelectTest {
         MemoryMapped third = new Memory(0xf);
 
         MemoryMapped bus = MemoryBus.bus(
-                ChipSelect.mapping(AddressRange.of(0x0, 0xf), first),
-                ChipSelect.mapping(AddressRange.of(0x10, 0x1f), second),
-                ChipSelect.mapping(AddressRange.of(0x20, 0x2f), third)
+                ChipSelect.mapping(first, AddressRange.of(0x0, 0xf)),
+                ChipSelect.mapping(second, AddressRange.of(0x10, 0x1f)),
+                ChipSelect.mapping(third, AddressRange.of(0x20, 0x2f))
         );
 
         third.write(0x5, 200);

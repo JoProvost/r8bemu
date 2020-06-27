@@ -43,7 +43,7 @@ public class CoCoII {
                                Path recordingFile,
                                String home) throws IOException {
 
-        var uptime = clock.aware(new ClockFrequency(895, clock));
+        var uptime = clock.aware(new ClockFrequency(900, clock));
 
         var cs4 = new MC6821(Signal.IRQ, Signal.IRQ);
         keyboard.dispatchTo(clock.aware(new KeyboardAdapter(cs4)));
@@ -59,6 +59,7 @@ public class CoCoII {
         cs5.portA().outputTo(new SC77526(AudioSink.broadcast(speaker.input(), recorder.input())));
         cs5.portA().controlTo(recorder.motor());
         cs5.portA().controlTo(playback.motor());
+        cs5.portB().outputTo(vdg.mode());
 
         var sam = MC6883.ofRam(new Memory(0xffff))
                         .withRom0(rom(home + "/rom/extbas.rom"))

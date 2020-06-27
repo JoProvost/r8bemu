@@ -6,6 +6,10 @@ import com.joprovost.r8bemu.data.DataOutput;
  * Represents a device directly connected on the address and data bus.
  */
 public interface MemoryMapped {
+    static MemoryMapped none() {
+        return new MemoryMapped() {};
+    }
+
     default int read(int address) {
         return 0;
     }

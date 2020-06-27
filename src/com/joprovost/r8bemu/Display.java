@@ -24,6 +24,14 @@ public interface Display {
         }
     }
 
+    default void square(int x, int y, int width, int height, Color color) {
+        for (int ix = 0; ix < width; ix++) {
+            for (int iy = 0; iy < height; iy++) {
+                pixel(x + ix, y + iy, color);
+            }
+        }
+    }
+
     void pixel(int x, int y, Color color);
 
     enum Color {
