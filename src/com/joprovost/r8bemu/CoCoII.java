@@ -32,9 +32,6 @@ import static com.joprovost.r8bemu.mc6809.MC6809E.NMI_VECTOR;
 import static com.joprovost.r8bemu.mc6809.MC6809E.RESET_VECTOR;
 
 public class CoCoII {
-    private static final String OS = System.getProperty("os.name");
-    public static final boolean LINUX = OS.toLowerCase().contains("linux");
-
     public static void emulate(ClockGenerator clock,
                                Display display,
                                KeyboardDispatcher keyboard,
@@ -52,7 +49,7 @@ public class CoCoII {
 
         TapeRecorder recorder = new TapeRecorder(uptime, recordingFile);
         TapePlayback playback = new TapePlayback(uptime, playbackFile);
-        Speaker speaker = new Speaker(new AudioFormat(44100, 8, 1, LINUX, false), uptime);
+        Speaker speaker = new Speaker(new AudioFormat(44100, 8, 1, true, false), uptime);
         Thread speakerThread = new Thread(speaker);
 
         cs5.portA().inputFrom(playback.output(0));

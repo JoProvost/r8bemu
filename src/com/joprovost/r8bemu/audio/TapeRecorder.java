@@ -36,11 +36,15 @@ public class TapeRecorder {
             int count = (int) (pos - this.pos);
             if (count > 0) {
                 skip(count - 1);
-                recording.write(amplitude);
+                recording.write(unsigned(amplitude));
                 last = amplitude;
             }
             this.pos = pos;
         };
+    }
+
+    public int unsigned(int amplitude) {
+        return amplitude + 128;
     }
 
     public void skip(long count) {

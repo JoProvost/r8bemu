@@ -27,7 +27,7 @@ public class Speaker implements Runnable {
         buffer = new Buffer(
                 (int) (format.getSampleRate() / 10),
                 TIMEOUT_MS,
-                format.getEncoding() == PCM_UNSIGNED ? 128:0
+                encoded(0)
         );
         input = buffer.input();
     }
@@ -43,13 +43,17 @@ public class Speaker implements Runnable {
                 int count = (int) (pos - last);
                 if (count > 0) {
                     buffer.skip(count - 1);
-                    buffer.write(amplitude);
+                    buffer.write(encoded(amplitude));
                 }
                 last = pos;
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         };
+    }
+
+    public int encoded(int amplitude) {
+        return amplitude + (format.getEncoding() == PCM_UNSIGNED ? 128 : 0);
     }
 
     @Override
