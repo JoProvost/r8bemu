@@ -18,7 +18,7 @@ import static java.awt.Color.YELLOW;
 import static java.awt.RenderingHints.KEY_INTERPOLATION;
 import static java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
 
-public class FrameBuffer extends Canvas implements Display {
+public class FrameBuffer extends JPanel implements Display {
 
     public static final int width = 256;
     public static final int height = 192;
@@ -35,8 +35,8 @@ public class FrameBuffer extends Canvas implements Display {
     }
 
     @Override
-    public void paint(Graphics g) {
-        super.paint(g);
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(KEY_INTERPOLATION, VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         g2d.drawImage(image, 0, 0, getWidth(), getHeight(), null);
