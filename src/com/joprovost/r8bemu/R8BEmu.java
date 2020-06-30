@@ -34,8 +34,7 @@ public class R8BEmu {
 
             case "awt":
                 var frameBuffer = new FrameBuffer();
-                frameBuffer.addKeyListener(new AWTKeyboard(keyboard));
-                UserInterface.show(frameBuffer);
+                UserInterface.show(frameBuffer).addKeyListener(new AWTKeyboard(keyboard));
                 CoCoII.emulate(clock, frameBuffer, keyboard, script, playback, recording, home);
                 break;
         }

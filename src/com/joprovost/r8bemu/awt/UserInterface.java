@@ -15,7 +15,7 @@ public class UserInterface extends JFrame {
         this.frameBuffer = frameBuffer;
     }
 
-    public static void show(FrameBuffer frameBuffer) {
+    public static UserInterface show(FrameBuffer frameBuffer) {
         UserInterface ui = new UserInterface("R8BEmu", frameBuffer);
 
         Container content = ui.getContentPane();
@@ -26,5 +26,6 @@ public class UserInterface extends JFrame {
         ui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ui.pack();
         ui.setVisible(true);
+        return ui;
     }
 }
