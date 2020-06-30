@@ -73,8 +73,8 @@ public class CoCoII {
                                              Reference.of(sam, FIRQ_VECTOR, Size.WORD_16).value(),
                                              Reference.of(sam, NMI_VECTOR, Size.WORD_16).value());
 
-        MC6809E cpu = clock.aware(new MC6809E(sam, debugger, clock));
-        cpu.reset();
+        clock.aware(new MC6809E(sam, debugger, clock));
+        Signal.RESET.set();
 
         if (Files.exists(script)) keyboard.script(Files.readString(script));
 

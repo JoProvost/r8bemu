@@ -11,10 +11,6 @@ import com.joprovost.r8bemu.memory.MemoryMapped;
 import java.io.EOFException;
 import java.io.IOException;
 
-import static com.joprovost.r8bemu.mc6809.Register.F;
-import static com.joprovost.r8bemu.mc6809.Register.I;
-import static com.joprovost.r8bemu.mc6809.Register.PC;
-
 public class MC6809E implements ClockAware {
 
     public static final int RESET_VECTOR = 0xfffe;
@@ -36,17 +32,19 @@ public class MC6809E implements ClockAware {
 
     public void tick(Clock unused) throws IOException {
         if (clock.isBusy()) return;
-        if (Signal.FIRQ.isSet() && F.isClear()) firq();
-        else if (Signal.IRQ.isSet() && I.isClear()) irq();
+        if (Signal.RESET.isSet()) reset();
+        else if (Signal.NMI.isSet()) nmi();
+        else if (Signal.FIRQ.isSet() && Register.F.isClear()) firq();
+        else if (Signal.IRQ.isSet() && Register.I.isClear()) irq();
         else execute();
     }
 
     private void execute() throws EOFException {
-        var address = PC.value();
+        var address = Register.PC.value();
         debug.at(address);
-        var instruction = Op.next(memory, PC);
+        var instruction = Op.next(memory, Register.PC);
         var mnemonic = instruction.mnemonic();
-        var argument = debug.argument(Argument.next(memory, instruction.addressing(), PC, clock));
+        var argument = debug.argument(Argument.next(memory, instruction.addressing(), Register.PC, clock));
 
         clock.busy(instruction.cycles());
 
@@ -57,9 +55,10 @@ public class MC6809E implements ClockAware {
         debug.instruction(mnemonic);
     }
 
-    public void reset() {
-        I.set(true);
-        F.set(true);
+    private void reset() {
+        Register.I.set(true);
+        Register.F.set(true);
+        Signal.RESET.clear();
         Register.DP.value(0x00);
         Branches.jump(Reference.of(memory, RESET_VECTOR, Size.WORD_16));
     }
@@ -67,19 +66,19 @@ public class MC6809E implements ClockAware {
     private void irq() {
         clock.busy(6);
         Branches.interrupt(Reference.of(memory, IRQ_VECTOR, Size.WORD_16), stack);
-        I.set();
+        Register.I.set();
     }
 
     private void firq() {
         clock.busy(6);
         Branches.fastInterrupt(Reference.of(memory, FIRQ_VECTOR, Size.WORD_16), stack);
-        F.set();
-        I.set();
+        Register.F.set();
+        Register.I.set();
     }
 
-    public void nmi() {
+    private void nmi() {
         Branches.interrupt(Reference.of(memory, NMI_VECTOR, Size.WORD_16), stack);
-        I.set();
-        F.set();
+        Register.I.set();
+        Register.F.set();
     }
 }

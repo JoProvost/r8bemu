@@ -1,31 +1,40 @@
 package com.joprovost.r8bemu.awt;
 
 import javax.swing.*;
-import java.awt.*;
+import java.util.List;
 
 import static java.awt.BorderLayout.CENTER;
-import static java.awt.Color.BLACK;
 
 public class UserInterface extends JFrame {
 
-    private final FrameBuffer frameBuffer;
-
-    private UserInterface(String name, FrameBuffer frameBuffer) {
-        super(name);
-        this.frameBuffer = frameBuffer;
+    static {
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
     }
 
-    public static UserInterface show(FrameBuffer frameBuffer) {
-        UserInterface ui = new UserInterface("R8BEmu", frameBuffer);
+    private UserInterface(String name) {
+        super(name);
+    }
 
-        Container content = ui.getContentPane();
-        content.setBackground(BLACK);
-        content.add(ui.frameBuffer, CENTER);
+    public static UserInterface show(FrameBuffer frameBuffer, List<Action> actions) {
+        UserInterface ui = new UserInterface("R8BEmu");
+        ui.getContentPane().add(frameBuffer, CENTER);
+        ui.setJMenuBar(menu(actions));
 
         ui.setResizable(true);
         ui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ui.pack();
         ui.setVisible(true);
+        ui.setMinimumSize(ui.getSize());
         return ui;
+    }
+
+    public static JMenuBar menu(List<Action> actions) {
+        JMenuBar menubar = new JMenuBar();
+        JMenu actionMenu = new JMenu("Actions");
+        for (var action : actions) {
+            actionMenu.add(new JMenuItem(action));
+        }
+        menubar.add(actionMenu);
+        return menubar;
     }
 }

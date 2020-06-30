@@ -2,15 +2,19 @@ package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.clock.ClockGenerator;
 import com.joprovost.r8bemu.devices.keyboard.Keyboard;
+import com.joprovost.r8bemu.mc6809.Signal;
 import com.joprovost.r8bemu.terminal.InputStreamKeyboard;
 import com.joprovost.r8bemu.terminal.Terminal;
 import com.joprovost.r8bemu.awt.AWTKeyboard;
 import com.joprovost.r8bemu.awt.FrameBuffer;
 import com.joprovost.r8bemu.awt.UserInterface;
 
+import javax.swing.AbstractAction;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class R8BEmu {
@@ -34,7 +38,12 @@ public class R8BEmu {
 
             case "awt":
                 var frameBuffer = new FrameBuffer();
-                UserInterface.show(frameBuffer).addKeyListener(new AWTKeyboard(keyboard));
+                UserInterface.show(frameBuffer, List.of(new AbstractAction("Reset") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Signal.RESET.set();
+                    }
+                })).addKeyListener(new AWTKeyboard(keyboard));
                 CoCoII.emulate(clock, frameBuffer, keyboard, script, playback, recording, home);
                 break;
         }
