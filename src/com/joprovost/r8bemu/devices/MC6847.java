@@ -25,7 +25,8 @@ import static com.joprovost.r8bemu.Display.Color.YELLOW;
 
 // VideoDisplayGenerator
 public class MC6847 implements MemoryMapped, ClockAware {
-    public static final int WIDTH = 32;
+    public static final int SCREEN_WIDTH = 256;
+    public static final int SCREEN_COLUMNS = 32;
     public static final int LINES = 250;
 
     private static final int CG1 = 0;
@@ -117,8 +118,8 @@ public class MC6847 implements MemoryMapped, ClockAware {
         VDG_DATA_BUS.value(data);
 
         if (A_G.isClear()) {
-            var row = address / WIDTH + 1;
-            var column = address % WIDTH + 1;
+            var row = address / SCREEN_COLUMNS + 1;
+            var column = address % SCREEN_COLUMNS + 1;
             if (AS.isSet()) {
                 display.graphics4(row, column, color(SGM4_CHROMA.value()), BLACK, SGM4_LUMA.value());
             } else {
@@ -130,10 +131,9 @@ public class MC6847 implements MemoryMapped, ClockAware {
             Display.Color foreground = CSS.isSet() ? BUFF : GREEN;
             Display.Color background = BLACK;
 
-            int index = address;
             switch (GM0_2.value()) {
                 case CG1:
-                    draw(index, 4, 3,
+                    draw(address, 4, 3,
                          // TODO: Test this mode with an application
                          //       There is no mapping in Color BASIC
                          color(CSS.isSet(), E3.value()),
@@ -145,7 +145,7 @@ public class MC6847 implements MemoryMapped, ClockAware {
                 case RG1:
                     // TODO: Test this mode with an application
                     //       There is no mapping in Color BASIC
-                    draw(index, 3, 3,
+                    draw(address, 3, 3,
                          L7.isSet() ? foreground : background,
                          L6.isSet() ? foreground : background,
                          L5.isSet() ? foreground : background,
@@ -159,7 +159,7 @@ public class MC6847 implements MemoryMapped, ClockAware {
                 case CG2:
                     // TODO See why "microchess" uses this mode but puts SAM into VDG MODE 4 and expects pixels of
                     //      2 x 2.  It should be 3 x 3 according to the chip specs.
-                    draw(index, 2, 2,
+                    draw(address, 2, 2,
                          color(CSS.isSet(), E3.value()),
                          color(CSS.isSet(), E2.value()),
                          color(CSS.isSet(), E1.value()),
@@ -167,7 +167,7 @@ public class MC6847 implements MemoryMapped, ClockAware {
                     break;
 
                 case PMODE_0:
-                    draw(index, 2, 2,
+                    draw(address, 2, 2,
                          L7.isSet() ? foreground : background,
                          L6.isSet() ? foreground : background,
                          L5.isSet() ? foreground : background,
@@ -179,7 +179,7 @@ public class MC6847 implements MemoryMapped, ClockAware {
                     break;
 
                 case PMODE_1:
-                    draw(index, 2, 2,
+                    draw(address, 2, 2,
                          color(CSS.isSet(), E3.value()),
                          color(CSS.isSet(), E2.value()),
                          color(CSS.isSet(), E1.value()),
@@ -187,7 +187,7 @@ public class MC6847 implements MemoryMapped, ClockAware {
                     break;
 
                 case PMODE_2:
-                    draw(index, 2, 1,
+                    draw(address, 2, 1,
                          L7.isSet() ? foreground : background,
                          L6.isSet() ? foreground : background,
                          L5.isSet() ? foreground : background,
@@ -199,7 +199,7 @@ public class MC6847 implements MemoryMapped, ClockAware {
                     break;
 
                 case PMODE_3:
-                    draw(index, 2, 1,
+                    draw(address, 2, 1,
                          color(CSS.isSet(), E3.value()),
                          color(CSS.isSet(), E2.value()),
                          color(CSS.isSet(), E1.value()),
@@ -207,7 +207,7 @@ public class MC6847 implements MemoryMapped, ClockAware {
                     break;
 
                 case PMODE_4:
-                    draw(index, 1, 1,
+                    draw(address, 1, 1,
                          L7.isSet() ? foreground : background,
                          L6.isSet() ? foreground : background,
                          L5.isSet() ? foreground : background,
@@ -238,7 +238,7 @@ public class MC6847 implements MemoryMapped, ClockAware {
     }
 
     private void draw(int index, int width, int height, Display.Color color) {
-        int rx = 256 / width;
+        int rx = SCREEN_WIDTH / width;
         int x = (index % rx) * width;
         int y = (index / rx) * height;
         display.square(x, y, width, height, color);

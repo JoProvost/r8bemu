@@ -38,12 +38,13 @@ public class R8BEmu {
 
             case "awt":
                 var frameBuffer = new FrameBuffer();
+                frameBuffer.addKeyListener(new AWTKeyboard(keyboard));
                 UserInterface.show(frameBuffer, List.of(new AbstractAction("Reset") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         Signal.RESET.set();
                     }
-                })).addKeyListener(new AWTKeyboard(keyboard));
+                }));
                 CoCoII.emulate(clock, frameBuffer, keyboard, script, playback, recording, home);
                 break;
         }

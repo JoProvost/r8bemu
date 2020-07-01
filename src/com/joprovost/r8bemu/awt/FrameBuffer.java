@@ -4,6 +4,8 @@ import com.joprovost.r8bemu.Display;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 
 import static java.awt.Color.BLACK;
@@ -30,8 +32,16 @@ public class FrameBuffer extends JPanel implements Display {
         timer.setRepeats(false);
         setMinimumSize(new Dimension(width * 2, height * 2));
         setPreferredSize(new Dimension(width * 2, height * 2));
-        setBackground(java.awt.Color.white);
         setVisible(true);
+
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+        addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                grabFocus();
+            }
+        });
     }
 
     @Override
