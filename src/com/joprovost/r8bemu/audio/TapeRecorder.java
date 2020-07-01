@@ -9,7 +9,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
 public class TapeRecorder {
-    public static final int FREQUENCY = 9600;
+    public static final int FREQUENCY = 22050;
 
     // TODO: See why the pitch has to be lowered?
     //       Required in order to read files from https://colorcomputerarchive.com/repo/Cassettes
