@@ -3,14 +3,18 @@ package com.joprovost.r8bemu.mc6809;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.DataOutput;
 
+import static com.joprovost.r8bemu.data.DataOutput.negative;
 import static com.joprovost.r8bemu.data.DataOutputSubset.bit;
 import static com.joprovost.r8bemu.mc6809.Register.B;
 import static com.joprovost.r8bemu.mc6809.Register.X;
+import static com.joprovost.r8bemu.mc6809.Check.carry;
+import static com.joprovost.r8bemu.mc6809.Check.overflow;
+import static com.joprovost.r8bemu.mc6809.Check.zero;
 
 public class Arithmetic {
     public static void sex() {
         Register.D.value(Register.B.signed());
-        Register.N.set(DataOutput.negative(Register.D.value(), Register.D.mask()));
+        Register.N.set(negative(Register.D.value(), Register.D.mask()));
         Register.Z.set(Register.D.isClear());
     }
 
@@ -25,11 +29,15 @@ public class Arithmetic {
     }
 
     public static void neg(DataAccess variable) {
-        variable.value(~variable.value() + 1);
-        Register.N.set(DataOutput.negative(variable.value(), variable.mask()));
-        Register.Z.set(variable.isClear());
-        Register.V.set(variable.value() == DataOutput.highestBit(variable.mask()));
-        Register.C.set(variable.isClear());
+        var before = variable.value();
+        var result = ~before + 1;
+        var mask = variable.mask();
+        variable.value(result);
+
+        Register.N.set(negative(result, mask));
+        Register.Z.set(zero(result, mask));
+        Register.V.set(overflow(before, result, mask));
+        Register.C.set(carry(result, mask));
     }
 
     public static void adc(Register register, DataAccess argument) {
@@ -43,8 +51,24 @@ public class Arithmetic {
         if (mask == 0xff) Register.H.set(halfCarry(a, b, result));
         Register.C.set(carry(result, mask));
         Register.V.set(overflow(a, b, result, mask));
-        Register.Z.set((result & mask) == 0);
-        Register.N.set(DataOutput.negative(result, mask));
+        Register.Z.set(zero(result, mask));
+        Register.N.set(negative(result, mask));
+    }
+
+    public static void daa() {
+        var register = Register.A.value();
+        int low = register & 0x0f;
+        int result = register;
+        int mask = Register.A.mask();
+
+        if (low >= 0x0a || Register.H.isSet()) result += 0x06;
+        if ((register >= 0x90 && low >= 0x0a) || register >= 0xa0 || Register.C.isSet()) result += 0x60;
+        Register.A.value(result);
+
+        Register.C.set(Register.C.isSet() || carry(result, mask));
+        Register.V.clear();
+        Register.Z.set(zero(result, mask));
+        Register.N.set(negative(result, mask));
     }
 
     public static void add(Register register, DataAccess argument) {
@@ -57,8 +81,8 @@ public class Arithmetic {
         if (mask == 0xff) Register.H.set(halfCarry(a, b, result));
         Register.C.set(carry(result, mask));
         Register.V.set(overflow(a, b, result, mask));
-        Register.Z.set((result & mask) == 0);
-        Register.N.set(DataOutput.negative(result, mask));
+        Register.Z.set(zero(result, mask));
+        Register.N.set(negative(result, mask));
     }
 
     public static void sbc(Register register, DataAccess argument) {
@@ -71,8 +95,8 @@ public class Arithmetic {
 
         Register.C.set(carry(result, mask));
         Register.V.set(overflow(a, b, result, mask));
-        Register.Z.set((result & mask) == 0);
-        Register.N.set(DataOutput.negative(result, mask));
+        Register.Z.set(zero(result, mask));
+        Register.N.set(negative(result, mask));
     }
 
     public static void sub(Register register, DataAccess argument) {
@@ -84,8 +108,8 @@ public class Arithmetic {
 
         Register.C.set(carry(result, mask));
         Register.V.set(overflow(a, b, result, mask));
-        Register.Z.set((result & mask) == 0);
-        Register.N.set(DataOutput.negative(result, mask));
+        Register.Z.set(zero(result, mask));
+        Register.N.set(negative(result, mask));
     }
 
     public static void increment(DataAccess argument) {
@@ -95,7 +119,7 @@ public class Arithmetic {
         argument.value(result);
 
         Register.V.set(result == DataOutput.highestBit(mask));
-        Register.N.set(DataOutput.negative(result, mask));
+        Register.N.set(negative(result, mask));
         Register.Z.set(argument.isClear());
     }
 
@@ -106,36 +130,8 @@ public class Arithmetic {
         argument.value(result);
 
         Register.V.set(result == DataOutput.highestBit(mask) - 1);
-        Register.N.set(DataOutput.negative(result, mask));
+        Register.N.set(negative(result, mask));
         Register.Z.set(argument.isClear());
-    }
-
-    public static void compare(Register register, DataAccess argument) {
-        var a = register.value();
-        var b = argument.value();
-        var mask = register.mask();
-        var result = a - b;
-
-        Register.C.set(carry(result, mask));
-        Register.V.set(overflow(a, b, result, mask));
-        Register.Z.set((result & mask) == 0);
-        Register.N.set(DataOutput.negative(result, mask));
-    }
-
-    public static void test(DataAccess argument) {
-        int result = argument.value();
-        var mask = argument.mask();
-        Register.V.clear();
-        Register.N.set(DataOutput.negative(result, mask));
-        Register.Z.set((result & mask) == 0);
-    }
-
-    private static boolean overflow(int a, int b, int result, int mask) {
-        return ((a ^ b ^ result ^ (result >> 1)) & DataOutput.highestBit(mask)) != 0;
-    }
-
-    private static boolean carry(int result, int mask) {
-        return (result & (mask + 1)) != 0;
     }
 
     private static boolean halfCarry(int a, int b, int result) {

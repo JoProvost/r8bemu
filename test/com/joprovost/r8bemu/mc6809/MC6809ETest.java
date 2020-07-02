@@ -105,7 +105,7 @@ class MC6809ETest {
             assertEquals(0x01, N.value());
             assertEquals(0x00, V.value());
             assertEquals(0x00, Z.value());
-            assertEquals(0x00, C.value());
+            assertEquals(0x01, C.value());
         }
 
         @Test
@@ -120,7 +120,7 @@ class MC6809ETest {
             assertEquals(0x01, N.value());
             assertEquals(0x01, V.value());
             assertEquals(0x00, Z.value());
-            assertEquals(0x00, C.value());
+            assertEquals(0x01, C.value());
         }
 
         @Test
@@ -135,7 +135,7 @@ class MC6809ETest {
             assertEquals(0x00, N.value());
             assertEquals(0x00, V.value());
             assertEquals(0x01, Z.value());
-            assertEquals(0x01, C.value());
+            assertEquals(0x00, C.value());
         }
 
         @Test

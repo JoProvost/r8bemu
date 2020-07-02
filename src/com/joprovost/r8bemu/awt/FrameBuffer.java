@@ -61,6 +61,9 @@ public class FrameBuffer extends JPanel implements Display {
 
     @Override
     public void pixel(int x, int y, Color color) {
+        if (x >= width) return;
+        if (y >= height) return;
+
         switch (color) {
             case GREEN: image.setRGB(x, y, GREEN.getRGB());
                 break;

@@ -107,7 +107,7 @@ class ArithmeticTest {
             Arithmetic.neg(Register.X);
             assertEquals(1024, Register.X.signed());
             assertTrue(Register.Z.isClear());
-            assertTrue(Register.C.isClear());
+            assertTrue(Register.C.isSet());
             assertTrue(Register.N.isClear());
             assertTrue(Register.V.isClear());
         }
@@ -118,7 +118,7 @@ class ArithmeticTest {
             Arithmetic.neg(Register.X);
             assertEquals(-1024, Register.X.signed());
             assertTrue(Register.Z.isClear());
-            assertTrue(Register.C.isClear());
+            assertTrue(Register.C.isSet());
             assertTrue(Register.N.isSet());
             assertTrue(Register.V.isClear());
         }
@@ -129,7 +129,7 @@ class ArithmeticTest {
             Arithmetic.neg(Register.X);
             assertEquals(0, Register.X.signed());
             assertTrue(Register.Z.isSet());
-            assertTrue(Register.C.isSet());
+            assertTrue(Register.C.isClear());
             assertTrue(Register.N.isClear());
             assertTrue(Register.V.isClear());
         }
@@ -140,7 +140,7 @@ class ArithmeticTest {
             Arithmetic.neg(Register.X);
             assertEquals(0b1000000000000000, Register.X.value());
             assertTrue(Register.Z.isClear());
-            assertTrue(Register.C.isClear());
+            assertTrue(Register.C.isSet());
             assertTrue(Register.N.isSet());
             assertTrue(Register.V.isSet());
         }

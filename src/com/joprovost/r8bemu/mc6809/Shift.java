@@ -4,6 +4,8 @@ import com.joprovost.r8bemu.data.DataAccess;
 
 import static com.joprovost.r8bemu.data.DataOutput.negative;
 import static com.joprovost.r8bemu.data.DataOutputSubset.bit;
+import static com.joprovost.r8bemu.mc6809.Check.carry;
+import static com.joprovost.r8bemu.mc6809.Check.overflow;
 
 public class Shift {
     public static void lsl(DataAccess variable) {
@@ -11,8 +13,8 @@ public class Shift {
         int result = before << 1;
         Register.N.set(negative(result, variable.mask()));
         Register.Z.set(result == 0);
-        Register.V.value(bit(6, before) ^ bit(7, before));
-        Register.C.value(bit(7, before));
+        Register.V.set(overflow(result, variable.mask()));
+        Register.C.set(carry(result, variable.mask()));
         variable.value(result);
     }
 
@@ -30,8 +32,8 @@ public class Shift {
         int result = (before << 1) | Register.C.value();
         Register.N.set(negative(result, variable.mask()));
         Register.Z.set(result == 0);
-        Register.C.value(bit(7, before));
-        Register.V.value(bit(6, before) ^ bit(7, before));
+        Register.C.set(carry(result, variable.mask()));
+        Register.V.set(overflow(result, variable.mask()));
         variable.value(result & variable.mask());
     }
 
