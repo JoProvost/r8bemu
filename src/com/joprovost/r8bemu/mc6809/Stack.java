@@ -3,7 +3,7 @@ package com.joprovost.r8bemu.mc6809;
 import com.joprovost.r8bemu.clock.BusyState;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.DataAccessSubset;
-import com.joprovost.r8bemu.memory.MemoryMapped;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 
 import static com.joprovost.r8bemu.data.Addition.increment;
 import static com.joprovost.r8bemu.data.Subtraction.decrement;
@@ -20,10 +20,10 @@ import static com.joprovost.r8bemu.mc6809.Register.X;
 import static com.joprovost.r8bemu.mc6809.Register.Y;
 
 public class Stack {
-    private final MemoryMapped memory;
+    private final MemoryDevice memory;
     private final BusyState clock;
 
-    public Stack(MemoryMapped memory, BusyState clock) {
+    public Stack(MemoryDevice memory, BusyState clock) {
         this.memory = memory;
         this.clock = clock;
     }

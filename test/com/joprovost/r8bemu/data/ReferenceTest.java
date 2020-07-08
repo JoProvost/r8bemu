@@ -1,13 +1,13 @@
 package com.joprovost.r8bemu.data;
 
-import com.joprovost.r8bemu.memory.MemoryMapped;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 import com.joprovost.r8bemu.memory.StringMemory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ReferenceTest {
-    MemoryMapped memory = new StringMemory();
+    MemoryDevice memory = new StringMemory();
 
     @Test
     void readSingleByte() {

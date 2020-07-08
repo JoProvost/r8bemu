@@ -6,7 +6,7 @@ import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
-import com.joprovost.r8bemu.memory.MemoryMapped;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -18,12 +18,12 @@ public class MC6809E implements ClockAware {
     public static final int NMI_VECTOR = 0xfffc;
     public static final int FIRQ_VECTOR = 0xfff6;
 
-    private final MemoryMapped memory;
+    private final MemoryDevice memory;
     private final Stack stack;
     private final Debugger debug;
     private final BusyState clock;
 
-    public MC6809E(MemoryMapped memory, Debugger debug, BusyState clock) {
+    public MC6809E(MemoryDevice memory, Debugger debug, BusyState clock) {
         this.memory = memory;
         this.debug = debug;
         this.clock = clock;

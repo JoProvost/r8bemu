@@ -4,7 +4,7 @@ import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.memory.Addressing;
-import com.joprovost.r8bemu.memory.MemoryMapped;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -338,7 +338,7 @@ public class Op {
         this.addressing = addressing;
     }
 
-    public static Op next(MemoryMapped memory, DataAccess programCounter) {
+    public static Op next(MemoryDevice memory, DataAccess programCounter) {
         final int code = nextCode(memory, programCounter);
         var instruction = ops.get(code);
         if (instruction == null)
@@ -346,7 +346,7 @@ public class Op {
         return instruction;
     }
 
-    private static int nextCode(MemoryMapped memory, DataAccess programCounter) {
+    private static int nextCode(MemoryDevice memory, DataAccess programCounter) {
         int op = Reference.next(memory, Size.WORD_8, programCounter).value();
         if (extended.contains(op)) op = op << 8 | Reference.next(memory, Size.WORD_8, programCounter).value();
         return op;

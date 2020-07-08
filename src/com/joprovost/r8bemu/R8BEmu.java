@@ -1,13 +1,17 @@
 package com.joprovost.r8bemu;
 
+import com.joprovost.r8bemu.io.Button;
+import com.joprovost.r8bemu.io.awt.NumpadJoystick;
 import com.joprovost.r8bemu.clock.ClockGenerator;
-import com.joprovost.r8bemu.devices.keyboard.Keyboard;
+import com.joprovost.r8bemu.io.Joystick;
+import com.joprovost.r8bemu.io.Keyboard;
+import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.mc6809.Signal;
-import com.joprovost.r8bemu.terminal.InputStreamKeyboard;
-import com.joprovost.r8bemu.terminal.Terminal;
-import com.joprovost.r8bemu.awt.AWTKeyboard;
-import com.joprovost.r8bemu.awt.FrameBuffer;
-import com.joprovost.r8bemu.awt.UserInterface;
+import com.joprovost.r8bemu.io.terminal.InputStreamKeyboard;
+import com.joprovost.r8bemu.io.terminal.Terminal;
+import com.joprovost.r8bemu.io.awt.AWTKeyboard;
+import com.joprovost.r8bemu.io.awt.FrameBuffer;
+import com.joprovost.r8bemu.io.awt.UserInterface;
 
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
@@ -29,25 +33,31 @@ public class R8BEmu {
 
         var clock = new ClockGenerator();
         var keyboard = Keyboard.dispatcher();
+        var joystick = Joystick.dispatcher();
+        var button = Button.dispatcher();
+        var display = Display.dispatcher();
 
         switch (ui) {
             case "terminal":
                 clock.aware(new InputStreamKeyboard(System.in, keyboard));
-                CoCoII.emulate(clock, new Terminal(System.out), keyboard, script, playback, recording, home);
+                display.dispatchTo(new Terminal(System.out));
                 break;
 
             case "awt":
                 var frameBuffer = new FrameBuffer();
+                display.dispatchTo(frameBuffer);
                 frameBuffer.addKeyListener(new AWTKeyboard(keyboard));
+                frameBuffer.addKeyListener(new NumpadJoystick(joystick, button));
                 UserInterface.show(frameBuffer, List.of(new AbstractAction("Reset") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         Signal.RESET.set();
                     }
                 }));
-                CoCoII.emulate(clock, frameBuffer, keyboard, script, playback, recording, home);
                 break;
         }
+
+        CoCoII.emulate(clock, display, keyboard, joystick, button, script, playback, recording, home);
     }
 
     public static Map<String, String> parse(String[] args) {

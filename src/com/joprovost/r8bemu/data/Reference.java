@@ -1,41 +1,41 @@
 package com.joprovost.r8bemu.data;
 
-import com.joprovost.r8bemu.memory.MemoryMapped;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 
 import java.util.Optional;
 
 import static com.joprovost.r8bemu.data.Addition.incrementBy;
 
 public class Reference implements DataAccess {
-    private final MemoryMapped device;
+    private final MemoryDevice device;
     private final int address;
     private final Size size;
     private final String description;
 
-    private Reference(MemoryMapped device, int address, Size size, String description) {
+    private Reference(MemoryDevice device, int address, Size size, String description) {
         this.device = device;
         this.address = address;
         this.size = size;
         this.description = description;
     }
 
-    public Reference(MemoryMapped device, int address, Size size) {
+    public Reference(MemoryDevice device, int address, Size size) {
         this(device, address, size, null);
     }
 
-    public static Reference of(MemoryMapped device, int address, Size size) {
+    public static Reference of(MemoryDevice device, int address, Size size) {
         return new Reference(device, address, size);
     }
 
-    public static Reference of(MemoryMapped device, int address, Size size, String description) {
+    public static Reference of(MemoryDevice device, int address, Size size, String description) {
         return new Reference(device, address, size, description);
     }
 
-    public static Reference of(MemoryMapped device, DataOutput address, Size size) {
+    public static Reference of(MemoryDevice device, DataOutput address, Size size) {
         return new Reference(device, address.value(), size, address.description());
     }
 
-    public static DataAccess next(MemoryMapped memory, Size size, DataAccess register) {
+    public static DataAccess next(MemoryDevice memory, Size size, DataAccess register) {
         return of(memory, register.post(incrementBy(size)), size);
     }
 

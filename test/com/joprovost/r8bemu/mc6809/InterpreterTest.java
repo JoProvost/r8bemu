@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.memory.Memory;
-import com.joprovost.r8bemu.memory.MemoryMapped;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +9,7 @@ import static com.joprovost.r8bemu.mc6809.Register.PC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class InterpreterTest {
-    MemoryMapped memory = new Memory(8);
+    MemoryDevice memory = new Memory(8);
 
     @BeforeEach
     void setUp() {

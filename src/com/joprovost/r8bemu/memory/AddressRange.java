@@ -3,7 +3,7 @@ package com.joprovost.r8bemu.memory;
 import com.joprovost.r8bemu.data.DataOutput;
 
 public interface AddressRange {
-    static AddressRange of(int start, int end) {
+    static AddressRange range(int start, int end) {
         return new AddressRange() {
             @Override
             public boolean contains(int address) {

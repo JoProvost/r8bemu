@@ -4,7 +4,7 @@ import com.joprovost.r8bemu.Debugger;
 import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.FakeBusyState;
 import com.joprovost.r8bemu.memory.Memory;
-import com.joprovost.r8bemu.memory.MemoryMapped;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -40,7 +40,7 @@ class MC6809ETest {
     public static final int NOP = 0x12;
 
     Debugger debugger = Debugger.none();
-    MemoryMapped memory = new Memory(0xffff);
+    MemoryDevice memory = new Memory(0xffff);
     FakeBusyState clock = new FakeBusyState();
     MC6809E cpu = new MC6809E(memory, debugger, clock);
 

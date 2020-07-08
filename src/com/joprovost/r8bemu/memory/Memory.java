@@ -1,6 +1,10 @@
 package com.joprovost.r8bemu.memory;
 
-public class Memory implements MemoryMapped {
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+public class Memory implements MemoryDevice {
     private final byte[] bytes;
     private final int mask;
 
@@ -21,6 +25,10 @@ public class Memory implements MemoryMapped {
         var size = Integer.highestOneBit(length);
         size = size < length ? size * 2 : size;
         return size;
+    }
+
+    public static MemoryDevice file(Path file) throws IOException {
+        return new Memory(Files.readAllBytes(file));
     }
 
     @Override

@@ -290,9 +290,8 @@ class OpClockCyclesTest {
 
     private int cyclesOf(int op, int... next) throws IOException {
         Memory ram = new Memory(0x7fff);
-        MC6883 sam = MC6883.ofRam(ram);
         FakeBusyState clock = new FakeBusyState();
-        MC6809E cpu = new MC6809E(sam, Debugger.none(), clock);
+        MC6809E cpu = new MC6809E(ram, Debugger.none(), clock);
 
         ram.write(0x4000, op, next);
         switch (addressingOf(op, next)) {

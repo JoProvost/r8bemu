@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.devices;
 
-import com.joprovost.r8bemu.Display;
+import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.clock.ClockAwareBusyState;
@@ -10,33 +10,31 @@ import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.data.DataOutputReference;
 import com.joprovost.r8bemu.data.DataOutputSubset;
 import com.joprovost.r8bemu.data.Variable;
-import com.joprovost.r8bemu.memory.MemoryMapped;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 import com.joprovost.r8bemu.port.DataOutputHandler;
 
-import static com.joprovost.r8bemu.Display.Color.BLACK;
-import static com.joprovost.r8bemu.Display.Color.BLUE;
-import static com.joprovost.r8bemu.Display.Color.BUFF;
-import static com.joprovost.r8bemu.Display.Color.CYAN;
-import static com.joprovost.r8bemu.Display.Color.GREEN;
-import static com.joprovost.r8bemu.Display.Color.MAGENTA;
-import static com.joprovost.r8bemu.Display.Color.ORANGE;
-import static com.joprovost.r8bemu.Display.Color.RED;
-import static com.joprovost.r8bemu.Display.Color.YELLOW;
+import static com.joprovost.r8bemu.io.Display.Color.BLACK;
+import static com.joprovost.r8bemu.io.Display.Color.BLUE;
+import static com.joprovost.r8bemu.io.Display.Color.BUFF;
+import static com.joprovost.r8bemu.io.Display.Color.CYAN;
+import static com.joprovost.r8bemu.io.Display.Color.GREEN;
+import static com.joprovost.r8bemu.io.Display.Color.MAGENTA;
+import static com.joprovost.r8bemu.io.Display.Color.ORANGE;
+import static com.joprovost.r8bemu.io.Display.Color.RED;
+import static com.joprovost.r8bemu.io.Display.Color.YELLOW;
 
 // VideoDisplayGenerator
-public class MC6847 implements MemoryMapped, ClockAware {
-    public static final int SCREEN_WIDTH = 256;
-    public static final int SCREEN_COLUMNS = 32;
+public class MC6847 implements ClockAware {
     public static final int LINES = 250;
 
     private static final int CG1 = 0;
     private static final int RG1 = 1;
     private static final int CG2 = 2;
-    private static final int PMODE_0 = 3;
-    private static final int PMODE_1 = 4;
-    private static final int PMODE_2 = 5;
-    private static final int PMODE_3 = 6;
-    private static final int PMODE_4 = 7;
+    private static final int RG2 = 3;
+    private static final int CG3 = 4;
+    private static final int RG3 = 5;
+    private static final int CG6 = 6;
+    private static final int RG6 = 7;
 
     private final Variable VDG_DATA_BUS = Variable.ofMask(0xff);
 
@@ -72,11 +70,13 @@ public class MC6847 implements MemoryMapped, ClockAware {
     private final Display display;
     private final Runnable hsync;
     private final Runnable vsync;
+    private final MemoryDevice ram;
 
-    public MC6847(Display display, Runnable hsync, Runnable vsync) {
+    public MC6847(Display display, Runnable hsync, Runnable vsync, MemoryDevice ram) {
         this.display = display;
         this.hsync = hsync;
         this.vsync = vsync;
+        this.ram = ram;
     }
 
     private static Display.Color color(int chroma) {
@@ -113,111 +113,98 @@ public class MC6847 implements MemoryMapped, ClockAware {
         }
     }
 
-    @Override
-    public void write(int address, int data) {
-        VDG_DATA_BUS.value(data);
-
+    public void verticalScan() {
         if (A_G.isClear()) {
-            var row = address / SCREEN_COLUMNS + 1;
-            var column = address % SCREEN_COLUMNS + 1;
-            if (AS.isSet()) {
-                display.graphics4(row, column, color(SGM4_CHROMA.value()), BLACK, SGM4_LUMA.value());
-            } else {
-                if (INV.isSet())
-                    display.character(row, column, BLACK, CSS.isSet() ? ORANGE : GREEN, ASCII_CODE.value());
-                else display.character(row, column, CSS.isSet() ? ORANGE : GREEN, BLACK, ASCII_CODE.value());
-            }
+            for (int row = 0; row < 16; row++)
+                for (int col = 0; col < 32; col++) {
+                    scanChar(row, col);
+                }
         } else {
-            Display.Color foreground = CSS.isSet() ? BUFF : GREEN;
-            Display.Color background = BLACK;
+            for (int line = 0; line < 192; line++)
+                horizontalScan(line);
+        }
+    }
 
-            switch (GM0_2.value()) {
-                case CG1:
-                    draw(address, 4, 3,
-                         // TODO: Test this mode with an application
-                         //       There is no mapping in Color BASIC
-                         color(CSS.isSet(), E3.value()),
-                         color(CSS.isSet(), E2.value()),
-                         color(CSS.isSet(), E1.value()),
-                         color(CSS.isSet(), E0.value()));
-                    break;
+    public void scanChar(int row, int col) {
+        VDG_DATA_BUS.value(ram.read(row * 32 * 24 + col));
+        if (AS.isSet()) {
+            display.graphics4(row + 1, col + 1, color(SGM4_CHROMA.value()), BLACK, SGM4_LUMA.value());
+        } else {
+            if (INV.isSet())
+                display.character(row + 1, col + 1, BLACK, CSS.isSet() ? ORANGE : GREEN, ASCII_CODE.value());
+            else display.character(row + 1, col + 1, CSS.isSet() ? ORANGE : GREEN, BLACK, ASCII_CODE.value());
+        }
+    }
 
-                case RG1:
-                    // TODO: Test this mode with an application
-                    //       There is no mapping in Color BASIC
-                    draw(address, 3, 3,
-                         L7.isSet() ? foreground : background,
-                         L6.isSet() ? foreground : background,
-                         L5.isSet() ? foreground : background,
-                         L4.isSet() ? foreground : background,
-                         L3.isSet() ? foreground : background,
-                         L2.isSet() ? foreground : background,
-                         L1.isSet() ? foreground : background,
-                         L0.isSet() ? foreground : background);
-                    break;
+    public void horizontalScan(int line) {
+        int bytes = bytesPerLine();
+        int address = bytes * line;
+        for (int i = 0; i <= bytes; i++) {
+            drawByte(address + i);
+        }
+    }
 
-                case CG2:
-                    // TODO See why "microchess" uses this mode but puts SAM into VDG MODE 4 and expects pixels of
-                    //      2 x 2.  It should be 3 x 3 according to the chip specs.
-                    draw(address, 2, 2,
-                         color(CSS.isSet(), E3.value()),
-                         color(CSS.isSet(), E2.value()),
-                         color(CSS.isSet(), E1.value()),
-                         color(CSS.isSet(), E0.value()));
-                    break;
+    public void drawByte(int address) {
+        VDG_DATA_BUS.value(ram.read(address));
 
-                case PMODE_0:
-                    draw(address, 2, 2,
-                         L7.isSet() ? foreground : background,
-                         L6.isSet() ? foreground : background,
-                         L5.isSet() ? foreground : background,
-                         L4.isSet() ? foreground : background,
-                         L3.isSet() ? foreground : background,
-                         L2.isSet() ? foreground : background,
-                         L1.isSet() ? foreground : background,
-                         L0.isSet() ? foreground : background);
-                    break;
+        Display.Color foreground = CSS.isSet() ? BUFF : GREEN;
+        Display.Color background = BLACK;
 
-                case PMODE_1:
-                    draw(address, 2, 2,
-                         color(CSS.isSet(), E3.value()),
-                         color(CSS.isSet(), E2.value()),
-                         color(CSS.isSet(), E1.value()),
-                         color(CSS.isSet(), E0.value()));
-                    break;
+        if (pixelsPerByte() == 4)
+            draw(address, lineWidth(),
+                 color(CSS.isSet(), E3.value()),
+                 color(CSS.isSet(), E2.value()),
+                 color(CSS.isSet(), E1.value()),
+                 color(CSS.isSet(), E0.value()));
+        else if (pixelsPerByte() == 8)
+            draw(address, lineWidth(),
+                 L7.isSet() ? foreground : background,
+                 L6.isSet() ? foreground : background,
+                 L5.isSet() ? foreground : background,
+                 L4.isSet() ? foreground : background,
+                 L3.isSet() ? foreground : background,
+                 L2.isSet() ? foreground : background,
+                 L1.isSet() ? foreground : background,
+                 L0.isSet() ? foreground : background);
+    }
 
-                case PMODE_2:
-                    draw(address, 2, 1,
-                         L7.isSet() ? foreground : background,
-                         L6.isSet() ? foreground : background,
-                         L5.isSet() ? foreground : background,
-                         L4.isSet() ? foreground : background,
-                         L3.isSet() ? foreground : background,
-                         L2.isSet() ? foreground : background,
-                         L1.isSet() ? foreground : background,
-                         L0.isSet() ? foreground : background);
-                    break;
+    int bytesPerLine() {
+        return lineWidth() / pixelsPerByte();
+    }
 
-                case PMODE_3:
-                    draw(address, 2, 1,
-                         color(CSS.isSet(), E3.value()),
-                         color(CSS.isSet(), E2.value()),
-                         color(CSS.isSet(), E1.value()),
-                         color(CSS.isSet(), E0.value()));
-                    break;
+    int lineWidth() {
+        switch (GM0_2.value()) {
+            case CG1: // 0b000
+                return 64;
 
-                case PMODE_4:
-                    draw(address, 1, 1,
-                         L7.isSet() ? foreground : background,
-                         L6.isSet() ? foreground : background,
-                         L5.isSet() ? foreground : background,
-                         L4.isSet() ? foreground : background,
-                         L3.isSet() ? foreground : background,
-                         L2.isSet() ? foreground : background,
-                         L1.isSet() ? foreground : background,
-                         L0.isSet() ? foreground : background);
-                    break;
-            }
+            case RG1: // 0b001
+            case CG2: // 0b010
+            case RG2: // 0b011 PMODE 0
+            case CG3: // 0b100 PMODE 1
+            case RG3: // 0b101 PMODE 2
+            case CG6: // 0b110 PMODE 3
+                return 128;
+
+            case RG6: // 0b111 PMODE 4
+            default:
+                return 256;
+        }
+    }
+
+    int pixelsPerByte() {
+        switch (GM0_2.value()) {
+            case CG1: // 0b000
+            case CG2: // 0b010
+            case CG3: // 0b100
+            case CG6: // 0b110
+                return 4;
+
+            case RG1: // 0b001
+            case RG2: // 0b011
+            case RG3: // 0b101
+            case RG6: // 0b111
+            default:
+                return 8;
         }
     }
 
@@ -229,6 +216,7 @@ public class MC6847 implements MemoryMapped, ClockAware {
         }
         if (!vClock.at(clock).isBusy()) {
             vClock.busy(15000); // 60 Hz @ 900 kHz
+            verticalScan();
             vsync.run();
         }
     }
@@ -237,16 +225,16 @@ public class MC6847 implements MemoryMapped, ClockAware {
         return PORT::referTo;
     }
 
-    private void draw(int index, int width, int height, Display.Color color) {
-        int rx = SCREEN_WIDTH / width;
-        int x = (index % rx) * width;
-        int y = (index / rx) * height;
-        display.square(x, y, width, height, color);
+    private void draw(int index, int width, Display.Color color) {
+        int pxWidth = 256 / width;
+        int x = (index % width) * pxWidth;
+        int y = (index / width);
+        display.square(x, y, pxWidth, 1, color);
     }
 
-    private void draw(int index, int width, int height, Display.Color... color) {
+    private void draw(int index, int width, Display.Color... color) {
         for (int offset = 0; offset < color.length; offset++) {
-            draw(index * color.length + offset, width, height, color[offset]);
+            draw(index * color.length + offset, width, color[offset]);
         }
     }
 }

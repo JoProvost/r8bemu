@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.memory;
 
-public class StringMemory implements MemoryMapped {
+public class StringMemory implements MemoryDevice {
     private final StringBuffer buffer;
 
     public StringMemory(StringBuffer buffer) {

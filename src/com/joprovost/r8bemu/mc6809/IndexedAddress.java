@@ -5,7 +5,7 @@ import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.Reference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.data.Value;
-import com.joprovost.r8bemu.memory.MemoryMapped;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 
 import static com.joprovost.r8bemu.data.DataOutput.signed;
 import static com.joprovost.r8bemu.data.Value.ONE;
@@ -16,7 +16,7 @@ import static com.joprovost.r8bemu.mc6809.Register.D;
 import static com.joprovost.r8bemu.mc6809.Register.PC;
 
 public class IndexedAddress {
-    public static DataAccess from(MemoryMapped memory, int postByte, BusyState clock) {
+    public static DataAccess from(MemoryDevice memory, int postByte, BusyState clock) {
         final Value address;
         // Constant Offset from Register (twos Complement Offset)
         // 5-Bit Offset
@@ -107,7 +107,7 @@ public class IndexedAddress {
         }
     }
 
-    public static DataAccess next(MemoryMapped memory, Register register, BusyState clock) {
+    public static DataAccess next(MemoryDevice memory, Register register, BusyState clock) {
         return from(memory, Reference.next(memory, Size.WORD_8, register).value(), clock);
     }
 }

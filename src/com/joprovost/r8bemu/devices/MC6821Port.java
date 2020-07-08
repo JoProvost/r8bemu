@@ -11,14 +11,14 @@ import com.joprovost.r8bemu.port.LogicOutputHandler;
 import com.joprovost.r8bemu.port.DataPort;
 import com.joprovost.r8bemu.data.Filter;
 import com.joprovost.r8bemu.data.Variable;
-import com.joprovost.r8bemu.memory.MemoryMapped;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 import com.joprovost.r8bemu.port.DataInputProvider;
 import com.joprovost.r8bemu.port.DataOutputHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MC6821Port implements MemoryMapped, DataPort, ControlPort {
+public class MC6821Port implements MemoryDevice, DataPort, ControlPort {
 
     // Control Register
     private final Variable CONTROL_REGISTER = Variable.ofMask(0xff);

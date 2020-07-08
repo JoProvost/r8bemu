@@ -54,4 +54,8 @@ public interface DataOutput extends LogicOutput, Described {
     default DataOutput minus(DataOutput offset) {
         return Subtraction.of(this, offset);
     }
+
+    default int subset(int subset) {
+        return (value() & subset) >> Integer.numberOfTrailingZeros(subset);
+    }
 }

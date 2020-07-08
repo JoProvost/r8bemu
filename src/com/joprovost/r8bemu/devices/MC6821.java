@@ -1,9 +1,9 @@
 package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.data.LogicInput;
-import com.joprovost.r8bemu.memory.MemoryMapped;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 
-public class MC6821 implements MemoryMapped {
+public class MC6821 implements MemoryDevice {
 
     private final MC6821Port portA;
     private final MC6821Port portB;
