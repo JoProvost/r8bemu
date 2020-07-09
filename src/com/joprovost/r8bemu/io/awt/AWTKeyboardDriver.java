@@ -9,10 +9,10 @@ import java.util.List;
 
 import static com.joprovost.r8bemu.io.Key.character;
 
-public class AWTKeyboard implements KeyListener {
+public class AWTKeyboardDriver implements KeyListener {
     private final Keyboard keyboard;
 
-    public AWTKeyboard(Keyboard keyboard) {
+    public AWTKeyboardDriver(Keyboard keyboard) {
         this.keyboard = keyboard;
     }
 

@@ -3,6 +3,7 @@ package com.joprovost.r8bemu;
 import com.joprovost.r8bemu.io.AudioSink;
 import com.joprovost.r8bemu.io.Button;
 import com.joprovost.r8bemu.io.ButtonDispatcher;
+import com.joprovost.r8bemu.io.Joystick;
 import com.joprovost.r8bemu.io.sound.Speaker;
 import com.joprovost.r8bemu.io.sound.TapePlayback;
 import com.joprovost.r8bemu.io.sound.TapeRecorder;
@@ -35,6 +36,7 @@ import static com.joprovost.r8bemu.mc6809.MC6809E.NMI_VECTOR;
 import static com.joprovost.r8bemu.mc6809.MC6809E.RESET_VECTOR;
 import static com.joprovost.r8bemu.memory.AddressRange.range;
 import static com.joprovost.r8bemu.port.DataPort.P0;
+import static com.joprovost.r8bemu.port.DataPort.P1;
 import static com.joprovost.r8bemu.port.DataPort.P2;
 import static com.joprovost.r8bemu.port.DataPort.P3;
 import static com.joprovost.r8bemu.port.DataPort.P4;
@@ -46,8 +48,8 @@ public class CoCoII {
     public static void emulate(ClockGenerator clock,
                                Display display,
                                KeyboardDispatcher keyboard,
-                               JoystickDispatcher joystick,
-                               ButtonDispatcher button,
+                               JoystickDispatcher joystickLeft,
+                               JoystickDispatcher joystickRight,
                                Path script,
                                Path playbackFile,
                                Path recordingFile,
@@ -90,11 +92,16 @@ public class CoCoII {
         pia0.portA().inputFrom(sc77526.joystick(P7));
         pia0.portA().controlTo(sc77526.selA());
         pia0.portB().controlTo(sc77526.selB());
-        joystick.dispatchTo(sc77526.left());
 
-        var pushButton = new PushButton();
-        button.dispatchTo(pushButton);
-        pia0.portA().inputFrom(pushButton.clear(P0));
+        var leftButton = new PushButton();
+        pia0.portA().inputFrom(leftButton.clear(P0));
+        joystickLeft.dispatchTo(Joystick.button(leftButton));
+        joystickLeft.dispatchTo(sc77526.left());
+
+        var rightButton = new PushButton();
+        pia0.portA().inputFrom(rightButton.clear(P1));
+        joystickRight.dispatchTo(Joystick.button(rightButton));
+        joystickRight.dispatchTo(sc77526.right());
 
         var vdg = clock.aware(new MC6847(display, pia0.portA()::interrupt, pia0.portB()::interrupt, sam.videoMemory(ram)));
         pia1.portB().outputTo(vdg.mode());
@@ -143,7 +150,5 @@ public class CoCoII {
                 if (pressed) input.clear(mask);
             };
         }
-
-
     }
 }

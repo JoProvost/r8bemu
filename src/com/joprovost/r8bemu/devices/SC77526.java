@@ -72,26 +72,30 @@ public class SC77526 {
         return new Joystick() {
             @Override
             public void horizontal(int value) {
-                axis[LEFT_HORIZONTAL.ordinal()] = value;
+                axis[LEFT_HORIZONTAL.ordinal()] = fromJoystick(value);
             }
 
             @Override
             public void vertical(int value) {
-                axis[LEFT_VERTICAL.ordinal()] = value;
+                axis[LEFT_VERTICAL.ordinal()] = fromJoystick(value);
             }
         };
+    }
+
+    private int fromJoystick(int value) {
+        return value / ((Joystick.MAXIMUM - Joystick.MINIMUM) / 64) + 32;
     }
 
     public Joystick right() {
         return new Joystick() {
             @Override
             public void horizontal(int value) {
-                axis[RIGHT_HORIZONTAL.ordinal()] = value;
+                axis[RIGHT_HORIZONTAL.ordinal()] = fromJoystick(value);
             }
 
             @Override
             public void vertical(int value) {
-                axis[RIGHT_VERTICAL.ordinal()] = value;
+                axis[RIGHT_VERTICAL.ordinal()] = fromJoystick(value);
             }
         };
     }

@@ -1,21 +1,22 @@
 package com.joprovost.r8bemu.io;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class KeyboardDispatcher implements Keyboard {
-    Keyboard target;
+    private final List<Keyboard> targets = new ArrayList<>();
 
     public void dispatchTo(Keyboard target) {
-        this.target = target;
+        this.targets.add(target);
     }
 
     @Override
     public void type(List<Key> key) {
-        if (target != null) target.type(key);
+        for (var target : targets) target.type(key);
     }
 
     @Override
     public void pause(int delay) {
-        if (target != null) target.pause(delay);
+        for (var target : targets) target.pause(delay);
     }
 }

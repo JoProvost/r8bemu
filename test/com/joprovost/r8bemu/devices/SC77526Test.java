@@ -51,7 +51,7 @@ class SC77526Test {
         Variable hiLo = Variable.ofMask(0xff);
         sc77526.selA().handle(LogicVariable.of(false));
         sc77526.selB().handle(LogicVariable.of(false));
-        sc77526.left().horizontal(20);
+        sc77526.left().horizontal(20 * 65536 / 64 - 32768);
 
         sc77526.dac(P7 | P6 | P5 | P4 | P3 | P2).handle(Value.of(20 << 2, 0xff));
         sc77526.joystick(P7).provide(hiLo);
@@ -67,7 +67,7 @@ class SC77526Test {
         Variable hiLo = Variable.ofMask(0xff);
         sc77526.selA().handle(LogicVariable.of(true));
         sc77526.selB().handle(LogicVariable.of(false));
-        sc77526.left().vertical(30);
+        sc77526.left().vertical(30 * 65536 / 64 - 32768);
 
         sc77526.dac(P7 | P6 | P5 | P4 | P3 | P2).handle(Value.of(30 << 2, 0xff));
         sc77526.joystick(P7).provide(hiLo);
@@ -83,7 +83,7 @@ class SC77526Test {
         Variable hiLo = Variable.ofMask(0xff);
         sc77526.selA().handle(LogicVariable.of(false));
         sc77526.selB().handle(LogicVariable.of(true));
-        sc77526.right().horizontal(20);
+        sc77526.right().horizontal(20 * 65536 / 64 - 32768);
 
         sc77526.dac(P7 | P6 | P5 | P4 | P3 | P2).handle(Value.of(20 << 2, 0xff));
         sc77526.joystick(P7).provide(hiLo);
@@ -99,7 +99,7 @@ class SC77526Test {
         Variable hiLo = Variable.ofMask(0xff);
         sc77526.selA().handle(LogicVariable.of(true));
         sc77526.selB().handle(LogicVariable.of(true));
-        sc77526.right().vertical(30);
+        sc77526.right().vertical(30 * 65536 / 64 - 32768);
 
         sc77526.dac(P7 | P6 | P5 | P4 | P3 | P2).handle(Value.of(30 << 2, 0xff));
         sc77526.joystick(P7).provide(hiLo);

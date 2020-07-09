@@ -1,15 +1,15 @@
 package com.joprovost.r8bemu;
 
-import com.joprovost.r8bemu.io.Button;
-import com.joprovost.r8bemu.io.awt.NumpadJoystick;
+import com.joprovost.r8bemu.io.awt.NumpadJoystickDriver;
 import com.joprovost.r8bemu.clock.ClockGenerator;
 import com.joprovost.r8bemu.io.Joystick;
 import com.joprovost.r8bemu.io.Keyboard;
 import com.joprovost.r8bemu.io.Display;
+import com.joprovost.r8bemu.io.linux.LinuxJoystickDriver;
 import com.joprovost.r8bemu.mc6809.Signal;
 import com.joprovost.r8bemu.io.terminal.InputStreamKeyboard;
 import com.joprovost.r8bemu.io.terminal.Terminal;
-import com.joprovost.r8bemu.io.awt.AWTKeyboard;
+import com.joprovost.r8bemu.io.awt.AWTKeyboardDriver;
 import com.joprovost.r8bemu.io.awt.FrameBuffer;
 import com.joprovost.r8bemu.io.awt.UserInterface;
 
@@ -33,8 +33,8 @@ public class R8BEmu {
 
         var clock = new ClockGenerator();
         var keyboard = Keyboard.dispatcher();
-        var joystick = Joystick.dispatcher();
-        var button = Button.dispatcher();
+        var joystickLeft = Joystick.dispatcher();
+        var joystickRight = Joystick.dispatcher();
         var display = Display.dispatcher();
 
         switch (ui) {
@@ -46,8 +46,8 @@ public class R8BEmu {
             case "awt":
                 var frameBuffer = new FrameBuffer();
                 display.dispatchTo(frameBuffer);
-                frameBuffer.addKeyListener(new AWTKeyboard(keyboard));
-                frameBuffer.addKeyListener(new NumpadJoystick(joystick, button));
+                frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard));
+                frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickLeft));
                 UserInterface.show(frameBuffer, List.of(new AbstractAction("Reset") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -57,7 +57,10 @@ public class R8BEmu {
                 break;
         }
 
-        CoCoII.emulate(clock, display, keyboard, joystick, button, script, playback, recording, home);
+        new Thread(new LinuxJoystickDriver(Path.of("/dev/input/js0"), joystickLeft)).start();
+        new Thread(new LinuxJoystickDriver(Path.of("/dev/input/js1"), joystickRight)).start();
+
+        CoCoII.emulate(clock, display, keyboard, joystickLeft, joystickRight, script, playback, recording, home);
     }
 
     public static Map<String, String> parse(String[] args) {

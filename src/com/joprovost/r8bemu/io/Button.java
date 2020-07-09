@@ -6,6 +6,11 @@ public interface Button {
         return new ButtonDispatcher();
     }
 
-    void press();
-    void release();
+    default void press() {
+
+    }
+
+    default void release() {
+
+    }
 }
