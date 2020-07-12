@@ -1,6 +1,19 @@
 #!/bin/bash
 set -e
 APP_HOME="$(dirname "$(realpath $0)")"
-javac -d "$APP_HOME/classes" $(find $APP_HOME/src -name '*.java')
+JAR_FILE="$APP_HOME/r8bemu.jar"
 
-java -classpath "$APP_HOME/classes" com.joprovost.r8bemu.R8BEmu --home "$APP_HOME" "$@"
+if [ ! -f "$JAR_FILE" ]; then
+  javac -d "$APP_HOME/classes" $(find $APP_HOME/src -name '*.java')
+  jar --create --file "$JAR_FILE" --main-class com.joprovost.r8bemu.R8BEmu -C "$APP_HOME/classes" com -C "$APP_HOME/resources" icons
+fi
+
+if [ ! -d $HOME/.r8bemu ]; then
+  mkdir -p $HOME/.r8bemu
+  cp -Rfv $APP_HOME/rom  $HOME/.r8bemu
+  cp -Rfv $APP_HOME/cassette  $HOME/.r8bemu
+  cp -Rfv $APP_HOME/script  $HOME/.r8bemu
+  true
+fi
+
+java -jar "$JAR_FILE" "$@"

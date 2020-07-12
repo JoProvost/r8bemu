@@ -1,24 +1,22 @@
 package com.joprovost.r8bemu;
 
-import com.joprovost.r8bemu.io.AudioSink;
-import com.joprovost.r8bemu.io.Button;
-import com.joprovost.r8bemu.io.ButtonDispatcher;
-import com.joprovost.r8bemu.io.Joystick;
-import com.joprovost.r8bemu.io.sound.Speaker;
-import com.joprovost.r8bemu.io.sound.TapePlayback;
-import com.joprovost.r8bemu.io.sound.TapeRecorder;
 import com.joprovost.r8bemu.clock.ClockFrequency;
 import com.joprovost.r8bemu.clock.ClockGenerator;
-import com.joprovost.r8bemu.data.Reference;
-import com.joprovost.r8bemu.data.Size;
-import com.joprovost.r8bemu.io.JoystickDispatcher;
+import com.joprovost.r8bemu.devices.KeyboardAdapter;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6847;
 import com.joprovost.r8bemu.devices.MC6883;
 import com.joprovost.r8bemu.devices.SC77526;
-import com.joprovost.r8bemu.devices.KeyboardAdapter;
-import com.joprovost.r8bemu.io.KeyboardDispatcher;
+import com.joprovost.r8bemu.io.AudioSink;
+import com.joprovost.r8bemu.io.Button;
+import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
 import com.joprovost.r8bemu.io.Display;
+import com.joprovost.r8bemu.io.Joystick;
+import com.joprovost.r8bemu.io.JoystickDispatcher;
+import com.joprovost.r8bemu.io.KeyboardDispatcher;
+import com.joprovost.r8bemu.io.sound.Speaker;
+import com.joprovost.r8bemu.io.sound.TapePlayback;
+import com.joprovost.r8bemu.io.sound.TapeRecorder;
 import com.joprovost.r8bemu.mc6809.MC6809E;
 import com.joprovost.r8bemu.mc6809.Signal;
 import com.joprovost.r8bemu.memory.Memory;
@@ -30,10 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.joprovost.r8bemu.mc6809.MC6809E.FIRQ_VECTOR;
-import static com.joprovost.r8bemu.mc6809.MC6809E.IRQ_VECTOR;
-import static com.joprovost.r8bemu.mc6809.MC6809E.NMI_VECTOR;
-import static com.joprovost.r8bemu.mc6809.MC6809E.RESET_VECTOR;
+import static com.joprovost.r8bemu.DemoROM.demo;
 import static com.joprovost.r8bemu.memory.AddressRange.range;
 import static com.joprovost.r8bemu.port.DataPort.P0;
 import static com.joprovost.r8bemu.port.DataPort.P1;
@@ -50,6 +45,7 @@ public class CoCoII {
                                KeyboardDispatcher keyboard,
                                JoystickDispatcher joystickLeft,
                                JoystickDispatcher joystickRight,
+                               CassetteRecorderDispatcher cassette,
                                Path script,
                                Path playbackFile,
                                Path recordingFile,
@@ -58,8 +54,8 @@ public class CoCoII {
         var uptime = clock.aware(new ClockFrequency(900, clock));
 
         var ram = new Memory(0x7fff);
-        var rom0 = rom(home + "/rom/extbas.rom");
-        var rom1 = rom(home + "/rom/bas.rom");
+        var rom0 = rom(home + "/rom/extbas11.rom");
+        var rom1 = rom(home + "/rom/bas13.rom");
         var pia0 = new MC6821(Signal.IRQ, Signal.IRQ);
         var pia1 = new MC6821(Signal.FIRQ, Signal.FIRQ);
         var pia2 = new MC6821(Signal.none(), Signal.none());
@@ -80,6 +76,7 @@ public class CoCoII {
         keyboard.dispatchTo(clock.aware(new KeyboardAdapter(pia0)));
 
         var playback = new TapePlayback(uptime, playbackFile);
+        cassette.dispatchTo(playback);
         var recorder = new TapeRecorder(uptime, recordingFile);
         pia1.portA().inputFrom(playback.output(P0));
         pia1.portA().controlTo(playback.motor());
@@ -106,13 +103,7 @@ public class CoCoII {
         var vdg = clock.aware(new MC6847(display, pia0.portA()::interrupt, pia0.portB()::interrupt, sam.videoMemory(ram)));
         pia1.portB().outputTo(vdg.mode());
 
-        Debugger debugger = new Disassembler(Path.of(home, "doc/rom.asm"),
-                                             Reference.of(bus, RESET_VECTOR, Size.WORD_16).value(),
-                                             Reference.of(bus, IRQ_VECTOR, Size.WORD_16).value(),
-                                             Reference.of(bus, FIRQ_VECTOR, Size.WORD_16).value(),
-                                             Reference.of(bus, NMI_VECTOR, Size.WORD_16).value());
-
-        clock.aware(new MC6809E(bus, debugger, clock));
+        clock.aware(new MC6809E(bus, Debugger.none(), clock));
         Signal.RESET.set();
 
         if (Files.exists(script)) keyboard.script(Files.readString(script));
@@ -129,7 +120,7 @@ public class CoCoII {
     public static MemoryDevice rom(String rom) throws IOException {
         var path = Path.of(rom);
         if (Files.exists(path)) return MemoryDevice.readOnly(Memory.file(path));
-        return MemoryDevice.none();
+        return demo();
     }
 
     private static class PushButton implements Button {

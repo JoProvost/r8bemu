@@ -1,15 +1,17 @@
 package com.joprovost.r8bemu.io.sound;
 
 import com.joprovost.r8bemu.clock.Uptime;
+import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.port.DataInputProvider;
 import com.joprovost.r8bemu.port.LogicOutputHandler;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class TapePlayback {
+public class TapePlayback implements CassetteRecorder {
     private final Uptime uptime;
-    private final Path file;
+    private Path file;
     private WaveFile playback = WaveFile.empty();
 
     // TODO: See why the pitch has to be lowered?
@@ -62,5 +64,23 @@ public class TapePlayback {
         } else {
             motorOff = uptime.nanoTime();
         }
+    }
+
+    @Override
+    public void insert(File cassette) {
+        file = cassette.toPath();
+        rewind();
+        if (motor) {
+            try {
+                playback = WaveFile.load(file);
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    @Override
+    public void rewind() {
+        motorOff = 0;
+        offset = 0;
     }
 }

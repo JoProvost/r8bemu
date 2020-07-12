@@ -1,32 +1,32 @@
 package com.joprovost.r8bemu;
 
+import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.awt.NumpadJoystickDriver;
 import com.joprovost.r8bemu.clock.ClockGenerator;
 import com.joprovost.r8bemu.io.Joystick;
 import com.joprovost.r8bemu.io.Keyboard;
 import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.io.linux.LinuxJoystickDriver;
-import com.joprovost.r8bemu.mc6809.Signal;
 import com.joprovost.r8bemu.io.terminal.InputStreamKeyboard;
 import com.joprovost.r8bemu.io.terminal.Terminal;
 import com.joprovost.r8bemu.io.awt.AWTKeyboardDriver;
 import com.joprovost.r8bemu.io.awt.FrameBuffer;
 import com.joprovost.r8bemu.io.awt.UserInterface;
 
-import javax.swing.AbstractAction;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.joprovost.r8bemu.io.awt.UserInterface.SEPARATOR;
+
 public class R8BEmu {
 
     public static void main(String[] args) throws IOException {
         var options = parse(args);
         var ui = options.getOrDefault("interface", "awt");
-        var home = options.getOrDefault("home", ".");
+        var home = options.getOrDefault("home", System.getProperty("user.home") + "/.r8bemu");
         var script = Path.of(options.getOrDefault("script", home + "/script/autorun.bas"));
         var playback = Path.of(options.getOrDefault("playback", home + "/cassette/playback.wav"));
         var recording = Path.of(options.getOrDefault("recording", home + "/cassette/recording.wav"));
@@ -36,6 +36,7 @@ public class R8BEmu {
         var joystickLeft = Joystick.dispatcher();
         var joystickRight = Joystick.dispatcher();
         var display = Display.dispatcher();
+        var cassette = CassetteRecorder.dispatcher();
 
         switch (ui) {
             case "terminal":
@@ -48,19 +49,21 @@ public class R8BEmu {
                 display.dispatchTo(frameBuffer);
                 frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard));
                 frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickLeft));
-                UserInterface.show(frameBuffer, List.of(new AbstractAction("Reset") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Signal.RESET.set();
-                    }
-                }));
+                UserInterface.show(frameBuffer, List.of(
+                        Actions.reset(),
+                        SEPARATOR,
+                        Actions.rewindCassette(home, cassette),
+                        Actions.insertCassette(home, cassette),
+                        SEPARATOR,
+                        Actions.presentation()
+                ));
                 break;
         }
 
         new Thread(new LinuxJoystickDriver(Path.of("/dev/input/js0"), joystickLeft)).start();
         new Thread(new LinuxJoystickDriver(Path.of("/dev/input/js1"), joystickRight)).start();
 
-        CoCoII.emulate(clock, display, keyboard, joystickLeft, joystickRight, script, playback, recording, home);
+        CoCoII.emulate(clock, display, keyboard, joystickLeft, joystickRight, cassette, script, playback, recording, home);
     }
 
     public static Map<String, String> parse(String[] args) {
@@ -79,4 +82,5 @@ public class R8BEmu {
 
         return params;
     }
+
 }
