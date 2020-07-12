@@ -46,6 +46,7 @@ public enum Key {
             case '\'': return List.of(SHIFT, KEY_7);
             case '(': return List.of(SHIFT, KEY_8);
             case ')': return List.of(SHIFT, KEY_9);
+            case '_': return List.of(SHIFT, KEY_0);
 
             case 'a': return List.of(KEY_A);
             case 'b': return List.of(KEY_B);
