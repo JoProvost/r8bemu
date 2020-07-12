@@ -1,5 +1,7 @@
 package com.joprovost.r8bemu;
 
+import com.joprovost.r8bemu.data.LogicAccess;
+import com.joprovost.r8bemu.data.LogicOutput;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
 import com.joprovost.r8bemu.mc6809.Signal;
 
@@ -54,5 +56,24 @@ public class Actions {
                 }
             }
         };
+    }
+
+    static Function<Window, Action> keyboard(LogicAccess buffered) {
+        return window -> new AbstractAction("View", keyboardIcon(buffered)) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (buffered.isSet()) buffered.clear();
+                else buffered.set();
+                putValue(Action.SMALL_ICON, keyboardIcon(buffered));
+            }
+        };
+    }
+
+    private static ImageIcon keyboardIcon(LogicOutput buffered) {
+        if (buffered.isSet()) {
+            return new ImageIcon(Actions.class.getResource("/icons/keyboard_raw_64x32.png"));
+        } else {
+            return new ImageIcon(Actions.class.getResource("/icons/keyboard_buffered_64x32.png"));
+        }
     }
 }

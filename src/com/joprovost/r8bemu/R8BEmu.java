@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu;
 
+import com.joprovost.r8bemu.data.LogicVariable;
 import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.awt.NumpadJoystickDriver;
 import com.joprovost.r8bemu.clock.ClockGenerator;
@@ -31,6 +32,9 @@ public class R8BEmu {
         var playback = Path.of(options.getOrDefault("playback", home + "/cassette/playback.wav"));
         var recording = Path.of(options.getOrDefault("recording", home + "/cassette/recording.wav"));
 
+        var keyboardBuffer = new LogicVariable();
+        keyboardBuffer.set(Boolean.parseBoolean(options.getOrDefault("keyboard-buffer", "true")));
+
         var clock = new ClockGenerator();
         var keyboard = Keyboard.dispatcher();
         var joystickLeft = Joystick.dispatcher();
@@ -47,13 +51,15 @@ public class R8BEmu {
             case "awt":
                 var frameBuffer = new FrameBuffer();
                 display.dispatchTo(frameBuffer);
-                frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard));
+                frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer));
                 frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickLeft));
                 UserInterface.show(frameBuffer, List.of(
                         Actions.reset(),
                         SEPARATOR,
                         Actions.rewindCassette(home, cassette),
                         Actions.insertCassette(home, cassette),
+                        SEPARATOR,
+                        Actions.keyboard(keyboardBuffer),
                         SEPARATOR,
                         Actions.presentation()
                 ));

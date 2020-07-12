@@ -11,7 +11,8 @@ import com.joprovost.r8bemu.io.Keyboard;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class KeyboardAdapter implements Keyboard, ClockAware {
 
@@ -19,10 +20,11 @@ public class KeyboardAdapter implements Keyboard, ClockAware {
     public static final int BOOT_DELAY = 1200000;
 
     private final ClockAwareBusyState state = new ClockAwareBusyState();
-    private final Deque<List<Key>> buffer = new ArrayDeque<>();
+    private final Deque<Set<Key>> buffer = new ArrayDeque<>();
     private final DataOutput column;
     private final DataAccessSubset row;
-    private List<Key> keyboard = List.of();
+    private final Set<Key> keyboard = new HashSet<>();
+    private Set<Key> typed = Set.of();
 
     public KeyboardAdapter(MC6821 pia) {
         column = pia.portB().output();
@@ -36,22 +38,35 @@ public class KeyboardAdapter implements Keyboard, ClockAware {
         if (state.at(clock).isBusy()) return;
 
         state.busy(TYPE_DELAY);
-        if (keyboard.isEmpty()) {
-            if (!buffer.isEmpty())
-                keyboard = buffer.poll();
+        if (typed.isEmpty()) {
+            if (!buffer.isEmpty()) {
+                typed = buffer.poll();
+                press(typed);
+            }
         } else {
-            keyboard = List.of();
+            release(typed);
+            typed = Set.of();
         }
     }
 
     @Override
-    public void type(List<Key> key) {
-        buffer.add(key);
+    public void type(Set<Key> keys) {
+        buffer.add(keys);
+    }
+
+    @Override
+    public void press(Set<Key> keys) {
+        keyboard.addAll(keys);
+    }
+
+    @Override
+    public void release(Set<Key> keys) {
+        keyboard.removeAll(keys);
     }
 
     @Override
     public void pause(int delay) {
-        for (int i = 0; i < delay; i++) buffer.add(List.of());
+        for (int i = 0; i < delay; i++) buffer.add(Set.of());
     }
 
     private void keyScan(DataAccess input) {

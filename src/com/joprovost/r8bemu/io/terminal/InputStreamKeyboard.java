@@ -10,6 +10,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 public class InputStreamKeyboard implements ClockAware {
     // At 900kHz, keys are fetched every 88ms
@@ -25,27 +26,27 @@ public class InputStreamKeyboard implements ClockAware {
         this.keyboard = keyboard;
     }
 
-    public static List<Key> keys(String keystroke) {
-        List<Key> keys = Key.character(keystroke.charAt(0));
+    public static Set<Key> keys(String keystroke) {
+        Set<Key> keys = Key.character(keystroke.charAt(0));
 
         if (!keys.isEmpty()) return keys;
 
         switch (keystroke.charAt(0)) {
-            case '\r': return List.of(Key.ENTER);
-            case 127: return List.of(Key.LEFT); // BACKSPACE KEY
+            case '\r': return Set.of(Key.ENTER);
+            case 127: return Set.of(Key.LEFT); // BACKSPACE KEY
 
             case 27:
-                if (keystroke.length() < 3) return List.of(Key.BREAK);
+                if (keystroke.length() < 3) return Set.of(Key.BREAK);
                 switch (keystroke.substring(1)) {
-                    case "[A": return List.of(Key.UP);
-                    case "[B": return List.of(Key.DOWN);
-                    case "[D": return List.of(Key.LEFT);
-                    case "[C": return List.of(Key.RIGHT);
-                    case "[1~": return List.of(Key.CLEAR); // HOME KEY
-                    case "[3~": return List.of(Key.CLEAR); // DEL KEY
+                    case "[A": return Set.of(Key.UP);
+                    case "[B": return Set.of(Key.DOWN);
+                    case "[D": return Set.of(Key.LEFT);
+                    case "[C": return Set.of(Key.RIGHT);
+                    case "[1~": return Set.of(Key.CLEAR); // HOME KEY
+                    case "[3~": return Set.of(Key.CLEAR); // DEL KEY
                 }
         }
-        return List.of();
+        return Set.of();
     }
 
     public void type(String keystroke) {
