@@ -66,10 +66,12 @@ public class R8BEmu {
                 break;
         }
 
-        new Thread(new LinuxJoystickDriver(Path.of("/dev/input/js0"), joystickLeft)).start();
-        new Thread(new LinuxJoystickDriver(Path.of("/dev/input/js1"), joystickRight)).start();
+        var services = new Threads();
 
-        CoCoII.emulate(clock, display, keyboard, joystickLeft, joystickRight, cassette, script, playback, recording, home);
+        services.declare(new LinuxJoystickDriver(Path.of("/dev/input/js0"), joystickLeft));
+        services.declare(new LinuxJoystickDriver(Path.of("/dev/input/js1"), joystickRight));
+
+        CoCoII.emulate(services, clock, display, keyboard, joystickLeft, joystickRight, cassette, script, playback, recording, home);
     }
 
     public static Map<String, String> parse(String[] args) {

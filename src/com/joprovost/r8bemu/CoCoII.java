@@ -40,7 +40,8 @@ import static com.joprovost.r8bemu.port.DataPort.P6;
 import static com.joprovost.r8bemu.port.DataPort.P7;
 
 public class CoCoII {
-    public static void emulate(ClockGenerator clock,
+    public static void emulate(Services services,
+                               ClockGenerator clock,
                                Display display,
                                KeyboardDispatcher keyboard,
                                JoystickDispatcher joystickLeft,
@@ -82,7 +83,7 @@ public class CoCoII {
         pia1.portA().controlTo(playback.motor());
         pia1.portA().controlTo(recorder.motor());
 
-        var speaker = new Speaker(new AudioFormat(44100, 8, 1, true, false), uptime);
+        var speaker = services.declare(new Speaker(new AudioFormat(44100, 8, 1, true, false), uptime));
         var sc77526 = new SC77526(AudioSink.broadcast(speaker.input(), recorder.input()));
         pia1.portA().outputTo(sc77526.dac(P7 | P6 | P5 | P4 | P3 | P2));
         pia1.portB().controlTo(sc77526.soundOutput());
@@ -108,12 +109,11 @@ public class CoCoII {
 
         if (Files.exists(script)) keyboard.script(Files.readString(script));
 
-        Thread speakerThread = new Thread(speaker);
         try {
-            speakerThread.start();
+            services.start();
             clock.run();
         } finally {
-            speakerThread.interrupt();
+            services.stop();
         }
     }
 

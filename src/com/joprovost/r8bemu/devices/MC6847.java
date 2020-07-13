@@ -1,6 +1,5 @@
 package com.joprovost.r8bemu.devices;
 
-import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.clock.ClockAwareBusyState;
@@ -10,6 +9,7 @@ import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.data.DataOutputReference;
 import com.joprovost.r8bemu.data.DataOutputSubset;
 import com.joprovost.r8bemu.data.Variable;
+import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 import com.joprovost.r8bemu.port.DataOutputHandler;
 
@@ -26,6 +26,11 @@ import static com.joprovost.r8bemu.io.Display.Color.YELLOW;
 // VideoDisplayGenerator
 public class MC6847 implements ClockAware {
     public static final int LINES = 250;
+    public static final int WIDTH = 256;
+    public static final int HEIGHT = 192;
+
+    private static final String ASCII = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]↑← !\"#$%&'()*+,-./0123456789:;<=>?";
+    private static final String GRAPHICS4 = " ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█";
 
     private static final int CG1 = 0;
     private static final int RG1 = 1;
@@ -79,100 +84,85 @@ public class MC6847 implements ClockAware {
         this.ram = ram;
     }
 
-    private static Display.Color color(int chroma) {
-        switch (chroma) {
-            case 0: return GREEN;
-            case 1: return YELLOW;
-            case 2: return BLUE;
-            case 3: return RED;
-            case 4: return BUFF;
-            case 5: return CYAN;
-            case 6: return MAGENTA;
-            case 7: return ORANGE;
-            default: return BLACK;
+    @Override
+    public void tick(Clock clock) {
+        if (!hClock.at(clock).isBusy()) {
+            hClock.busy(15000 / LINES); // 15 kHz @ 900 kHz
+            hsync.run();
+        }
+        if (!vClock.at(clock).isBusy()) {
+            vClock.busy(15000); // 60 Hz @ 900 kHz
+            verticalScan();
+            vsync.run();
         }
     }
 
-    private static Display.Color color(boolean css, int chroma) {
-        if (css) {
-            switch (chroma) {
-                case 0: return BUFF;
-                case 1: return CYAN;
-                case 2: return MAGENTA;
-                case 3: return ORANGE;
-                default: return BLACK;
-            }
-        } else {
-            switch (chroma) {
-                case 0: return GREEN;
-                case 1: return YELLOW;
-                case 2: return BLUE;
-                case 3: return RED;
-                default: return BLACK;
-            }
-        }
+    public DataOutputHandler mode() {
+        return PORT::referTo;
     }
 
-    public void verticalScan() {
+    private void verticalScan() {
         if (A_G.isClear()) {
             for (int row = 0; row < 16; row++)
-                for (int col = 0; col < 32; col++) {
-                    scanChar(row, col);
-                }
+                for (int col = 0; col < 32; col++)
+                    characterScan(row, col);
         } else {
-            for (int line = 0; line < 192; line++)
+            for (int line = 0; line < HEIGHT; line++)
                 horizontalScan(line);
         }
     }
 
-    public void scanChar(int row, int col) {
+    private void characterScan(int row, int col) {
         VDG_DATA_BUS.value(ram.read(row * 32 * 24 + col));
         if (AS.isSet()) {
-            display.graphics4(row + 1, col + 1, color(SGM4_CHROMA.value()), BLACK, SGM4_LUMA.value());
+            var character = GRAPHICS4.charAt(SGM4_LUMA.value() % GRAPHICS4.length());
+            display.character(row, col, color(SGM4_CHROMA.value()), BLACK, character);
         } else {
-            if (INV.isSet())
-                display.character(row + 1, col + 1, BLACK, CSS.isSet() ? ORANGE : GREEN, ASCII_CODE.value());
-            else display.character(row + 1, col + 1, CSS.isSet() ? ORANGE : GREEN, BLACK, ASCII_CODE.value());
+            var character = ASCII.charAt(ASCII_CODE.value() % ASCII.length());
+            Display.Color color = CSS.isSet() ? ORANGE : GREEN;
+            if (INV.isSet()) {
+                display.character(row, col, BLACK, color, character);
+            } else {
+                display.character(row, col, color, BLACK, character);
+            }
         }
     }
 
-    public void horizontalScan(int line) {
-        int bytes = bytesPerLine();
+    private void horizontalScan(int line) {
+        var pixelsPerByte = pixelsPerByte();
+        int bytes = lineWidth() / pixelsPerByte;
         int address = bytes * line;
-        for (int i = 0; i <= bytes; i++) {
-            drawByte(address + i);
-        }
-    }
-
-    public void drawByte(int address) {
-        VDG_DATA_BUS.value(ram.read(address));
 
         Display.Color foreground = CSS.isSet() ? BUFF : GREEN;
         Display.Color background = BLACK;
 
-        if (pixelsPerByte() == 4)
-            draw(address, lineWidth(),
-                 color(CSS.isSet(), E3.value()),
-                 color(CSS.isSet(), E2.value()),
-                 color(CSS.isSet(), E1.value()),
-                 color(CSS.isSet(), E0.value()));
-        else if (pixelsPerByte() == 8)
-            draw(address, lineWidth(),
-                 L7.isSet() ? foreground : background,
-                 L6.isSet() ? foreground : background,
-                 L5.isSet() ? foreground : background,
-                 L4.isSet() ? foreground : background,
-                 L3.isSet() ? foreground : background,
-                 L2.isSet() ? foreground : background,
-                 L1.isSet() ? foreground : background,
-                 L0.isSet() ? foreground : background);
+        Display.Color[] pixels = new Display.Color[bytes * pixelsPerByte];
+        for (int i = 0; i < bytes; i++) {
+            VDG_DATA_BUS.value(ram.read(address + i));
+            if (pixelsPerByte == 4) {
+                pixels[i * 4]     = color(CSS.isSet(), E3.value());
+                pixels[i * 4 + 1] = color(CSS.isSet(), E2.value());
+                pixels[i * 4 + 2] = color(CSS.isSet(), E1.value());
+                pixels[i * 4 + 3] = color(CSS.isSet(), E0.value());
+            } else if (pixelsPerByte == 8) {
+                pixels[i * 8]     = L7.isSet() ? foreground : background;
+                pixels[i * 8 + 1] = L6.isSet() ? foreground : background;
+                pixels[i * 8 + 2] = L5.isSet() ? foreground : background;
+                pixels[i * 8 + 3] = L4.isSet() ? foreground : background;
+                pixels[i * 8 + 4] = L3.isSet() ? foreground : background;
+                pixels[i * 8 + 5] = L2.isSet() ? foreground : background;
+                pixels[i * 8 + 6] = L1.isSet() ? foreground : background;
+                pixels[i * 8 + 7] = L0.isSet() ? foreground : background;
+            }
+        }
+
+        var pixelWidth = WIDTH / pixels.length;
+        for (int x = 0; x < WIDTH; x++) {
+            display.pixel(x, line, pixels[x / pixelWidth]);
+        }
     }
 
-    int bytesPerLine() {
-        return lineWidth() / pixelsPerByte();
-    }
-
-    int lineWidth() {
+    private int lineWidth() {
         switch (GM0_2.value()) {
             case CG1: // 0b000
                 return 64;
@@ -191,7 +181,7 @@ public class MC6847 implements ClockAware {
         }
     }
 
-    int pixelsPerByte() {
+    private int pixelsPerByte() {
         switch (GM0_2.value()) {
             case CG1: // 0b000
             case CG2: // 0b010
@@ -208,33 +198,37 @@ public class MC6847 implements ClockAware {
         }
     }
 
-    @Override
-    public void tick(Clock clock) {
-        if (!hClock.at(clock).isBusy()) {
-            hClock.busy(15000 / LINES); // 15 kHz @ 900 kHz
-            hsync.run();
+    private Display.Color color(int chroma) {
+        switch (chroma) {
+            case 0: return GREEN;
+            case 1: return YELLOW;
+            case 2: return BLUE;
+            case 3: return RED;
+            case 4: return BUFF;
+            case 5: return CYAN;
+            case 6: return MAGENTA;
+            case 7: return ORANGE;
+            default: return BLACK;
         }
-        if (!vClock.at(clock).isBusy()) {
-            vClock.busy(15000); // 60 Hz @ 900 kHz
-            verticalScan();
-            vsync.run();
-        }
     }
 
-    public DataOutputHandler mode() {
-        return PORT::referTo;
-    }
-
-    private void draw(int index, int width, Display.Color color) {
-        int pxWidth = 256 / width;
-        int x = (index % width) * pxWidth;
-        int y = (index / width);
-        display.square(x, y, pxWidth, 1, color);
-    }
-
-    private void draw(int index, int width, Display.Color... color) {
-        for (int offset = 0; offset < color.length; offset++) {
-            draw(index * color.length + offset, width, color[offset]);
+    private Display.Color color(boolean css, int chroma) {
+        if (css) {
+            switch (chroma) {
+                case 0: return BUFF;
+                case 1: return CYAN;
+                case 2: return MAGENTA;
+                case 3: return ORANGE;
+                default: return BLACK;
+            }
+        } else {
+            switch (chroma) {
+                case 0: return GREEN;
+                case 1: return YELLOW;
+                case 2: return BLUE;
+                case 3: return RED;
+                default: return BLACK;
+            }
         }
     }
 }

@@ -4,11 +4,13 @@ import com.joprovost.r8bemu.io.Display;
 
 import java.io.PrintStream;
 
-
 public class Terminal implements Display {
-    private static final int MARGIN_TOP = 1;
-    private static final int MARGIN_LEFT = 4;
+    private static final int WIDTH = 32;
     private static final int HEIGHT = 16;
+
+    private final Color[] fgColors = new Color[WIDTH * HEIGHT];
+    private final Color[] bgColors = new Color[WIDTH * HEIGHT];
+    private final char[] characters = "\0".repeat(WIDTH * HEIGHT).toCharArray();
 
     private final PrintStream printStream;
 
@@ -18,11 +20,25 @@ public class Terminal implements Display {
 
     @Override
     public void character(int row, int column, Color fg, Color bg, char character) {
+        if (alreadyDisplayed(row, column, fg, bg, character))
+            return;
+
         begin();
         move(row, column);
         color(fg, bg);
         printStream.print(character);
         end();
+    }
+
+    public boolean alreadyDisplayed(int row, int column, Color fg, Color bg, char character) {
+        int pos = (row) * 32 + column;
+        if (fgColors[pos] == fg && bgColors[pos] == bg && characters[pos] == character)
+            return true;
+
+        fgColors[pos] = fg;
+        bgColors[pos] = bg;
+        characters[pos] = character;
+        return false;
     }
 
     @Override
@@ -35,13 +51,13 @@ public class Terminal implements Display {
     }
 
     public void end() {
-        printStream.print("\u001b[" + (1 + HEIGHT + (MARGIN_TOP * 2)) + ";1f");
+        printStream.print("\u001b[" + (1 + HEIGHT) + ";1f");
         printStream.print("\u001b[0m");
         printStream.print("\u001b[?25h");
     }
 
     public void move(int row, int column) {
-        printStream.print("\u001b[" + (MARGIN_TOP + row) + ";" + (MARGIN_LEFT + column) + "f");
+        printStream.print("\u001b[" + (row + 1) + ";" + (column + 1) + "f");
     }
 
     public void color(Color fg, Color bg) {
@@ -49,8 +65,8 @@ public class Terminal implements Display {
         printStream.print("\u001b[48;5;" + ansi256(bg) + "m");
     }
 
-    private int ansi256(Color color){
-        switch(color) {
+    private int ansi256(Color color) {
+        switch (color) {
             case GREEN: return 2;
             case YELLOW: return 3;
             case BLUE: return 4;
