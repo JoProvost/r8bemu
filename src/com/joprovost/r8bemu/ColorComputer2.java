@@ -39,7 +39,7 @@ import static com.joprovost.r8bemu.port.DataPort.P5;
 import static com.joprovost.r8bemu.port.DataPort.P6;
 import static com.joprovost.r8bemu.port.DataPort.P7;
 
-public class CoCoII {
+public class ColorComputer2 {
     public static void emulate(Services services,
                                ClockGenerator clock,
                                Display display,
@@ -50,13 +50,13 @@ public class CoCoII {
                                Path script,
                                Path playbackFile,
                                Path recordingFile,
-                               String home) throws IOException {
+                               Path home) throws IOException {
 
         var uptime = clock.aware(new ClockFrequency(900, clock));
 
         var ram = new Memory(0x7fff);
-        var rom0 = rom(home + "/rom/extbas11.rom");
-        var rom1 = rom(home + "/rom/bas13.rom");
+        var rom0 = rom(home.resolve("extbas11.rom"));
+        var rom1 = rom(home.resolve("bas13.rom"));
         var pia0 = new MC6821(Signal.IRQ, Signal.IRQ);
         var pia1 = new MC6821(Signal.FIRQ, Signal.FIRQ);
         var pia2 = new MC6821(Signal.none(), Signal.none());
@@ -117,8 +117,7 @@ public class CoCoII {
         }
     }
 
-    public static MemoryDevice rom(String rom) throws IOException {
-        var path = Path.of(rom);
+    public static MemoryDevice rom(Path path) throws IOException {
         if (Files.exists(path)) return MemoryDevice.readOnly(Memory.file(path));
         return demo();
     }

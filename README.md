@@ -2,7 +2,7 @@
 
 R8BEmu's goal is to emulate the Tandy's Color Computer family, starting with the Color Computer II but could be the
 base of any other type of emulator.
-![](doc/boot.png)
+![](boot.png)
 
 ## Why another emulator?
 This projet emerged from nostalgia, nothing more, there is no real need for another emulator of the Color Computer.
@@ -22,8 +22,8 @@ __Just for fun!__
 
 ### Boot ROM
 In order to use this emulator, you must provide the ROM to boot on.  You can download it from an actual CoCo 2 you
-own and put the content of `Color Basic` in `~/.r8bemu/rom/bas13.rom` and the `Extended Color Basic` in
-`~/.r8bemu/rom/extbas11.rom` or craft your own :
+own and put the content of `Color Basic` in `~/.r8bemu/bas13.rom` and the `Extended Color Basic` in
+`~/.r8bemu/extbas11.rom` or craft your own :
 
  * __`bas13.rom`__ starts at __0xA000__ ending at __0xBFFF__, boot vector must be at __0xBFFE__ ;
  * __`extbas11.rom`__ starts at __0x8000__ ending at __0x9FFF__ .

@@ -15,6 +15,7 @@ import com.joprovost.r8bemu.io.awt.FrameBuffer;
 import com.joprovost.r8bemu.io.awt.UserInterface;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -24,13 +25,13 @@ import static com.joprovost.r8bemu.io.awt.UserInterface.SEPARATOR;
 
 public class R8BEmu {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, URISyntaxException {
         var options = parse(args);
         var ui = options.getOrDefault("interface", "awt");
-        var home = options.getOrDefault("home", System.getProperty("user.home") + "/.r8bemu");
-        var script = Path.of(options.getOrDefault("script", home + "/script/autorun.bas"));
-        var playback = Path.of(options.getOrDefault("playback", home + "/cassette/playback.wav"));
-        var recording = Path.of(options.getOrDefault("recording", home + "/cassette/recording.wav"));
+        var home = Path.of(options.getOrDefault("home", System.getProperty("user.home") + "/.r8bemu"));
+        var script = Path.of(options.getOrDefault("script", home + "/autorun.bas"));
+        var playback = Path.of(options.getOrDefault("playback", home + "/playback.wav"));
+        var recording = Path.of(options.getOrDefault("recording", home + "/recording.wav"));
 
         var keyboardBuffer = new LogicVariable();
         keyboardBuffer.set(Boolean.parseBoolean(options.getOrDefault("keyboard-buffer", "true")));
@@ -56,7 +57,7 @@ public class R8BEmu {
                 UserInterface.show(frameBuffer, List.of(
                         Actions.reset(),
                         SEPARATOR,
-                        Actions.rewindCassette(home, cassette),
+                        Actions.rewindCassette(cassette),
                         Actions.insertCassette(home, cassette),
                         SEPARATOR,
                         Actions.keyboard(keyboardBuffer),
@@ -71,7 +72,8 @@ public class R8BEmu {
         services.declare(new LinuxJoystickDriver(Path.of("/dev/input/js0"), joystickLeft));
         services.declare(new LinuxJoystickDriver(Path.of("/dev/input/js1"), joystickRight));
 
-        CoCoII.emulate(services, clock, display, keyboard, joystickLeft, joystickRight, cassette, script, playback, recording, home);
+        Configuration.prepare(home);
+        ColorComputer2.emulate(services, clock, display, keyboard, joystickLeft, joystickRight, cassette, script, playback, recording, home);
     }
 
     public static Map<String, String> parse(String[] args) {

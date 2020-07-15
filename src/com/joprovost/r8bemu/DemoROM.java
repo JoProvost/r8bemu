@@ -45,8 +45,8 @@ public class DemoROM {
                       "                                "),
                 green("                                ",
                       "  ROM FILES REQUIRED :          ",
-                      "    - .R8BEMU/ROM/BAS13.ROM     ",
-                      "    - .R8BEMU/ROM/EXTBAS11.ROM  ",
+                      "    - .R8BEMU/BAS13.ROM         ",
+                      "    - .R8BEMU/EXTBAS11.ROM      ",
                       "                                ",
                       "  SEE README.MD FOR DETAILS     ",
                       "                                ")

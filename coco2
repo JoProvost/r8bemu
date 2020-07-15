@@ -1,9 +1,0 @@
-#!/bin/bash
-set -e
-cd "$(dirname "$(realpath $0)")"
-
-if [ -n "${1:-}" ]; then
-  ./r8bemu --playback "./cassette/$1.wav" --script "./script/$1.bas"
-else
-  ./r8bemu
-fi

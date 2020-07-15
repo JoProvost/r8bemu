@@ -1,0 +1,32 @@
+#!/bin/bash
+# See https://medium.com/@adam_carroll/java-packager-with-jdk11-31b3d620f4a8
+# See https://github.com/Santulator/Santulator/blob/1.1.0/package/PACKAGING.md
+
+set -e
+APP_HOME="$(dirname "$(realpath $0)")"
+TARGET="$APP_HOME/target"
+PACKAGE="$TARGET/package"
+JAR_FILE="$TARGET/r8bemu.jar"
+
+# Compile
+rm -Rf "$TARGET"
+javac -d "$TARGET/classes" $(find $APP_HOME/src -name '*.java')
+jar --create \
+  --file "$JAR_FILE" \
+  --main-class com.joprovost.r8bemu.R8BEmu \
+  -C "$TARGET/classes" com \
+  -C "$APP_HOME/resources" images \
+  -C "$APP_HOME/resources"  template
+
+# Package
+VERSION=$(git show --format="%h" --no-patch)
+mkdir -p "$PACKAGE"
+cp "$JAR_FILE" "$PACKAGE"
+jpackage \
+  --input "$PACKAGE" \
+  --name R8BEmu \
+  --app-version "$VERSION" \
+  --main-jar r8bemu.jar \
+  --main-class com.joprovost.r8bemu.R8BEmu \
+  --icon "$APP_HOME/resources/images/logo.icns"
+
