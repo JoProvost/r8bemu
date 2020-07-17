@@ -21,9 +21,9 @@ public class UserInterface extends JFrame {
         add(frameBuffer, CENTER);
         add(toolbar, PAGE_START);
 
-        frameBuffer.addMouseMotionListener(new MouseAdapter() {
+        getContentPane().addMouseMotionListener(new MouseAdapter() {
             public void mouseMoved(MouseEvent e) {
-                toolbar.setVisible(e.getY() < 5);
+                toolbar.setVisible(e.getY() < toolbar.getPreferredSize().height);
             }
         });
     }

@@ -15,6 +15,9 @@ import java.util.function.Function;
 public class Actions {
     static Function<Window, Action> presentation() {
         return window -> new AbstractAction("View", new ImageIcon(Actions.class.getResource("/images/maximized_32x32.png"))) {
+            {
+                setEnabled(!isMac());
+            }
             @Override
             public void actionPerformed(ActionEvent e) {
                 GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -79,5 +82,9 @@ public class Actions {
         } else {
             return new ImageIcon(Actions.class.getResource("/images/keyboard_buffered_64x32.png"));
         }
+    }
+
+    private static boolean isMac() {
+        return System.getProperty("os.name").toLowerCase().contains("mac");
     }
 }
