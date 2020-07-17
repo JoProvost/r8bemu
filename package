@@ -20,7 +20,7 @@ jar --create \
   -C "$APP_HOME/resources" template
 
 # Package
-VERSION="0.0.0-$(git show --format="%h" --no-patch)"
+VERSION="$(git describe --tags)"
 mkdir -p "$PACKAGE"
 cp "$JAR_FILE" "$PACKAGE"
 
