@@ -5,6 +5,7 @@
 set -e
 APP_HOME="$(dirname "$(realpath $0)")"
 TARGET="$APP_HOME/target"
+DIST="$APP_HOME/dist"
 PACKAGE="$TARGET/package"
 JAR_FILE="$TARGET/r8bemu.jar"
 
@@ -16,17 +17,34 @@ jar --create \
   --main-class com.joprovost.r8bemu.R8BEmu \
   -C "$TARGET/classes" com \
   -C "$APP_HOME/resources" images \
-  -C "$APP_HOME/resources"  template
+  -C "$APP_HOME/resources" template
 
 # Package
-VERSION=$(git show --format="%h" --no-patch)
+VERSION="0.0.0-$(git show --format="%h" --no-patch)"
 mkdir -p "$PACKAGE"
 cp "$JAR_FILE" "$PACKAGE"
-jpackage \
-  --input "$PACKAGE" \
-  --name R8BEmu \
-  --app-version "$VERSION" \
-  --main-jar r8bemu.jar \
-  --main-class com.joprovost.r8bemu.R8BEmu \
-  --icon "$APP_HOME/resources/images/logo.icns"
 
+case $(uname) in
+  Darwin)
+    jpackage \
+      --name R8BEmu \
+      --main-jar r8bemu.jar \
+      --main-class com.joprovost.r8bemu.R8BEmu \
+      --app-version "$VERSION" \
+      --input "$PACKAGE" \
+      --dest "$DIST" \
+      --icon "$APP_HOME/resources/images/logo.icns"
+    ;;
+  Linux)
+    jpackage \
+      --name R8BEmu \
+      --main-jar r8bemu.jar \
+      --main-class com.joprovost.r8bemu.R8BEmu \
+      --app-version "$VERSION" \
+      --input "$PACKAGE" \
+      --dest "$DIST" \
+      --icon "$APP_HOME/resources/images/logo_128x128.png" \
+      --linux-menu-group "Emulator" \
+      --linux-shortcut
+    ;;
+esac

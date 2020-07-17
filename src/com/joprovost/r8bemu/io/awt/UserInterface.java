@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -29,6 +30,11 @@ public class UserInterface extends JFrame {
 
     public static UserInterface show(FrameBuffer frameBuffer, List<Function<Window, Action>> actions) {
         UserInterface ui = new UserInterface("R8BEmu", frameBuffer, actions);
+        List<Image> icons  = new ArrayList<>();
+        icons.add(new ImageIcon(UserInterface.class.getResource("/images/logo_64x64.png")).getImage());
+        icons.add(new ImageIcon(UserInterface.class.getResource("/images/logo_128x128.png")).getImage());
+        ui.setIconImages(icons);
+
         ui.setResizable(true);
         ui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ui.pack();
