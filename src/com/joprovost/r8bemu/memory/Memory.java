@@ -3,6 +3,8 @@ package com.joprovost.r8bemu.memory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.function.IntFunction;
 
 public class Memory implements MemoryDevice {
     private final byte[] bytes;
@@ -39,5 +41,9 @@ public class Memory implements MemoryDevice {
     @Override
     public void write(int address, int data) {
         bytes[address & mask] = (byte) (data & 0xff);
+    }
+
+    public void clear() {
+        Arrays.fill(bytes, (byte) 0);
     }
 }

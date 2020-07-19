@@ -40,13 +40,14 @@ import static com.joprovost.r8bemu.port.DataPort.P6;
 import static com.joprovost.r8bemu.port.DataPort.P7;
 
 public class ColorComputer2 {
-    public static void emulate(Services services,
-                               ClockGenerator clock,
+    public static void emulate(ClockGenerator clock,
+                               Memory ram,
                                Display display,
                                KeyboardDispatcher keyboard,
+                               CassetteRecorderDispatcher cassette,
+                               Services services,
                                JoystickDispatcher joystickLeft,
                                JoystickDispatcher joystickRight,
-                               CassetteRecorderDispatcher cassette,
                                Path script,
                                Path playbackFile,
                                Path recordingFile,
@@ -54,7 +55,6 @@ public class ColorComputer2 {
 
         var uptime = clock.aware(new ClockFrequency(900, clock));
 
-        var ram = new Memory(0x7fff);
         var rom0 = rom(home.resolve("extbas11.rom"));
         var rom1 = rom(home.resolve("bas13.rom"));
         var pia0 = new MC6821(Signal.IRQ, Signal.IRQ);
@@ -73,6 +73,9 @@ public class ColorComputer2 {
                 MemoryDevice.map(range(0x8000, 0x9fff), rom0),  // S=1
                 MemoryDevice.map(range(0x0000, 0x7fff), ram)
         );
+
+        var vdg = clock.aware(new MC6847(display, pia0.portA()::interrupt, pia0.portB()::interrupt, sam.videoMemory(ram)));
+        pia1.portB().outputTo(vdg.mode());
 
         keyboard.dispatchTo(clock.aware(new KeyboardAdapter(pia0)));
 
@@ -100,9 +103,6 @@ public class ColorComputer2 {
         pia0.portA().inputFrom(rightButton.clear(P1));
         joystickRight.dispatchTo(Joystick.button(rightButton));
         joystickRight.dispatchTo(sc77526.right());
-
-        var vdg = clock.aware(new MC6847(display, pia0.portA()::interrupt, pia0.portB()::interrupt, sam.videoMemory(ram)));
-        pia1.portB().outputTo(vdg.mode());
 
         clock.aware(new MC6809E(bus, Debugger.none(), clock));
         Signal.RESET.set();

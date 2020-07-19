@@ -3,7 +3,9 @@ package com.joprovost.r8bemu;
 import com.joprovost.r8bemu.data.LogicAccess;
 import com.joprovost.r8bemu.data.LogicOutput;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
+import com.joprovost.r8bemu.mc6809.Register;
 import com.joprovost.r8bemu.mc6809.Signal;
+import com.joprovost.r8bemu.memory.Memory;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -14,7 +16,7 @@ import java.util.function.Function;
 
 public class Actions {
     static Function<Window, Action> presentation() {
-        return window -> new AbstractAction("View", new ImageIcon(Actions.class.getResource("/images/maximized_32x32.png"))) {
+        return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/maximized_32x32.png"))) {
             {
                 setEnabled(!isMac());
             }
@@ -33,7 +35,7 @@ public class Actions {
     }
 
     static Function<Window, Action> reset() {
-        return window -> new AbstractAction("Reset", new ImageIcon(Actions.class.getResource("/images/reset_32x32.png"))) {
+        return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/reset_32x32.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Signal.RESET.set();
@@ -41,8 +43,19 @@ public class Actions {
         };
     }
 
+    static Function<Window, Action> reboot(Memory ram) {
+        return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/power_32x32.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Signal.RESET.set();
+                Register.reset();
+                ram.clear();
+            }
+        };
+    }
+
     static Function<Window, Action> rewindCassette(CassetteRecorderDispatcher cassette) {
-        return window -> new AbstractAction("Cassette", new ImageIcon(Actions.class.getResource("/images/rewind_32x32.png"))) {
+        return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/rewind_32x32.png"))) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 cassette.rewind();
@@ -51,7 +64,7 @@ public class Actions {
     }
 
     static Function<Window, Action> insertCassette(Path home, CassetteRecorderDispatcher cassette) {
-        return window -> new AbstractAction("Cassette", new ImageIcon(Actions.class.getResource("/images/cassette_64x32.png"))) {
+        return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/cassette_grey_64x32.png"))) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 var files = new JFileChooser(home.toFile());
@@ -66,7 +79,7 @@ public class Actions {
     }
 
     static Function<Window, Action> keyboard(LogicAccess buffered) {
-        return window -> new AbstractAction("View", keyboardIcon(buffered)) {
+        return window -> new AbstractAction(null, keyboardIcon(buffered)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (buffered.isSet()) buffered.clear();
@@ -78,9 +91,9 @@ public class Actions {
 
     private static ImageIcon keyboardIcon(LogicOutput buffered) {
         if (buffered.isSet()) {
-            return new ImageIcon(Actions.class.getResource("/images/keyboard_raw_64x32.png"));
+            return new ImageIcon(Actions.class.getResource("/images/keyboard_abc_64x32.png"));
         } else {
-            return new ImageIcon(Actions.class.getResource("/images/keyboard_buffered_64x32.png"));
+            return new ImageIcon(Actions.class.getResource("/images/keyboard_dpad_64x32.png"));
         }
     }
 

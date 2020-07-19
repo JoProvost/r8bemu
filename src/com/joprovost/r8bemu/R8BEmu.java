@@ -13,6 +13,7 @@ import com.joprovost.r8bemu.io.terminal.Terminal;
 import com.joprovost.r8bemu.io.awt.AWTKeyboardDriver;
 import com.joprovost.r8bemu.io.awt.FrameBuffer;
 import com.joprovost.r8bemu.io.awt.UserInterface;
+import com.joprovost.r8bemu.memory.Memory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -37,6 +38,7 @@ public class R8BEmu {
         keyboardBuffer.set(Boolean.parseBoolean(options.getOrDefault("keyboard-buffer", "true")));
 
         var clock = new ClockGenerator();
+        var ram = new Memory(0x7fff);
         var keyboard = Keyboard.dispatcher();
         var joystickLeft = Joystick.dispatcher();
         var joystickRight = Joystick.dispatcher();
@@ -55,6 +57,7 @@ public class R8BEmu {
                 frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer));
                 frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickLeft));
                 UserInterface.show(frameBuffer, List.of(
+                        Actions.reboot(ram),
                         Actions.reset(),
                         SEPARATOR,
                         Actions.rewindCassette(cassette),
@@ -73,7 +76,7 @@ public class R8BEmu {
         services.declare(new LinuxJoystickDriver(Path.of("/dev/input/js1"), joystickRight));
 
         Configuration.prepare(home);
-        ColorComputer2.emulate(services, clock, display, keyboard, joystickLeft, joystickRight, cassette, script, playback, recording, home);
+        ColorComputer2.emulate(clock, ram, display, keyboard, cassette, services, joystickLeft, joystickRight, script, playback, recording, home);
     }
 
     public static Map<String, String> parse(String[] args) {

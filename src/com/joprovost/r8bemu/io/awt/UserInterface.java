@@ -17,7 +17,7 @@ public class UserInterface extends JFrame {
     private UserInterface(String name, FrameBuffer frameBuffer, List<Function<Window, Action>> actions) {
         super(name);
 
-        var toolbar = toolbar(actions);
+        var toolbar = toolbar(actions, frameBuffer);
         add(frameBuffer, CENTER);
         add(toolbar, PAGE_START);
 
@@ -43,14 +43,18 @@ public class UserInterface extends JFrame {
         return ui;
     }
 
-    private JToolBar toolbar(List<Function<Window, Action>> actions) {
+    private JToolBar toolbar(List<Function<Window, Action>> actions, FrameBuffer frameBuffer) {
         JToolBar toolBar = new JToolBar();
         toolBar.setVisible(false);
         toolBar.setFloatable(false);
 
         for (var action : actions) {
             if (action == SEPARATOR) toolBar.addSeparator();
-            else toolBar.add(action.apply(this));
+            else {
+                var button = new JButton(action.apply(this));
+                button.addActionListener(xit-> frameBuffer.requestFocusInWindow());
+                toolBar.add(button);
+            }
         }
 
         toolBar.setRequestFocusEnabled(false);
