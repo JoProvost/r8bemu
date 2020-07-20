@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.clock.ClockFrequency;
-import com.joprovost.r8bemu.clock.ClockGenerator;
+import com.joprovost.r8bemu.clock.EmulatorContext;
 import com.joprovost.r8bemu.devices.KeyboardAdapter;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6847;
@@ -40,7 +40,7 @@ import static com.joprovost.r8bemu.port.DataPort.P6;
 import static com.joprovost.r8bemu.port.DataPort.P7;
 
 public class ColorComputer2 {
-    public static void emulate(ClockGenerator clock,
+    public static void emulate(EmulatorContext context,
                                Memory ram,
                                Display display,
                                KeyboardDispatcher keyboard,
@@ -53,7 +53,7 @@ public class ColorComputer2 {
                                Path recordingFile,
                                Path home) throws IOException {
 
-        var uptime = clock.aware(new ClockFrequency(900, clock));
+        var uptime = context.aware(new ClockFrequency(900, context));
 
         var rom0 = rom(home.resolve("extbas11.rom"));
         var rom1 = rom(home.resolve("bas13.rom"));
@@ -74,11 +74,11 @@ public class ColorComputer2 {
                 MemoryDevice.map(range(0x0000, 0x7fff), ram)
         );
 
-        var vdg = clock.aware(new MC6847(display, pia0.portA()::interrupt, pia0.portB()::interrupt, sam.videoMemory(ram)));
+        var vdg = context.aware(new MC6847(display, pia0.portA()::interrupt, pia0.portB()::interrupt, sam.videoMemory(ram)));
         pia1.portB().outputTo(vdg.mode());
         Signal.RESET.signalTo(vdg.reset());
 
-        keyboard.dispatchTo(clock.aware(new KeyboardAdapter(pia0)));
+        keyboard.dispatchTo(context.aware(new KeyboardAdapter(pia0)));
 
         var playback = new TapePlayback(uptime, playbackFile);
         cassette.dispatchTo(playback);
@@ -105,7 +105,7 @@ public class ColorComputer2 {
         joystickRight.dispatchTo(Joystick.button(rightButton));
         joystickRight.dispatchTo(sc77526.right());
 
-        var cpu = clock.aware(new MC6809E(bus, Debugger.none(), clock));
+        var cpu = context.aware(new MC6809E(bus, Debugger.none(), context));
         Signal.RESET.signalTo(cpu.reset());
         Signal.IRQ.signalTo(cpu.irq());
         Signal.FIRQ.signalTo(cpu.firq());
@@ -117,7 +117,7 @@ public class ColorComputer2 {
 
         try {
             services.start();
-            clock.run();
+            context.run();
         } finally {
             services.stop();
         }

@@ -1,10 +1,11 @@
 package com.joprovost.r8bemu.io;
 
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 public interface Keyboard {
-    static KeyboardDispatcher dispatcher() {
-        return new KeyboardDispatcher();
+    static KeyboardDispatcher dispatcher(Executor emulatorContext) {
+        return new KeyboardDispatcher(emulatorContext);
     }
 
     void type(Set<Key> keys);

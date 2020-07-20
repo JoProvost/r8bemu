@@ -34,7 +34,7 @@ public class KeyboardAdapter implements Keyboard, ClockAware {
     }
 
     @Override
-    public synchronized void tick(Clock clock) {
+    public void tick(Clock clock) {
         if (state.at(clock).isBusy()) return;
 
         state.busy(TYPE_DELAY);
@@ -50,22 +50,22 @@ public class KeyboardAdapter implements Keyboard, ClockAware {
     }
 
     @Override
-    public synchronized void type(Set<Key> keys) {
+    public void type(Set<Key> keys) {
         buffer.add(keys);
     }
 
     @Override
-    public synchronized void press(Set<Key> keys) {
+    public void press(Set<Key> keys) {
         keyboard.addAll(keys);
     }
 
     @Override
-    public synchronized void release(Set<Key> keys) {
+    public void release(Set<Key> keys) {
         keyboard.removeAll(keys);
     }
 
     @Override
-    public synchronized void pause(int delay) {
+    public void pause(int delay) {
         for (int i = 0; i < delay; i++) buffer.add(Set.of());
     }
 

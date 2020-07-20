@@ -1,13 +1,15 @@
 package com.joprovost.r8bemu.io;
 
+import java.util.concurrent.Executor;
+
 public interface Joystick extends Button {
 
     int CENTER = 0;
     int MINIMUM = Short.MIN_VALUE;
     int MAXIMUM = Short.MAX_VALUE;
 
-    static JoystickDispatcher dispatcher() {
-        return new JoystickDispatcher();
+    static JoystickDispatcher dispatcher(Executor context) {
+        return new JoystickDispatcher(context);
     }
 
     static Joystick button(Button button) {

@@ -3,9 +3,6 @@ package com.joprovost.r8bemu;
 import com.joprovost.r8bemu.data.LogicAccess;
 import com.joprovost.r8bemu.data.LogicOutput;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
-import com.joprovost.r8bemu.mc6809.Register;
-import com.joprovost.r8bemu.mc6809.Signal;
-import com.joprovost.r8bemu.memory.Memory;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -34,22 +31,20 @@ public class Actions {
         };
     }
 
-    static Function<Window, Action> reset(Signal reset) {
+    static Function<Window, Action> reset(Runnable action) {
         return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/reset_32x32.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                reset.trigger();
+                action.run();
             }
         };
     }
 
-    static Function<Window, Action> reboot(Memory ram, Signal reset) {
+    static Function<Window, Action> reboot(Runnable action) {
         return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/power_32x32.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                reset.trigger();
-                Register.reset();
-                ram.clear();
+                action.run();
             }
         };
     }

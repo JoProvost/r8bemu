@@ -2,9 +2,15 @@ package com.joprovost.r8bemu.io;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 public class JoystickDispatcher implements Joystick {
     private final List<Joystick> targets = new ArrayList<>();
+    private final Executor context;
+
+    public JoystickDispatcher(Executor context) {
+        this.context = context;
+    }
 
     public void dispatchTo(Joystick target) {
         this.targets.add(target);
@@ -12,21 +18,29 @@ public class JoystickDispatcher implements Joystick {
 
     @Override
     public void horizontal(int value) {
-        for (var target : targets) target.horizontal(value);
+        context.execute(() -> {
+            for (var target : targets) target.horizontal(value);
+        });
     }
 
     @Override
     public void vertical(int value) {
-        for (var target : targets) target.vertical(value);
+        context.execute(() -> {
+            for (var target : targets) target.vertical(value);
+        });
     }
 
     @Override
     public void press() {
-        for (var target : targets) target.press();
+        context.execute(() -> {
+            for (var target : targets) target.press();
+        });
     }
 
     @Override
     public void release() {
-        for (var target : targets) target.release();
+        context.execute(() -> {
+            for (var target : targets) target.release();
+        });
     }
 }
