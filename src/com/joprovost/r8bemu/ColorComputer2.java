@@ -76,6 +76,7 @@ public class ColorComputer2 {
 
         var vdg = clock.aware(new MC6847(display, pia0.portA()::interrupt, pia0.portB()::interrupt, sam.videoMemory(ram)));
         pia1.portB().outputTo(vdg.mode());
+        Signal.RESET.signalTo(vdg.reset());
 
         keyboard.dispatchTo(clock.aware(new KeyboardAdapter(pia0)));
 
@@ -104,8 +105,13 @@ public class ColorComputer2 {
         joystickRight.dispatchTo(Joystick.button(rightButton));
         joystickRight.dispatchTo(sc77526.right());
 
-        clock.aware(new MC6809E(bus, Debugger.none(), clock));
-        Signal.RESET.set();
+        var cpu = clock.aware(new MC6809E(bus, Debugger.none(), clock));
+        Signal.RESET.signalTo(cpu.reset());
+        Signal.IRQ.signalTo(cpu.irq());
+        Signal.FIRQ.signalTo(cpu.firq());
+        Signal.NMI.signalTo(cpu.nmi());
+
+        Signal.RESET.trigger();
 
         if (Files.exists(script)) keyboard.script(Files.readString(script));
 

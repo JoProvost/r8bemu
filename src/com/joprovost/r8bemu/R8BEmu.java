@@ -13,6 +13,7 @@ import com.joprovost.r8bemu.io.terminal.Terminal;
 import com.joprovost.r8bemu.io.awt.AWTKeyboardDriver;
 import com.joprovost.r8bemu.io.awt.FrameBuffer;
 import com.joprovost.r8bemu.io.awt.UserInterface;
+import com.joprovost.r8bemu.mc6809.Signal;
 import com.joprovost.r8bemu.memory.Memory;
 
 import java.io.IOException;
@@ -57,8 +58,8 @@ public class R8BEmu {
                 frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer));
                 frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickLeft));
                 UserInterface.show(frameBuffer, List.of(
-                        Actions.reboot(ram),
-                        Actions.reset(),
+                        Actions.reboot(ram, Signal.RESET),
+                        Actions.reset(Signal.RESET),
                         SEPARATOR,
                         Actions.rewindCassette(cassette),
                         Actions.insertCassette(home, cassette),

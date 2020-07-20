@@ -12,6 +12,7 @@ import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 import com.joprovost.r8bemu.port.DataOutputHandler;
+import com.joprovost.r8bemu.port.LogicOutputHandler;
 
 import static com.joprovost.r8bemu.io.Display.Color.BLACK;
 import static com.joprovost.r8bemu.io.Display.Color.BLUE;
@@ -76,6 +77,7 @@ public class MC6847 implements ClockAware {
     private final Runnable hsync;
     private final Runnable vsync;
     private final MemoryDevice ram;
+    private int rg6ColorOffset = 0;
 
     public MC6847(Display display, Runnable hsync, Runnable vsync, MemoryDevice ram) {
         this.display = display;
@@ -99,6 +101,10 @@ public class MC6847 implements ClockAware {
 
     public DataOutputHandler mode() {
         return PORT::referTo;
+    }
+
+    public LogicOutputHandler reset() {
+        return it -> { if (it.isSet()) rg6ColorOffset ^= 1; };
     }
 
     private void verticalScan() {
@@ -156,9 +162,25 @@ public class MC6847 implements ClockAware {
             }
         }
 
+        if (GM0_2.value() == RG6) rg6Colors(pixels);
+
         var pixelWidth = WIDTH / pixels.length;
         for (int x = 0; x < WIDTH; x++) {
             display.pixel(x, line, pixels[x / pixelWidth]);
+        }
+    }
+
+    private void rg6Colors(Display.Color[] pixels) {
+        for (int x = 0; x < WIDTH; x++) {
+            var left = (x > 0) ? pixels[x - 1] : BLACK;
+            var right = (x < WIDTH - 1) ? pixels[x + 1] : BLACK;
+            var after = (x < WIDTH - 2) ? pixels[x + 2] : BUFF;
+
+            if (pixels[x] == BUFF && left != BUFF && right == BLACK) {
+                var color = ((x + rg6ColorOffset) % 2 == 0) ? BLUE : RED;
+                pixels[x] = color;
+                if (after != BLACK && (x + 1) < pixels.length) pixels[x + 1] = color;
+            }
         }
     }
 

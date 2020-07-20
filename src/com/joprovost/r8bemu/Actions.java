@@ -34,20 +34,20 @@ public class Actions {
         };
     }
 
-    static Function<Window, Action> reset() {
+    static Function<Window, Action> reset(Signal reset) {
         return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/reset_32x32.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Signal.RESET.set();
+                reset.trigger();
             }
         };
     }
 
-    static Function<Window, Action> reboot(Memory ram) {
+    static Function<Window, Action> reboot(Memory ram, Signal reset) {
         return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/power_32x32.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Signal.RESET.set();
+                reset.trigger();
                 Register.reset();
                 ram.clear();
             }
