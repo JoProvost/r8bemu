@@ -59,7 +59,7 @@ public class Actions {
     }
 
     static Function<Window, Action> insertCassette(Path home, CassetteRecorderDispatcher cassette) {
-        return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/cassette_grey_64x32.png"))) {
+        return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/cassette_32x32.png"))) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 var files = new JFileChooser(home.toFile());

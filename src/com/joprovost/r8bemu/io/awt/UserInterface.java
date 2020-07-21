@@ -47,11 +47,14 @@ public class UserInterface extends JFrame {
         JToolBar toolBar = new JToolBar();
         toolBar.setVisible(false);
         toolBar.setFloatable(false);
+        toolBar.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(0, 128, 0)));
 
         for (var action : actions) {
             if (action == SEPARATOR) toolBar.addSeparator();
             else {
                 var button = new JButton(action.apply(this));
+                button.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+                button.setContentAreaFilled(false);
                 button.addActionListener(xit-> frameBuffer.requestFocusInWindow());
                 toolBar.add(button);
             }
