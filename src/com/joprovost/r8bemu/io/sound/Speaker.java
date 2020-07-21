@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.io.sound;
 
 import com.joprovost.r8bemu.clock.Uptime;
-import com.joprovost.r8bemu.data.Buffer;
+import com.joprovost.r8bemu.data.BigEndianAudioBuffer;
 import com.joprovost.r8bemu.io.AudioSink;
 
 import javax.sound.sampled.AudioFormat;
@@ -12,21 +12,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 
-import static javax.sound.sampled.AudioFormat.Encoding.PCM_UNSIGNED;
-
 public class Speaker implements Runnable {
 
     public static final int TIMEOUT_MS = 10;
     private final AudioFormat format;
     private final Uptime uptime;
-    private final Buffer buffer;
+    private final BigEndianAudioBuffer buffer;
     private final InputStream input;
     private long last = 0;
+    private int volume = 256;
 
     public Speaker(AudioFormat format, Uptime uptime) {
         this.format = format;
         this.uptime = uptime;
-        buffer = new Buffer(
+        buffer = new BigEndianAudioBuffer(
                 (int) (format.getSampleRate() / 10),
                 TIMEOUT_MS,
                 encoded(0)
@@ -55,7 +54,7 @@ public class Speaker implements Runnable {
     }
 
     public int encoded(int amplitude) {
-        return amplitude + (format.getEncoding() == PCM_UNSIGNED ? 128 : 0);
+        return amplitude * volume;
     }
 
     @Override

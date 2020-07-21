@@ -87,7 +87,7 @@ public class ColorComputer2 {
         pia1.portA().controlTo(playback.motor());
         pia1.portA().controlTo(recorder.motor());
 
-        var speaker = services.declare(new Speaker(new AudioFormat(44100, 8, 1, true, false), uptime));
+        var speaker = services.declare(new Speaker(new AudioFormat(44100, 16, 1, true, true), uptime));
         var sc77526 = new SC77526(AudioSink.broadcast(speaker.input(), recorder.input()));
         pia1.portA().outputTo(sc77526.dac(P7 | P6 | P5 | P4 | P3 | P2));
         pia1.portB().controlTo(sc77526.soundOutput());

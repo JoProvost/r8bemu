@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 
-public class Buffer {
+public class BigEndianAudioBuffer {
     private final byte[] buffer;
     private final int timeout;
 
@@ -13,8 +13,8 @@ public class Buffer {
     private boolean empty = true;
     private int last;
 
-    public Buffer(int size, int timeout, int initialValue) {
-        buffer = new byte[size];
+    public BigEndianAudioBuffer(int size, int timeout, int initialValue) {
+        buffer = new byte[size * 2];
         this.timeout = timeout;
         this.last = initialValue;
     }
@@ -23,7 +23,7 @@ public class Buffer {
         return new InputStream() {
             @Override
             public int read() throws IOException {
-                synchronized (Buffer.this) {
+                synchronized (BigEndianAudioBuffer.this) {
                     checkAvailability();
                     if (isEmpty()) return -1;
                     int value = buffer[read++] & 255;
@@ -54,13 +54,18 @@ public class Buffer {
             write = 0;
             read = 0;
         }
-        buffer[write++] = (byte) (value & 255);
-        write %= buffer.length;
+        write((byte) ((value >> 8) & 255));
+        write((byte) (value & 255));
         last = value;
     }
 
+    public void write(byte b) {
+        buffer[write++] = b;
+        write %= buffer.length;
+    }
+
     public synchronized void skip(int count) throws IOException {
-        if (count >= buffer.length) return;
+        if (count * 2 >= buffer.length) return;
         for(int i = 0; i < count; ++i) write(last);
     }
 
