@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.data;
 
+import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

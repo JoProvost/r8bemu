@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.data;
 
+import com.joprovost.r8bemu.data.buffer.BigEndianAudioBuffer;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

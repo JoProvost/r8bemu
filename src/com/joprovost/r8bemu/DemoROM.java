@@ -41,14 +41,16 @@ public class DemoROM {
                       " ###   ##  ###   ##  ## #  #  # ",
                       " #  # #  # #  #  #   # # # #  # ",
                       " #  #  ##  ###   ### #   #  ### ",
-                      "                                ",
                       "                                "),
                 green("                                ",
-                      "  ROM FILES REQUIRED :          ",
-                      "    - .R8BEMU/BAS13.ROM         ",
-                      "    - .R8BEMU/EXTBAS11.ROM      ",
+                      " ROM FILES :                    ",
+                      "  .R8BEMU/BAS13.ROM    "),
+                black("REQUIRED"),
+                green(" ",
+                      "  .R8BEMU/EXTBAS11.ROM          ",
+                      "  .R8BEMU/DISK11.ROM            ",
                       "                                ",
-                      "  SEE README.MD FOR DETAILS     ",
+                      " SEE README.MD FOR DETAILS      ",
                       "                                ")
         ));
         return MemoryDevice.readOnly(memory);

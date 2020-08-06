@@ -3,7 +3,7 @@ package com.joprovost.r8bemu.mc6809;
 import com.joprovost.r8bemu.data.DataAccess;
 
 import static com.joprovost.r8bemu.data.DataOutput.negative;
-import static com.joprovost.r8bemu.data.DataOutputSubset.bit;
+import static com.joprovost.r8bemu.data.transform.DataOutputSubset.bit;
 import static com.joprovost.r8bemu.mc6809.Check.carry;
 import static com.joprovost.r8bemu.mc6809.Check.overflow;
 

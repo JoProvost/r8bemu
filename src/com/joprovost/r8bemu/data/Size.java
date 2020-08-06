@@ -1,16 +1,13 @@
 package com.joprovost.r8bemu.data;
 
-import static com.joprovost.r8bemu.data.Value.ONE;
-import static com.joprovost.r8bemu.data.Value.TWO;
-
 public enum Size implements DataOutput {
     WORD_8(0xff, ONE),
     WORD_16(0xffff, TWO);
 
     private final int mask;
-    private final Value bytes;
+    private final DataOutput bytes;
 
-    Size(int mask, Value bytes) {
+    Size(int mask, DataOutput bytes) {
         this.mask = mask;
         this.bytes = bytes;
     }

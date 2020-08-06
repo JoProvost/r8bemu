@@ -4,35 +4,35 @@ import com.joprovost.r8bemu.memory.MemoryDevice;
 
 import java.util.Optional;
 
-import static com.joprovost.r8bemu.data.Addition.incrementBy;
+import static com.joprovost.r8bemu.data.transform.Addition.incrementBy;
 
-public class Reference implements DataAccess {
+public class MemoryDataReference implements DataAccess {
     private final MemoryDevice device;
     private final int address;
     private final Size size;
     private final String description;
 
-    private Reference(MemoryDevice device, int address, Size size, String description) {
+    private MemoryDataReference(MemoryDevice device, int address, Size size, String description) {
         this.device = device;
         this.address = address;
         this.size = size;
         this.description = description;
     }
 
-    public Reference(MemoryDevice device, int address, Size size) {
+    public MemoryDataReference(MemoryDevice device, int address, Size size) {
         this(device, address, size, null);
     }
 
-    public static Reference of(MemoryDevice device, int address, Size size) {
-        return new Reference(device, address, size);
+    public static MemoryDataReference of(MemoryDevice device, int address, Size size) {
+        return new MemoryDataReference(device, address, size);
     }
 
-    public static Reference of(MemoryDevice device, int address, Size size, String description) {
-        return new Reference(device, address, size, description);
+    public static MemoryDataReference of(MemoryDevice device, int address, Size size, String description) {
+        return new MemoryDataReference(device, address, size, description);
     }
 
-    public static Reference of(MemoryDevice device, DataOutput address, Size size) {
-        return new Reference(device, address.value(), size, address.description());
+    public static MemoryDataReference of(MemoryDevice device, DataOutput address, Size size) {
+        return new MemoryDataReference(device, address.value(), size, address.description());
     }
 
     public static DataAccess next(MemoryDevice memory, Size size, DataAccess register) {

@@ -2,7 +2,7 @@ package com.joprovost.r8bemu.io.sound;
 
 import com.joprovost.r8bemu.clock.Uptime;
 import com.joprovost.r8bemu.io.AudioSink;
-import com.joprovost.r8bemu.port.LogicOutputHandler;
+import com.joprovost.r8bemu.data.link.LineOutputHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class TapeRecorder {
         }
     }
 
-    public LogicOutputHandler motor() {
+    public LineOutputHandler motor() {
         return state -> motor(state.isSet());
     }
 

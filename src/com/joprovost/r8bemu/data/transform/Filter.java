@@ -1,4 +1,7 @@
-package com.joprovost.r8bemu.data;
+package com.joprovost.r8bemu.data.transform;
+
+import com.joprovost.r8bemu.data.DataAccess;
+import com.joprovost.r8bemu.data.DataOutput;
 
 public class Filter implements DataAccess {
     final DataAccess data;

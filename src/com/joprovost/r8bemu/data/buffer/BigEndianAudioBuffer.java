@@ -1,4 +1,4 @@
-package com.joprovost.r8bemu.data;
+package com.joprovost.r8bemu.data.buffer;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.clock.EmulatorContext;
-import com.joprovost.r8bemu.data.LogicVariable;
+import com.joprovost.r8bemu.data.Flag;
 import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.io.Joystick;
@@ -36,8 +36,7 @@ public class R8BEmu {
         var playback = Path.of(options.getOrDefault("playback", home + "/playback.wav"));
         var recording = Path.of(options.getOrDefault("recording", home + "/recording.wav"));
 
-        var keyboardBuffer = new LogicVariable();
-        keyboardBuffer.set(Boolean.parseBoolean(options.getOrDefault("keyboard-buffer", "true")));
+        var keyboardBuffer = Flag.value(Boolean.parseBoolean(options.getOrDefault("keyboard-buffer", "true")));
 
         var context = new EmulatorContext();
         var ram = new Memory(0x7fff);
@@ -60,11 +59,11 @@ public class R8BEmu {
                 frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickLeft));
                 UserInterface.show(frameBuffer, List.of(
                         Actions.reboot(() -> context.execute(() -> {
-                            Signal.RESET.trigger();
+                            Signal.RESET.pulse();
                             Register.reset();
                             ram.clear();
                         })),
-                        Actions.reset(() -> context.execute(Signal.RESET::trigger)),
+                        Actions.reset(() -> context.execute(Signal.RESET::pulse)),
                         SEPARATOR,
                         Actions.rewindCassette(cassette),
                         Actions.insertCassette(home, cassette),

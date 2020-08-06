@@ -3,7 +3,7 @@ package com.joprovost.r8bemu.data;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class VariableTest {
+class DataTest {
 
     @Test
     void storesNumberBasedOnMask() {

@@ -2,14 +2,14 @@ package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.clock.BusyState;
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.Reference;
+import com.joprovost.r8bemu.data.DataOutput;
+import com.joprovost.r8bemu.data.MemoryDataReference;
 import com.joprovost.r8bemu.data.Size;
-import com.joprovost.r8bemu.data.Value;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 
 import static com.joprovost.r8bemu.data.DataOutput.signed;
-import static com.joprovost.r8bemu.data.Value.ONE;
-import static com.joprovost.r8bemu.data.Value.TWO;
+import static com.joprovost.r8bemu.data.DataOutput.ONE;
+import static com.joprovost.r8bemu.data.DataOutput.TWO;
 import static com.joprovost.r8bemu.mc6809.Register.A;
 import static com.joprovost.r8bemu.mc6809.Register.B;
 import static com.joprovost.r8bemu.mc6809.Register.D;
@@ -17,7 +17,7 @@ import static com.joprovost.r8bemu.mc6809.Register.PC;
 
 public class IndexedAddress {
     public static DataAccess from(MemoryDevice memory, int postByte, BusyState clock) {
-        final Value address;
+        final DataOutput address;
         // Constant Offset from Register (twos Complement Offset)
         // 5-Bit Offset
         if ((postByte & 0b10000000) == 0) {
@@ -43,12 +43,12 @@ public class IndexedAddress {
                     break;
 
                 case 0b1000: // 8 bit offset
-                    address = Address.offset(Reference.next(memory, Size.WORD_8, PC).signed(), register(postByte));
+                    address = Address.offset(MemoryDataReference.next(memory, Size.WORD_8, PC).signed(), register(postByte));
                     clock.busy(1);
                     break;
 
                 case 0b1001: // 16 bit offset
-                    address = Address.offset(Reference.next(memory, Size.WORD_16, PC).signed(), register(postByte));
+                    address = Address.offset(MemoryDataReference.next(memory, Size.WORD_16, PC).signed(), register(postByte));
                     clock.busy(4);
                     break;
 
@@ -70,17 +70,17 @@ public class IndexedAddress {
                     break;
 
                 case 0b1100: // Constant Offset from Program Counter 8 bits Direct
-                    address = Address.offset(Reference.next(memory, Size.WORD_8, PC).signed(), PC);
+                    address = Address.offset(MemoryDataReference.next(memory, Size.WORD_8, PC).signed(), PC);
                     clock.busy(1);
                     break;
 
                 case 0b1101:// Constant Offset from Program Counter 16 bits Direct
-                    address = Address.offset(Reference.next(memory, Size.WORD_16, PC).signed(), PC);
+                    address = Address.offset(MemoryDataReference.next(memory, Size.WORD_16, PC).signed(), PC);
                     clock.busy(5);
                     break;
 
                 case 0b1111: // Extended
-                    address = Address.extended(Reference.next(memory, Size.WORD_16, PC).value());
+                    address = Address.extended(MemoryDataReference.next(memory, Size.WORD_16, PC).value());
                     clock.busy(2);
                     break;
                 default:
@@ -91,9 +91,9 @@ public class IndexedAddress {
         // indirect or not
         if ((postByte & 0b10010000) == 0b10010000) {
             clock.busy(3);
-            return Reference.of(memory, address.value(), Size.WORD_16, "[" + address.description() + "]");
+            return MemoryDataReference.of(memory, address.value(), Size.WORD_16, "[" + address.description() + "]");
         } else {
-            return address;
+            return DataAccess.of(address);
         }
     }
 
@@ -108,6 +108,6 @@ public class IndexedAddress {
     }
 
     public static DataAccess next(MemoryDevice memory, Register register, BusyState clock) {
-        return from(memory, Reference.next(memory, Size.WORD_8, register).value(), clock);
+        return from(memory, MemoryDataReference.next(memory, Size.WORD_8, register).value(), clock);
     }
 }

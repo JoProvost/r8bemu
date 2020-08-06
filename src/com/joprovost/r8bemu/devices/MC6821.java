@@ -1,6 +1,5 @@
 package com.joprovost.r8bemu.devices;
 
-import com.joprovost.r8bemu.data.LogicInput;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 
 public class MC6821 implements MemoryDevice {
@@ -8,9 +7,9 @@ public class MC6821 implements MemoryDevice {
     private final MC6821Port portA;
     private final MC6821Port portB;
 
-    public MC6821(LogicInput irqa, LogicInput irqb) {
-        portA = new MC6821Port(irqa);
-        portB = new MC6821Port(irqb);
+    public MC6821(MC6821Port portA, MC6821Port portB) {
+        this.portA = portA;
+        this.portB = portB;
     }
 
     private MC6821Port port(int address) {
@@ -29,11 +28,11 @@ public class MC6821 implements MemoryDevice {
         port(address).write(address, data);
     }
 
-    public MC6821Port portA() {
+    public MC6821Port a() {
         return portA;
     }
 
-    public MC6821Port portB() {
+    public MC6821Port b() {
         return portB;
     }
 }

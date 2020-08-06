@@ -1,4 +1,6 @@
-package com.joprovost.r8bemu.data;
+package com.joprovost.r8bemu.data.transform;
+
+import com.joprovost.r8bemu.data.DataOutput;
 
 import java.util.Optional;
 

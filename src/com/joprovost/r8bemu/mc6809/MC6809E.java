@@ -4,12 +4,11 @@ import com.joprovost.r8bemu.Debugger;
 import com.joprovost.r8bemu.clock.BusyState;
 import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
-import com.joprovost.r8bemu.data.LogicAccess;
-import com.joprovost.r8bemu.data.LogicVariable;
-import com.joprovost.r8bemu.data.Reference;
+import com.joprovost.r8bemu.data.Flag;
+import com.joprovost.r8bemu.data.MemoryDataReference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.memory.MemoryDevice;
-import com.joprovost.r8bemu.port.LogicOutputHandler;
+import com.joprovost.r8bemu.data.link.LineOutputHandler;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -26,10 +25,11 @@ public class MC6809E implements ClockAware {
     private final Debugger debug;
     private final BusyState clock;
 
-    private final LogicAccess RESET = LogicVariable.of(false);
-    private final LogicAccess IRQ = LogicVariable.of(false);
-    private final LogicAccess FIRQ = LogicVariable.of(false);
-    private final LogicAccess NMI = LogicVariable.of(false);
+    private final Flag reset = Flag.value(false);
+    private final Flag irq = Flag.value(false);
+    private final Flag firq = Flag.value(false);
+    private final Flag nmi = Flag.value(false);
+    private final Flag halt = Flag.value(false);
 
     public MC6809E(MemoryDevice memory, Debugger debug, BusyState clock) {
         this.memory = memory;
@@ -40,10 +40,12 @@ public class MC6809E implements ClockAware {
 
     public void tick(Clock unused) throws IOException {
         if (clock.isBusy()) return;
-        if (RESET.isSet()) doReset();
-        else if (NMI.isSet()) doNmi();
-        else if (FIRQ.isSet() && Register.F.isClear()) doFirq();
-        else if (IRQ.isSet() && Register.I.isClear()) doIrq();
+        if (halt.isSet()) return;
+
+        if (reset.isSet()) doReset();
+        else if (nmi.isSet()) doNmi();
+        else if (firq.isSet() && Register.F.isClear()) doFirq();
+        else if (irq.isSet() && Register.I.isClear()) doIrq();
         else execute();
     }
 
@@ -67,43 +69,48 @@ public class MC6809E implements ClockAware {
         Register.I.set(true);
         Register.F.set(true);
 
-        RESET.clear();
+        reset.clear();
         Register.DP.value(0x00);
-        Branches.jump(Reference.of(memory, RESET_VECTOR, Size.WORD_16));
+        Branches.jump(MemoryDataReference.of(memory, RESET_VECTOR, Size.WORD_16));
     }
 
     private void doIrq() {
         clock.busy(6);
-        Branches.interrupt(Reference.of(memory, IRQ_VECTOR, Size.WORD_16), stack);
+        Branches.interrupt(MemoryDataReference.of(memory, IRQ_VECTOR, Size.WORD_16), stack);
         Register.I.set();
     }
 
     private void doFirq() {
         clock.busy(6);
-        Branches.fastInterrupt(Reference.of(memory, FIRQ_VECTOR, Size.WORD_16), stack);
+        Branches.fastInterrupt(MemoryDataReference.of(memory, FIRQ_VECTOR, Size.WORD_16), stack);
         Register.F.set();
         Register.I.set();
     }
 
     private void doNmi() {
-        Branches.interrupt(Reference.of(memory, NMI_VECTOR, Size.WORD_16), stack);
+        nmi.clear();
+        Branches.interrupt(MemoryDataReference.of(memory, NMI_VECTOR, Size.WORD_16), stack);
         Register.I.set();
         Register.F.set();
     }
 
-    public LogicOutputHandler reset() {
-        return it -> RESET.set(it.isSet() || RESET.isSet());
+    public LineOutputHandler reset() {
+        return it -> reset.set(it.isSet() || reset.isSet());
     }
 
-    public LogicOutputHandler irq() {
-        return it -> IRQ.set(it.isSet());
+    public LineOutputHandler irq() {
+        return irq;
     }
 
-    public LogicOutputHandler firq() {
-        return it -> FIRQ.set(it.isSet());
+    public LineOutputHandler firq() {
+        return firq;
     }
 
-    public LogicOutputHandler nmi() {
-        return it -> NMI.set(it.isSet());
+    public LineOutputHandler nmi() {
+        return nmi;
+    }
+
+    public LineOutputHandler halt() {
+        return halt;
     }
 }

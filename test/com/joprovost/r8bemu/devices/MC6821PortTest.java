@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.data.DataOutput;
-import com.joprovost.r8bemu.data.LogicOutput;
+import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.mc6809.Signal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MC6821PortTest {
 
@@ -28,7 +30,7 @@ class MC6821PortTest {
     @Test
     void allPinsIn() {
         direction(0b00000000);
-        port.input().value(0x32);
+        port.port().input().value(0x32);
         assertEquals(0x32, port.read(DATA_REGISTER));
     }
 
@@ -36,13 +38,13 @@ class MC6821PortTest {
     void allPinsOut() {
         direction(0b11111111);
         port.write(DATA_REGISTER, 0x95);
-        assertEquals(0x95, port.output().value());
+        assertEquals(0x95, port.port().output().value());
     }
 
     @Test
     void halfPinsIn() {
         direction(0b00001111);
-        port.input().value(0x32);
+        port.port().input().value(0x32);
         assertEquals(0x30, port.read(DATA_REGISTER));
     }
 
@@ -50,13 +52,13 @@ class MC6821PortTest {
     void halfPinsOut() {
         direction(0b11110000);
         port.write(DATA_REGISTER, 0x95);
-        assertEquals(0x90, port.output().value());
+        assertEquals(0x90, port.port().output().value());
     }
 
     @Test
     void feedsFromFeeder() {
         direction(0b00000000);
-        port.inputFrom(input -> input.value(0x32));
+        port.port().inputFrom(input -> input.value(0x32));
         assertEquals(0x32, port.read(DATA_REGISTER));
     }
 
@@ -64,7 +66,7 @@ class MC6821PortTest {
     void notifiesConsumer() {
         List<DataOutput> consumer = new ArrayList<>();
         direction(0b11111111);
-        port.outputTo(consumer::add);
+        port.port().outputTo(consumer::add);
         port.write(DATA_REGISTER, 0x95);
         assertEquals(1, consumer.size());
         assertEquals(0x95, consumer.get(0).value());
@@ -118,13 +120,13 @@ class MC6821PortTest {
         @Test
         void setsIrq2FlagOnTrigger() {
             assertFalse(irq2IsSet());
-            port.control();
+            port.control().pulse();
             assertTrue(irq2IsSet());
         }
 
         @Test
         void clearsIrq2FlagOnDataRead() {
-            port.control();
+            port.control().pulse();
             port.read(DATA_REGISTER);
             assertFalse(irq2IsSet());
         }
@@ -132,7 +134,7 @@ class MC6821PortTest {
         @Test
         void setsMcuIrqWhenEnabled() {
             enableIrq2();
-            port.control();
+            port.control().pulse();
             assertTrue(Signal.IRQ.isSet());
             port.read(DATA_REGISTER);
             assertTrue(Signal.IRQ.isClear());
@@ -142,7 +144,7 @@ class MC6821PortTest {
         @Test
         void keepsMcuIrqUntouchedWhenDisabled() {
             disableIrq2();
-            port.control();
+            port.control().pulse();
             assertTrue(Signal.IRQ.isClear());
 
             Signal.IRQ.set();
@@ -160,9 +162,9 @@ class MC6821PortTest {
 
         @Test
         void notifiesControlHandlers() {
-            List<LogicOutput> consumer = new ArrayList<>();
+            List<BitOutput> consumer = new ArrayList<>();
             configureControlAsOutput();
-            port.controlTo(consumer::add);
+            port.control().to(consumer::add);
 
             setControl();
             assertEquals(1, consumer.size());

@@ -1,17 +1,46 @@
 package com.joprovost.r8bemu.data;
 
+import com.joprovost.r8bemu.data.transform.DataAccessSubset;
+
 import java.util.function.Function;
 
-public interface DataAccess extends DataOutput, DataInput, LogicAccess {
+public interface DataAccess extends DataOutput, DataInput {
 
-    String description();
+    static DataAccess of(DataOutput constant) {
+        return new DataAccess() {
+            @Override
+            public String description() {
+                return constant.description();
+            }
+
+            @Override
+            public void value(int value) {
+                throw new UnsupportedOperationException("Constant value");
+            }
+
+            @Override
+            public int value() {
+                return constant.value();
+            }
+
+            @Override
+            public int mask() {
+                return constant.mask();
+            }
+
+            @Override
+            public String toString() {
+                return constant.toString();
+            }
+        };
+    }
 
     default DataAccess describedAs(String description) {
         return DataAccessSubset.of(this, mask()).describedAs(description);
     }
 
-    default DataOutput post(Function<DataOutput, ? extends DataOutput> changes) {
-        var constant = Value.of(this);
+    default int post(Function<DataOutput, ? extends DataOutput> changes) {
+        var constant = value();
         update(changes);
         return constant;
     }

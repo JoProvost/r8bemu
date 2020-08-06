@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.data;
 
-public interface LogicInput {
+public interface BitInput {
     void set(boolean value);
 
     default void set() {

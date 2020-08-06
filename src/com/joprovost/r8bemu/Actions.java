@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu;
 
-import com.joprovost.r8bemu.data.LogicAccess;
-import com.joprovost.r8bemu.data.LogicOutput;
+import com.joprovost.r8bemu.data.BitAccess;
+import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
 
 import javax.swing.*;
@@ -73,7 +73,7 @@ public class Actions {
         };
     }
 
-    static Function<Window, Action> keyboard(LogicAccess buffered) {
+    static Function<Window, Action> keyboard(BitAccess buffered) {
         return window -> new AbstractAction(null, keyboardIcon(buffered)) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -84,7 +84,7 @@ public class Actions {
         };
     }
 
-    private static ImageIcon keyboardIcon(LogicOutput buffered) {
+    private static ImageIcon keyboardIcon(BitOutput buffered) {
         if (buffered.isSet()) {
             return new ImageIcon(Actions.class.getResource("/images/keyboard_abc_64x32.png"));
         } else {

@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.data.DataOutput;
-import com.joprovost.r8bemu.data.DataOutputSubset;
+import com.joprovost.r8bemu.data.transform.DataOutputSubset;
 
 public class RegisterPair implements DataOutput {
     private final DataOutput registers;

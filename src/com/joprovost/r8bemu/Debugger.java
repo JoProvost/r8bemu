@@ -2,7 +2,6 @@ package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.data.Described;
-import com.joprovost.r8bemu.data.Value;
 import com.joprovost.r8bemu.mc6809.Register;
 
 public abstract class Debugger {
@@ -22,7 +21,7 @@ public abstract class Debugger {
 
     public void at(int address) {
         this.address = address;
-        this.argument = Value.NONE;
+        this.argument = DataOutput.NONE;
     }
 
     public abstract void instruction(Described mnemonic);

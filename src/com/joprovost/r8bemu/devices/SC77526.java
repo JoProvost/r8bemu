@@ -2,9 +2,9 @@ package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.io.AudioSink;
 import com.joprovost.r8bemu.io.Joystick;
-import com.joprovost.r8bemu.port.DataInputProvider;
-import com.joprovost.r8bemu.port.DataOutputHandler;
-import com.joprovost.r8bemu.port.LogicOutputHandler;
+import com.joprovost.r8bemu.data.link.ParallelInputProvider;
+import com.joprovost.r8bemu.data.link.ParallelOutputHandler;
+import com.joprovost.r8bemu.data.link.LineOutputHandler;
 
 import static com.joprovost.r8bemu.devices.SC77526.Axis.LEFT_HORIZONTAL;
 import static com.joprovost.r8bemu.devices.SC77526.Axis.LEFT_VERTICAL;
@@ -36,14 +36,14 @@ public class SC77526 {
         }
     }
 
-    public DataOutputHandler dac(int mask) {
+    public ParallelOutputHandler dac(int mask) {
         return output -> {
             dac = output.subset(mask);
             if (soundOutput) audioSink.sample(dac * 4 - 128);
         };
     }
 
-    public DataInputProvider joystick(int mask) {
+    public ParallelInputProvider joystick(int mask) {
         return input -> {
             if (dac <= axis[axis(selA, selB).ordinal()]) {
                 input.set(mask);
@@ -53,18 +53,18 @@ public class SC77526 {
         };
     }
 
-    public LogicOutputHandler soundOutput() {
+    public LineOutputHandler soundOutput() {
         return state -> {
             soundOutput = state.isSet();
             if (soundOutput) audioSink.sample(dac * 4 - 128);
         };
     }
 
-    public LogicOutputHandler selA() {
+    public LineOutputHandler selA() {
         return state -> selA = state.isSet();
     }
 
-    public LogicOutputHandler selB() {
+    public LineOutputHandler selB() {
         return state -> selB = state.isSet();
     }
 

@@ -1,8 +1,11 @@
-package com.joprovost.r8bemu.data;
+package com.joprovost.r8bemu.data.transform;
+
+import com.joprovost.r8bemu.data.BitAccess;
+import com.joprovost.r8bemu.data.DataAccess;
 
 import java.util.Optional;
 
-public class DataAccessSubset implements DataAccess {
+public class DataAccessSubset implements DataAccess, BitAccess {
     private final DataAccess origin;
     private final int mask;
     private final String description;

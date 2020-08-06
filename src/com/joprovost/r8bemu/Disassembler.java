@@ -21,25 +21,24 @@ class Disassembler extends Debugger {
     private final long[] ticks;
     private final Path file;
     private long tick = 0;
-    private ArrayDeque<String> stack = new ArrayDeque<>();
+    private final ArrayDeque<String> stack = new ArrayDeque<>();
 
-    public Disassembler(Path file, int reset, int irq, int firq, int nmi) {
+    public Disassembler(Path file) {
         this.file = file;
         code = new String[65536];
         label = new String[65536];
         ticks = new long[65536];
+    }
 
-        label[reset] = "RESET";
-        label[irq] = "IRQ";
-        label[firq] = "FIRQ";
-        label[nmi] = "NMI";
+    void label(String name, int address) {
+        label[address] = name;
     }
 
     public void instruction(Described mnemonic) {
         ticks[address] = tick++;
 
         if (isJump(mnemonic)) {
-            label[argument.value()] = hex(argument.value(), 0xffff);
+            label(hex(argument.value(), 0xffff), argument.value());
         }
 
         if (code[address] == null) {

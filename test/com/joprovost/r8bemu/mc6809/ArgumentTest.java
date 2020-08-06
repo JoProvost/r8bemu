@@ -2,7 +2,7 @@ package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.clock.BusyState;
 import com.joprovost.r8bemu.clock.ClockAwareBusyState;
-import com.joprovost.r8bemu.data.Reference;
+import com.joprovost.r8bemu.data.MemoryDataReference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.memory.Addressing;
 import com.joprovost.r8bemu.memory.Memory;
@@ -188,7 +188,7 @@ class ArgumentTest {
         assertEquals(0x3000, access.value());
 
         access.value(0x4000);
-        assertEquals(0x4000, Reference.of(memory, 0x2000, Size.WORD_16).value());
+        assertEquals(0x4000, MemoryDataReference.of(memory, 0x2000, Size.WORD_16).value());
 
         assertEquals(0x02, PC.value());
     }

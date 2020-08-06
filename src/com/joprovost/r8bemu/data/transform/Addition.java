@@ -1,10 +1,12 @@
-package com.joprovost.r8bemu.data;
+package com.joprovost.r8bemu.data.transform;
+
+import com.joprovost.r8bemu.data.DataOutput;
 
 import java.util.function.Function;
 
-import static com.joprovost.r8bemu.data.Value.ONE;
-
 public class Addition implements DataOutput {
+    private static final Function<DataOutput, DataOutput> INCREMENT = incrementBy(ONE);
+
     private final DataOutput origin;
     private final DataOutput offset;
 
@@ -22,7 +24,7 @@ public class Addition implements DataOutput {
     }
 
     public static Function<DataOutput, DataOutput> increment() {
-        return incrementBy(ONE);
+        return INCREMENT;
     }
 
     @Override

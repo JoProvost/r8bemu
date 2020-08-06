@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.DataAccessSubset;
+import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.memory.Memory;
 import com.joprovost.r8bemu.memory.MemoryDevice;

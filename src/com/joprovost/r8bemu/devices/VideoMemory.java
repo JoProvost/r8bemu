@@ -20,6 +20,11 @@ class VideoMemory implements MemoryDevice {
         return ram.read(address(address) + (offset.value() << 9));
     }
 
+    @Override
+    public void write(int address, int data) {
+        throw new UnsupportedOperationException();
+    }
+
     public int address(int address) {
         switch (mode.value()) {
             case 0b000: // S4 S6

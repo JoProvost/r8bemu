@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.io.awt;
 
-import com.joprovost.r8bemu.data.LogicAccess;
+import com.joprovost.r8bemu.data.BitAccess;
 import com.joprovost.r8bemu.io.Key;
 import com.joprovost.r8bemu.io.Keyboard;
 
@@ -12,10 +12,10 @@ import static com.joprovost.r8bemu.io.Key.character;
 
 public class AWTKeyboardDriver implements KeyListener {
     private final Keyboard keyboard;
-    private final LogicAccess buffered;
+    private final BitAccess buffered;
     private Set<Key> state = Set.of();
 
-    public AWTKeyboardDriver(Keyboard keyboard, LogicAccess buffered) {
+    public AWTKeyboardDriver(Keyboard keyboard, BitAccess buffered) {
         this.keyboard = keyboard;
         this.buffered = buffered;
     }

@@ -4,7 +4,7 @@ import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.DataOutput;
 
 import static com.joprovost.r8bemu.data.DataOutput.negative;
-import static com.joprovost.r8bemu.data.DataOutputSubset.bit;
+import static com.joprovost.r8bemu.data.transform.DataOutputSubset.bit;
 import static com.joprovost.r8bemu.mc6809.Register.B;
 import static com.joprovost.r8bemu.mc6809.Register.X;
 import static com.joprovost.r8bemu.mc6809.Check.carry;
@@ -40,7 +40,7 @@ public class Arithmetic {
         Register.C.set(carry(result, mask));
     }
 
-    public static void adc(Register register, DataAccess argument) {
+    public static void adc(Register register, DataOutput argument) {
         var a = register.value();
         var b = argument.value();
         var c = Register.C.value();
@@ -71,7 +71,7 @@ public class Arithmetic {
         Register.N.set(negative(result, mask));
     }
 
-    public static void add(Register register, DataAccess argument) {
+    public static void add(Register register, DataOutput argument) {
         var a = register.value();
         var b = argument.value();
         var mask = register.mask();
@@ -85,7 +85,7 @@ public class Arithmetic {
         Register.N.set(negative(result, mask));
     }
 
-    public static void sbc(Register register, DataAccess argument) {
+    public static void sbc(Register register, DataOutput argument) {
         var a = register.value();
         var b = argument.value();
         var c = Register.C.value();
@@ -99,7 +99,7 @@ public class Arithmetic {
         Register.N.set(negative(result, mask));
     }
 
-    public static void sub(Register register, DataAccess argument) {
+    public static void sub(Register register, DataOutput argument) {
         var a = register.value();
         var b = argument.value();
         var mask = register.mask();

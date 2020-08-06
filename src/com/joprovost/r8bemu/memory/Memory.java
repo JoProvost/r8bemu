@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.function.IntFunction;
 
 public class Memory implements MemoryDevice {
     private final byte[] bytes;
@@ -15,8 +14,8 @@ public class Memory implements MemoryDevice {
         this.mask = size(bytes.length) - 1;
     }
 
-    public Memory(int size) {
-        this(new byte[size(size)]);
+    public Memory(int mask) {
+        this(new byte[size(mask)]);
     }
 
     public static Memory of(byte[] memory) {
@@ -29,7 +28,7 @@ public class Memory implements MemoryDevice {
         return size;
     }
 
-    public static MemoryDevice file(Path file) throws IOException {
+    public static Memory file(Path file) throws IOException {
         return new Memory(Files.readAllBytes(file));
     }
 
@@ -45,5 +44,9 @@ public class Memory implements MemoryDevice {
 
     public void clear() {
         Arrays.fill(bytes, (byte) 0);
+    }
+
+    public int size() {
+        return bytes.length;
     }
 }

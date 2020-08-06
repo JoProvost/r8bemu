@@ -1,12 +1,13 @@
 package com.joprovost.r8bemu.data;
 
+import com.joprovost.r8bemu.data.transform.DataOutputSubset;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class DataOutputSubsetTest {
+class DataOutSubsetTest {
 
     DataAccess source = Variable.ofMask(0xffff);
 

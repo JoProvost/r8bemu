@@ -8,6 +8,14 @@ import com.joprovost.r8bemu.data.DataOutput;
 public interface MemoryDevice {
     static MemoryDevice none() {
         return new MemoryDevice() {
+            @Override
+            public int read(int address) {
+                return 0;
+            }
+
+            @Override
+            public void write(int address, int data) {
+            }
         };
     }
 
@@ -68,12 +76,9 @@ public interface MemoryDevice {
         };
     }
 
-    default int read(int address) {
-        return 0;
-    }
+    int read(int address);
 
-    default void write(int address, int data) {
-    }
+    void write(int address, int data);
 
     default void write(int address, int data, int... next) {
         write(address, data);

@@ -1,8 +1,8 @@
-package com.joprovost.r8bemu.data;
+package com.joprovost.r8bemu.data.transform;
+
+import com.joprovost.r8bemu.data.DataOutput;
 
 import java.util.function.Function;
-
-import static com.joprovost.r8bemu.data.Value.ONE;
 
 public class Subtraction implements DataOutput {
     private final DataOutput origin;

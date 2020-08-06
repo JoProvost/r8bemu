@@ -3,7 +3,6 @@ package com.joprovost.r8bemu.mc6809;
 import com.joprovost.r8bemu.Debugger;
 import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.FakeBusyState;
-import com.joprovost.r8bemu.data.LogicVariable;
 import com.joprovost.r8bemu.memory.Memory;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static com.joprovost.r8bemu.data.Flag.value;
 import static com.joprovost.r8bemu.mc6809.Register.A;
 import static com.joprovost.r8bemu.mc6809.Register.B;
 import static com.joprovost.r8bemu.mc6809.Register.C;
@@ -187,7 +187,7 @@ class MC6809ETest {
 
             S.value(0x8000);
 
-            cpu.irq().handle(LogicVariable.of(true));
+            cpu.irq().handle(value(true));
             cpu.tick(Clock.zero());
 
             assertEquals(0xabcd, PC.value());
@@ -224,7 +224,7 @@ class MC6809ETest {
             PC.value(0x0000);
             S.value(0x8000);
 
-            cpu.irq().handle(LogicVariable.of(true));
+            cpu.irq().handle(value(true));
             I.set();
             cpu.tick(Clock.zero());
 
@@ -246,7 +246,7 @@ class MC6809ETest {
 
             S.value(0x8000);
 
-            cpu.firq().handle(LogicVariable.of(true));
+            cpu.firq().handle(value(true));
             cpu.tick(Clock.zero());
 
             assertEquals(0xabcd, PC.value());
@@ -272,7 +272,7 @@ class MC6809ETest {
             PC.value(0x0000);
             S.value(0x8000);
 
-            cpu.firq().handle(LogicVariable.of(true));
+            cpu.firq().handle(value(true));
             F.set();
             cpu.tick(Clock.zero());
 
@@ -289,8 +289,8 @@ class MC6809ETest {
 
             PC.value(0x0b0c);
 
-            cpu.irq().handle(LogicVariable.of(true));
-            cpu.firq().handle(LogicVariable.of(true));
+            cpu.irq().handle(value(true));
+            cpu.firq().handle(value(true));
             cpu.tick(Clock.zero());
 
             assertEquals(0xabcd, PC.value());

@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.Reference;
+import com.joprovost.r8bemu.data.MemoryDataReference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.memory.Addressing;
 import com.joprovost.r8bemu.memory.MemoryDevice;
@@ -347,8 +347,8 @@ public class Op {
     }
 
     private static int nextCode(MemoryDevice memory, DataAccess programCounter) {
-        int op = Reference.next(memory, Size.WORD_8, programCounter).value();
-        if (extended.contains(op)) op = op << 8 | Reference.next(memory, Size.WORD_8, programCounter).value();
+        int op = MemoryDataReference.next(memory, Size.WORD_8, programCounter).value();
+        if (extended.contains(op)) op = op << 8 | MemoryDataReference.next(memory, Size.WORD_8, programCounter).value();
         return op;
     }
 

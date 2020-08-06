@@ -1,10 +1,16 @@
 package com.joprovost.r8bemu.data;
 
-public interface DataOutput extends LogicOutput, Described {
+import com.joprovost.r8bemu.data.transform.Addition;
+import com.joprovost.r8bemu.data.transform.Subtraction;
+
+public interface DataOutput extends BitOutput, Described {
+    DataOutput NONE = Value.of(0, 0, "");
+    DataOutput ONE = Value.of(1, 0b1);
+    DataOutput TWO = Value.of(2, 0b11);
 
     static int signed(int value, int mask) {
         int uvalue = value & mask;
-        return (negative(uvalue, mask)) ?  ~mask | uvalue : uvalue;
+        return (negative(uvalue, mask)) ? ~mask | uvalue : uvalue;
     }
 
     static String hex(int value, int mask) {
@@ -21,6 +27,14 @@ public interface DataOutput extends LogicOutput, Described {
         return (result & highestBit(mask)) != 0;
     }
 
+    static int subset(int value, int mask) {
+        return (value & mask) >> Integer.numberOfTrailingZeros(mask);
+    }
+
+    static boolean bit(int value, int pos) {
+        return (value & 1 << pos) != 0;
+    }
+
     default String hex() {
         return hex(value(), mask());
     }
@@ -29,22 +43,16 @@ public interface DataOutput extends LogicOutput, Described {
         return signed(value(), mask());
     }
 
-    @Override
-    default boolean isSet() {
-        return value() != 0;
+    default boolean isClear() {
+        return value() == 0;
     }
 
-    int value();
-
-    int mask();
+    default int subset(int mask) {
+        return subset(value(), mask);
+    }
 
     default String description() {
         return toString();
-    }
-
-    @Override
-    default boolean isClear() {
-        return value() == 0;
     }
 
     default DataOutput plus(DataOutput offset) {
@@ -55,7 +63,7 @@ public interface DataOutput extends LogicOutput, Described {
         return Subtraction.of(this, offset);
     }
 
-    default int subset(int subset) {
-        return (value() & subset) >> Integer.numberOfTrailingZeros(subset);
-    }
+    int value();
+
+    int mask();
 }

@@ -1,18 +1,18 @@
 package com.joprovost.r8bemu.data;
 
-public class DataOutputReference implements DataOutput {
+public class DataOutputRedirect implements DataOutput {
     private DataOutput subject;
 
-    private DataOutputReference(DataOutput subject) {
+    private DataOutputRedirect(DataOutput subject) {
         this.subject = subject;
     }
 
-    public static DataOutputReference empty() {
-        return DataOutputReference.of(Value.NONE);
+    public static DataOutputRedirect empty() {
+        return DataOutputRedirect.of(DataOutput.NONE);
     }
 
-    public static DataOutputReference of(DataOutput subject) {
-        return new DataOutputReference(subject);
+    public static DataOutputRedirect of(DataOutput subject) {
+        return new DataOutputRedirect(subject);
     }
 
     @Override
@@ -25,7 +25,6 @@ public class DataOutputReference implements DataOutput {
         return subject.mask();
     }
 
-
     @Override
     public String description() {
         return subject.description();
@@ -36,7 +35,7 @@ public class DataOutputReference implements DataOutput {
         return subject.toString();
     }
 
-    public DataOutputReference referTo(DataOutput subject) {
+    public DataOutputRedirect referTo(DataOutput subject) {
         this.subject = subject;
         return this;
     }

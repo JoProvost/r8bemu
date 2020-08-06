@@ -9,7 +9,6 @@ import com.joprovost.r8bemu.io.Keyboard;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Set;
 
 public class InputStreamKeyboard implements ClockAware {

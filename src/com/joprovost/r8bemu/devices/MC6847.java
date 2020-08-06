@@ -4,15 +4,15 @@ import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.clock.ClockAwareBusyState;
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.DataAccessSubset;
+import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 import com.joprovost.r8bemu.data.DataOutput;
-import com.joprovost.r8bemu.data.DataOutputReference;
-import com.joprovost.r8bemu.data.DataOutputSubset;
+import com.joprovost.r8bemu.data.DataOutputRedirect;
+import com.joprovost.r8bemu.data.transform.DataOutputSubset;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.memory.MemoryDevice;
-import com.joprovost.r8bemu.port.DataOutputHandler;
-import com.joprovost.r8bemu.port.LogicOutputHandler;
+import com.joprovost.r8bemu.data.link.ParallelOutputHandler;
+import com.joprovost.r8bemu.data.link.LineOutputHandler;
 
 import static com.joprovost.r8bemu.io.Display.Color.BLACK;
 import static com.joprovost.r8bemu.io.Display.Color.BLUE;
@@ -65,7 +65,7 @@ public class MC6847 implements ClockAware {
     private final DataAccess SGM4_CHROMA = DataAccessSubset.of(VDG_DATA_BUS, 0b01110000);
     private final DataAccess SGM4_LUMA = DataAccessSubset.of(VDG_DATA_BUS, 0b00001111);
 
-    private final DataOutputReference PORT = DataOutputReference.empty();
+    private final DataOutputRedirect PORT = DataOutputRedirect.empty();
     private final DataOutput A_G = DataOutputSubset.bit(PORT, 7);
     private final DataOutput GM0_2 = DataOutputSubset.of(PORT, 0b1110000);
     private final DataOutput CSS = DataOutputSubset.bit(PORT, 3);
@@ -99,11 +99,11 @@ public class MC6847 implements ClockAware {
         }
     }
 
-    public DataOutputHandler mode() {
+    public ParallelOutputHandler mode() {
         return PORT::referTo;
     }
 
-    public LogicOutputHandler reset() {
+    public LineOutputHandler reset() {
         return it -> { if (it.isSet()) rg6ColorOffset ^= 1; };
     }
 

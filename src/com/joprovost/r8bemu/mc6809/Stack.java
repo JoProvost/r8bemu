@@ -2,12 +2,12 @@ package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.clock.BusyState;
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.DataAccessSubset;
+import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 
-import static com.joprovost.r8bemu.data.Addition.increment;
-import static com.joprovost.r8bemu.data.Subtraction.decrement;
-import static com.joprovost.r8bemu.data.DataAccessSubset.bit;
+import static com.joprovost.r8bemu.data.transform.Addition.increment;
+import static com.joprovost.r8bemu.data.transform.Subtraction.decrement;
+import static com.joprovost.r8bemu.data.transform.DataAccessSubset.bit;
 import static com.joprovost.r8bemu.mc6809.Register.A;
 import static com.joprovost.r8bemu.mc6809.Register.B;
 import static com.joprovost.r8bemu.mc6809.Register.CC;

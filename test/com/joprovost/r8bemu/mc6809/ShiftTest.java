@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ShiftTest {
 
-    Variable variable = Variable.ofMask(0xff);
+    Variable data = Variable.ofMask(0xff);
 
     @BeforeEach
     void setup() {
@@ -20,9 +20,9 @@ class ShiftTest {
     class LogicalShiftLeft {
         @Test
         void empty() {
-            variable.value(0b00000000);
-            Shift.lsl(variable);
-            assertEquals(0b00000000, variable.value());
+            data.value(0b00000000);
+            Shift.lsl(data);
+            assertEquals(0b00000000, data.value());
 
             assertTrue(Register.Z.isSet());
             assertTrue(Register.C.isClear());
@@ -32,9 +32,9 @@ class ShiftTest {
 
         @Test
         void becomesNegative() {
-            variable.value(0b01111110);
-            Shift.lsl(variable);
-            assertEquals(0b11111100, variable.value());
+            data.value(0b01111110);
+            Shift.lsl(data);
+            assertEquals(0b11111100, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -44,9 +44,9 @@ class ShiftTest {
 
         @Test
         void staysPositive() {
-            variable.value(0b00001111);
-            Shift.lsl(variable);
-            assertEquals(0b00011110, variable.value());
+            data.value(0b00001111);
+            Shift.lsl(data);
+            assertEquals(0b00011110, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -56,9 +56,9 @@ class ShiftTest {
 
         @Test
         void overflow() {
-            variable.value(0b11111110);
-            Shift.lsl(variable);
-            assertEquals(0b11111100, variable.value());
+            data.value(0b11111110);
+            Shift.lsl(data);
+            assertEquals(0b11111100, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isSet());
@@ -71,9 +71,9 @@ class ShiftTest {
     class LogicalShiftRight {
         @Test
         void empty() {
-            variable.value(0b00000000);
-            Shift.lsr(variable);
-            assertEquals(0b00000000, variable.value());
+            data.value(0b00000000);
+            Shift.lsr(data);
+            assertEquals(0b00000000, data.value());
 
             assertTrue(Register.Z.isSet());
             assertTrue(Register.C.isClear());
@@ -82,9 +82,9 @@ class ShiftTest {
 
         @Test
         void becomesPositive() {
-            variable.value(0b11111110);
-            Shift.lsr(variable);
-            assertEquals(0b01111111, variable.value());
+            data.value(0b11111110);
+            Shift.lsr(data);
+            assertEquals(0b01111111, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -94,9 +94,9 @@ class ShiftTest {
         @Test
         void carryFlagIgnored() {
             Register.C.set();
-            variable.value(0b00011110);
-            Shift.lsr(variable);
-            assertEquals(0b00001111, variable.value());
+            data.value(0b00011110);
+            Shift.lsr(data);
+            assertEquals(0b00001111, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -105,9 +105,9 @@ class ShiftTest {
 
         @Test
         void overflowRight() {
-            variable.value(0b01111111);
-            Shift.lsr(variable);
-            assertEquals(0b00111111, variable.value());
+            data.value(0b01111111);
+            Shift.lsr(data);
+            assertEquals(0b00111111, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isSet());
@@ -119,9 +119,9 @@ class ShiftTest {
     class ArithmeticShiftRight {
         @Test
         void empty() {
-            variable.value(0b00000000);
-            Shift.asr(variable);
-            assertEquals(0b00000000, variable.value());
+            data.value(0b00000000);
+            Shift.asr(data);
+            assertEquals(0b00000000, data.value());
 
             assertTrue(Register.Z.isSet());
             assertTrue(Register.C.isClear());
@@ -130,9 +130,9 @@ class ShiftTest {
 
         @Test
         void staysNegative() {
-            variable.value(0b11111110);
-            Shift.asr(variable);
-            assertEquals(0b11111111, variable.value());
+            data.value(0b11111110);
+            Shift.asr(data);
+            assertEquals(0b11111111, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -142,9 +142,9 @@ class ShiftTest {
         @Test
         void carryFlagIgnored() {
             Register.C.set();
-            variable.value(0b00011110);
-            Shift.asr(variable);
-            assertEquals(0b00001111, variable.value());
+            data.value(0b00011110);
+            Shift.asr(data);
+            assertEquals(0b00001111, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -153,9 +153,9 @@ class ShiftTest {
 
         @Test
         void overflowRight() {
-            variable.value(0b01111111);
-            Shift.asr(variable);
-            assertEquals(0b00111111, variable.value());
+            data.value(0b01111111);
+            Shift.asr(data);
+            assertEquals(0b00111111, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isSet());
@@ -167,9 +167,9 @@ class ShiftTest {
     class RotateLeft {
         @Test
         void empty() {
-            variable.value(0b00000000);
-            Shift.rol(variable);
-            assertEquals(0b00000000, variable.value());
+            data.value(0b00000000);
+            Shift.rol(data);
+            assertEquals(0b00000000, data.value());
 
             assertTrue(Register.Z.isSet());
             assertTrue(Register.C.isClear());
@@ -179,9 +179,9 @@ class ShiftTest {
 
         @Test
         void becomesNegative() {
-            variable.value(0b01111110);
-            Shift.rol(variable);
-            assertEquals(0b11111100, variable.value());
+            data.value(0b01111110);
+            Shift.rol(data);
+            assertEquals(0b11111100, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -191,9 +191,9 @@ class ShiftTest {
 
         @Test
         void staysPositive() {
-            variable.value(0b00001111);
-            Shift.rol(variable);
-            assertEquals(0b00011110, variable.value());
+            data.value(0b00001111);
+            Shift.rol(data);
+            assertEquals(0b00011110, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -204,9 +204,9 @@ class ShiftTest {
         @Test
         void carryFlagOnBit0() {
             Register.C.set();
-            variable.value(0b00011110);
-            Shift.rol(variable);
-            assertEquals(0b00111101, variable.value());
+            data.value(0b00011110);
+            Shift.rol(data);
+            assertEquals(0b00111101, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -216,9 +216,9 @@ class ShiftTest {
 
         @Test
         void overflowLeft() {
-            variable.value(0b11111110);
-            Shift.rol(variable);
-            assertEquals(0b11111100, variable.value());
+            data.value(0b11111110);
+            Shift.rol(data);
+            assertEquals(0b11111100, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isSet());
@@ -231,9 +231,9 @@ class ShiftTest {
     class RotateRight {
         @Test
         void empty() {
-            variable.value(0b00000000);
-            Shift.ror(variable);
-            assertEquals(0b00000000, variable.value());
+            data.value(0b00000000);
+            Shift.ror(data);
+            assertEquals(0b00000000, data.value());
 
             assertTrue(Register.Z.isSet());
             assertTrue(Register.C.isClear());
@@ -242,9 +242,9 @@ class ShiftTest {
 
         @Test
         void becomesPositive() {
-            variable.value(0b11111110);
-            Shift.ror(variable);
-            assertEquals(0b01111111, variable.value());
+            data.value(0b11111110);
+            Shift.ror(data);
+            assertEquals(0b01111111, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -254,9 +254,9 @@ class ShiftTest {
         @Test
         void carryFlagOnBit7() {
             Register.C.set();
-            variable.value(0b00011110);
-            Shift.ror(variable);
-            assertEquals(0b10001111, variable.value());
+            data.value(0b00011110);
+            Shift.ror(data);
+            assertEquals(0b10001111, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isClear());
@@ -265,9 +265,9 @@ class ShiftTest {
 
         @Test
         void overflowRight() {
-            variable.value(0b01111111);
-            Shift.ror(variable);
-            assertEquals(0b00111111, variable.value());
+            data.value(0b01111111);
+            Shift.ror(data);
+            assertEquals(0b00111111, data.value());
 
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isSet());

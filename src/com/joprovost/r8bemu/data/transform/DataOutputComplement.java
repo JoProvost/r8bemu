@@ -1,4 +1,6 @@
-package com.joprovost.r8bemu.data;
+package com.joprovost.r8bemu.data.transform;
+
+import com.joprovost.r8bemu.data.DataOutput;
 
 public class DataOutputComplement implements DataOutput {
     private final DataOutput origin;

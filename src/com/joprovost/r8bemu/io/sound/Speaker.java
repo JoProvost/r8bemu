@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.io.sound;
 
 import com.joprovost.r8bemu.clock.Uptime;
-import com.joprovost.r8bemu.data.BigEndianAudioBuffer;
+import com.joprovost.r8bemu.data.buffer.BigEndianAudioBuffer;
 import com.joprovost.r8bemu.io.AudioSink;
 
 import javax.sound.sampled.AudioFormat;
@@ -20,7 +20,7 @@ public class Speaker implements Runnable {
     private final BigEndianAudioBuffer buffer;
     private final InputStream input;
     private long last = 0;
-    private int volume = 256;
+    private final int volume = 256;
 
     public Speaker(AudioFormat format, Uptime uptime) {
         this.format = format;

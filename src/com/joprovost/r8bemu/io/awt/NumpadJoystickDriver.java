@@ -21,7 +21,7 @@ import static java.awt.event.KeyEvent.VK_NUMPAD9;
 
 public class NumpadJoystickDriver implements KeyListener {
     private final Joystick joystick;
-    private Set<Integer> arrows = new HashSet<>();
+    private final Set<Integer> arrows = new HashSet<>();
 
     public NumpadJoystickDriver(Joystick joystick) {
         this.joystick = joystick;

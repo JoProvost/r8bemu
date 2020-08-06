@@ -1,53 +1,51 @@
 package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.DataAccessSubset;
 import com.joprovost.r8bemu.data.DataOutput;
-import com.joprovost.r8bemu.data.DataOutputComplement;
-import com.joprovost.r8bemu.data.LogicAccess;
-import com.joprovost.r8bemu.data.LogicInput;
-import com.joprovost.r8bemu.port.ControlPort;
-import com.joprovost.r8bemu.port.LogicOutputHandler;
-import com.joprovost.r8bemu.port.DataPort;
-import com.joprovost.r8bemu.data.Filter;
+import com.joprovost.r8bemu.data.transform.DataOutputComplement;
+import com.joprovost.r8bemu.data.BitAccess;
+import com.joprovost.r8bemu.data.BitInput;
+import com.joprovost.r8bemu.data.link.LinePort;
+import com.joprovost.r8bemu.data.link.LineOutputHandler;
+import com.joprovost.r8bemu.data.transform.Filter;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.memory.MemoryDevice;
-import com.joprovost.r8bemu.port.DataInputProvider;
-import com.joprovost.r8bemu.port.DataOutputHandler;
+import com.joprovost.r8bemu.data.link.ParallelInputProvider;
+import com.joprovost.r8bemu.data.link.ParallelOutputHandler;
+import com.joprovost.r8bemu.data.link.ParallelPort;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MC6821Port implements MemoryDevice, DataPort, ControlPort {
+import static com.joprovost.r8bemu.data.transform.DataAccessSubset.bit;
+
+public class MC6821Port implements MemoryDevice {
 
     // Control Register
     private final Variable CONTROL_REGISTER = Variable.ofMask(0xff);
 
-    // TODO: Too long, see MC6821.pdf, page 10.
-    public final DataAccess CA2_CONTROL = DataAccessSubset.of(CONTROL_REGISTER, 0b00111000);
-
-    public final LogicAccess CA2_OUTPUT_MODE = DataAccessSubset.bit(CONTROL_REGISTER, 5);
-    public final LogicAccess CA2_OUTPUT_STATE = DataAccessSubset.bit(CONTROL_REGISTER, 3);
+    public final BitAccess CA2_OUTPUT_MODE = (bit(CONTROL_REGISTER, 5));
+    public final BitAccess CA2_OUTPUT_STATE = (bit(CONTROL_REGISTER, 3));
 
     // IRQA2 Interrupt Flag (bit 6)
     // When CA2 is an input, IRQA goes high  on active transition CA2; Automatically cleared by MPQ
     // Read of Output Register A. May also be cleared by hardware Reset.
     // CA2 Established as Output (b5=1); IRQA2=0, not affected by CA2 transition.
-    private final LogicAccess CA2_IRQ_FLAG = DataAccessSubset.bit(CONTROL_REGISTER, 6);
+    private final BitAccess CA2_IRQ_FLAG = (bit(CONTROL_REGISTER, 6));
 
-    public final LogicAccess CA2_IRQ_ENABLED = DataAccessSubset.bit(CONTROL_REGISTER, 3);
+    public final BitAccess CA2_IRQ_ENABLED = (bit(CONTROL_REGISTER, 3));
 
     // Determines if Data Direction Register Or Output Register is Addressed
     // b2=0: Data Direction Register selected.
     // b2=1: Output Register selected.
-    private final LogicAccess DDR_ACCESS = DataAccessSubset.bit(CONTROL_REGISTER, 2);
+    private final BitAccess DDR_ACCESS = (bit(CONTROL_REGISTER, 2));
 
     // IRQA1 Interrupt Flag (bit 7)
     // Goes high on active transition of CA1; Automatically cleared by MPU Read of Output Register A.
     // May also be cleared by hardware Reset.
-    private final LogicAccess CA1_IRQ_FLAG = DataAccessSubset.bit(CONTROL_REGISTER, 7);
+    private final BitAccess CA1_IRQ_FLAG = (bit(CONTROL_REGISTER, 7));
 
-    private final LogicAccess CA1_IRQ_ENABLED = DataAccessSubset.bit(CONTROL_REGISTER, 0);
+    private final BitAccess CA1_IRQ_ENABLED = (bit(CONTROL_REGISTER, 0));
 
     // Peripheral Register A
     private final Variable PERIPHERAL_REGISTER = Variable.ofMask(0xff);
@@ -55,28 +53,18 @@ public class MC6821Port implements MemoryDevice, DataPort, ControlPort {
     // Data Direction Register A
     private final Variable DATA_DIRECTION_REGISTER = Variable.ofMask(0xff);
 
-    private final List<DataInputProvider> inputProviders = new ArrayList<>();
-    private final List<DataOutputHandler> outputHandlers = new ArrayList<>();
-    private final List<LogicOutputHandler> controlHandlers = new ArrayList<>();
+    private final List<ParallelInputProvider> inputProviders = new ArrayList<>();
+    private final List<ParallelOutputHandler> outputHandlers = new ArrayList<>();
+    private final List<LineOutputHandler> controlHandlers = new ArrayList<>();
     private final Filter input = Filter.of(PERIPHERAL_REGISTER, DataOutputComplement.of(DATA_DIRECTION_REGISTER));
     private final Filter output = Filter.of(PERIPHERAL_REGISTER, DATA_DIRECTION_REGISTER);
 
-    private final LogicInput irq;
+    private final BitInput irq;
 
-    public MC6821Port(LogicInput irq) {
+    public MC6821Port(BitInput irq) {
         this.irq = irq;
     }
     // 1=output 0=input
-
-    @Override
-    public DataAccess input() {
-        return input;
-    }
-
-    @Override
-    public DataOutput output() {
-        return output;
-    }
 
     @Override
     public int read(int address) {
@@ -111,32 +99,60 @@ public class MC6821Port implements MemoryDevice, DataPort, ControlPort {
         }
     }
 
-    @Override
     public void interrupt() {
         CA1_IRQ_FLAG.set();
         if (CA1_IRQ_ENABLED.isSet()) irq.set();
     }
 
-    @Override
-    public void control() {
-        if (CA2_OUTPUT_MODE.isClear()) {
-            CA2_IRQ_FLAG.set();
-            if (CA2_IRQ_ENABLED.isSet()) irq.set();
-        }
+    public ParallelPort port() {
+        return new ParallelPort() {
+            @Override
+            public void inputFrom(ParallelInputProvider provider) {
+                inputProviders.add(provider);
+            }
+
+            @Override
+            public DataAccess input() {
+                return input;
+            }
+
+            @Override
+            public void outputTo(ParallelOutputHandler handler) {
+                outputHandlers.add(handler);
+            }
+
+            @Override
+            public DataOutput output() {
+                return output;
+            }
+        };
     }
 
-    @Override
-    public void inputFrom(DataInputProvider provider) {
-        inputProviders.add(provider);
-    }
+    public LinePort control() {
+        return new LinePort() {
+            @Override
+            public void set(boolean value) {
+                if (!value) return; // TODO: Only interrupt on low to high is supported
+                if (CA2_OUTPUT_MODE.isClear()) {
+                    CA2_IRQ_FLAG.set();
+                    if (CA2_IRQ_ENABLED.isSet()) irq.set();
+                }
+            }
 
-    @Override
-    public void outputTo(DataOutputHandler handler) {
-        outputHandlers.add(handler);
-    }
+            @Override
+            public String description() {
+                return CA2_OUTPUT_STATE.description();
+            }
 
-    @Override
-    public void controlTo(LogicOutputHandler handler) {
-        controlHandlers.add(handler);
+            @Override
+            public boolean isClear() {
+                return CA2_OUTPUT_STATE.isClear();
+            }
+
+            @Override
+            public void to(LineOutputHandler handler) {
+                controlHandlers.add(handler);
+            }
+        };
     }
 }

@@ -4,7 +4,6 @@ import com.joprovost.r8bemu.Debugger;
 import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.FakeBusyState;
 import com.joprovost.r8bemu.data.Variable;
-import com.joprovost.r8bemu.devices.MC6883;
 import com.joprovost.r8bemu.memory.Addressing;
 import com.joprovost.r8bemu.memory.Memory;
 import org.junit.jupiter.api.Test;

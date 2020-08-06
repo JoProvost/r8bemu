@@ -1,11 +1,12 @@
 package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.data.DataAccess;
+import com.joprovost.r8bemu.data.DataOutput;
 
 import static com.joprovost.r8bemu.data.DataOutput.negative;
 
 public class Logic {
-    public static void and(DataAccess register, DataAccess memory) {
+    public static void and(DataAccess register, DataOutput memory) {
         register.value(register.value() & memory.value());
 
         if (register != Register.CC) {
@@ -15,7 +16,7 @@ public class Logic {
         }
     }
 
-    public static void or(DataAccess register, DataAccess memory) {
+    public static void or(DataAccess register, DataOutput memory) {
         register.value(register.value() | memory.value());
 
         if (register != Register.CC) {
@@ -25,7 +26,7 @@ public class Logic {
         }
     }
 
-    public static void xor(Register register, DataAccess memory) {
+    public static void xor(Register register, DataOutput memory) {
         register.value(register.value() ^ memory.value());
 
         Register.V.clear();
