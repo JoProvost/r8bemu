@@ -7,6 +7,7 @@ import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.data.link.Line;
 import com.joprovost.r8bemu.data.link.LineOutput;
+import com.joprovost.r8bemu.data.link.LineOutputHandler;
 import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 
@@ -69,6 +70,7 @@ public class FD197x implements MemoryDevice, ClockAware {
 
         if (subset(command, 0xe0) == 4) readSector();
     }
+
     @Override
     public int read(int address) {
         switch (address) {
@@ -192,6 +194,18 @@ public class FD197x implements MemoryDevice, ClockAware {
         drive.step();
         if (update == Update.UPDATE_TRACK_REGISTER) track += direction.offset();
         busy.clear();
+    }
+
+    public LineOutputHandler reset() {
+        return value -> {
+            if (value.isSet()) {
+                readQueue.clear();
+                irq.clear();
+                drq.clear();
+                command = 0;
+                busy.set();
+            }
+        };
     }
 
     enum Update {

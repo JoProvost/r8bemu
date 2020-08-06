@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu.devices.disk;
 
 import com.joprovost.r8bemu.clock.FakeClock;
+import com.joprovost.r8bemu.data.Flag;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ class FD197xTest {
     @Nested
     class Restore {
         @Test
-        void atTrack00SimplyRaisesInterrupt() {
+        void atTrack00SimplyBecomesReady() {
             drive.track00().set();
             fd179x.write(0xff48, 0x00);
             assertEquals(0x01, fd179x.read(0xff48) & 0x01); // busy
@@ -41,7 +42,7 @@ class FD197xTest {
         }
 
         @Test
-        void stepsUntilTrack00AndThenRaisesInterrupt() {
+        void stepsUntilTrack00AndThenBecomesReady() {
             drive.track00().clear();
             fd179x.write(0xff48, 0x00);
             assertEquals(0x01, fd179x.read(0xff48) & 0x01); // busy
@@ -65,12 +66,28 @@ class FD197xTest {
             assertTrue(drive.steps().isEmpty());
             assertTrue(interrupt.isEmpty());
         }
+
+        @Test
+        void isTriggeredByReset() {
+            drive.track00().clear();
+            fd179x.reset().handle(Flag.value(true));
+            assertEquals(0x01, fd179x.read(0xff48) & 0x01); // busy
+
+            fd179x.tick(clock);
+            fd179x.tick(clock);
+            fd179x.tick(clock);
+            drive.track00().set();
+            fd179x.tick(clock);
+
+            assertEquals(List.of(OUT, OUT, OUT), drive.steps());
+            assertEquals(0x00, fd179x.read(0xff48) & 0x01);
+        }
     }
 
     @Nested
     class Seek {
         @Test
-        void atExpectedTrackSimplyRaisesInterrupt() {
+        void atExpectedTrackSimplyBecomesReady() {
             fd179x.write(0xff49, 20);
             fd179x.write(0xff4b, 20);
             fd179x.write(0xff48, 0x10);
@@ -85,7 +102,7 @@ class FD197xTest {
         }
 
         @Test
-        void stepsOutUntilExpectedTrackAndThenRaisesInterrupt() {
+        void stepsOutUntilExpectedTrackAndThenBecomesReady() {
             fd179x.write(0xff49, 20);
             fd179x.write(0xff4b, 18);
             fd179x.write(0xff48, 0x10);
@@ -107,7 +124,7 @@ class FD197xTest {
     @Nested
     class StepIn {
         @Test
-        void stepsInAndRaisesInterrupt() {
+        void stepsInAndBecomesReady() {
             fd179x.write(0xff48, 0x40);
             assertEquals(0x01, fd179x.read(0xff48) & 0x01); // busy
             assertTrue(interrupt.isEmpty());
@@ -122,7 +139,7 @@ class FD197xTest {
     @Nested
     class StepOut {
         @Test
-        void stepsOutAndRaisesInterrupt() {
+        void stepsOutAndBecomesReady() {
             fd179x.write(0xff48, 0x60);
             assertEquals(0x01, fd179x.read(0xff48) & 0x01); // busy
             assertTrue(interrupt.isEmpty());
