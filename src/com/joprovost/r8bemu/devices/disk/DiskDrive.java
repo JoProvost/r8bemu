@@ -2,6 +2,7 @@ package com.joprovost.r8bemu.devices.disk;
 
 import com.joprovost.r8bemu.data.link.Line;
 import com.joprovost.r8bemu.data.link.LineOutput;
+import com.joprovost.r8bemu.io.Disk;
 
 import java.util.List;
 
@@ -9,16 +10,12 @@ public class DiskDrive implements Drive {
     private final Line track00 = Line.named("TRACK00");
     private final Line ready = Line.named("READY");
 
-    private final Disk disk;
+    private Disk disk;
 
     private boolean motor;
     private int track = 0;
     private int side;
     private Direction direction;
-
-    public DiskDrive(Disk disk) {
-        this.disk = disk;
-    }
 
     @Override
     public LineOutput track00() {
@@ -62,5 +59,11 @@ public class DiskDrive implements Drive {
     @Override
     public void write(Sector sector) {
 
+    }
+
+    @Override
+    public void insert(Disk disk) {
+        this.disk = disk;
+        ready.set(disk != null);
     }
 }

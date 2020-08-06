@@ -1,10 +1,11 @@
 package com.joprovost.r8bemu.devices.disk;
 
 import com.joprovost.r8bemu.data.link.LineOutput;
+import com.joprovost.r8bemu.io.DiskSlot;
 
 import java.util.List;
 
-public interface Drive {
+public interface Drive extends DiskSlot {
     // https://en.wikipedia.org/wiki/Floppy-disk_controller
     // http://retrotechnology.com/herbs_stuff/drive.html
 

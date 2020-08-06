@@ -11,12 +11,13 @@ import com.joprovost.r8bemu.devices.MC6821Port;
 import com.joprovost.r8bemu.devices.MC6847;
 import com.joprovost.r8bemu.devices.MC6883;
 import com.joprovost.r8bemu.devices.SC77526;
-import com.joprovost.r8bemu.devices.disk.Disk;
 import com.joprovost.r8bemu.devices.disk.DiskDrive;
 import com.joprovost.r8bemu.devices.disk.FD197x;
 import com.joprovost.r8bemu.io.AudioSink;
 import com.joprovost.r8bemu.io.Button;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
+import com.joprovost.r8bemu.io.Disk;
+import com.joprovost.r8bemu.io.DiskSlotDispatcher;
 import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.io.Joystick;
 import com.joprovost.r8bemu.io.JoystickDispatcher;
@@ -55,6 +56,7 @@ public class ColorComputer2 {
                                Display display,
                                KeyboardDispatcher keyboard,
                                CassetteRecorderDispatcher cassette,
+                               DiskSlotDispatcher slot,
                                Services services,
                                JoystickDispatcher joystickLeft,
                                JoystickDispatcher joystickRight,
@@ -69,9 +71,12 @@ public class ColorComputer2 {
         var rom0 = rom(home.resolve("extbas11.rom"));
         var rom1 = rom(home.resolve("bas13.rom"));
         var cart = rom(home.resolve("disk11.rom"));
-        var drive = new DiskDrive(Disk.blank());
+        var drive = new DiskDrive();
         var fd179x = context.aware(new FD197x(drive));
         fd179x.irq().to(Signal.NMI);
+
+        drive.insert(Disk.blank());
+        slot.dispatchTo(drive);
 
         var s4a = new MC6821Port(Signal.IRQ);
         var s4b = new MC6821Port(Signal.IRQ);

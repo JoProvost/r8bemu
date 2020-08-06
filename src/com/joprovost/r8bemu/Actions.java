@@ -2,12 +2,16 @@ package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.data.BitAccess;
 import com.joprovost.r8bemu.data.BitOutput;
+import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
+import com.joprovost.r8bemu.io.Disk;
+import com.joprovost.r8bemu.io.DiskSlot;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Function;
 
@@ -58,7 +62,7 @@ public class Actions {
         };
     }
 
-    static Function<Window, Action> insertCassette(Path home, CassetteRecorderDispatcher cassette) {
+    static Function<Window, Action> insertCassette(Path home, CassetteRecorder cassette) {
         return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/cassette_32x32.png"))) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -68,6 +72,24 @@ public class Actions {
                 int returnVal = files.showOpenDialog(window);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     cassette.insert(files.getSelectedFile());
+                }
+            }
+        };
+    }
+
+    static Function<Window, Action> insertDisk(Path home, DiskSlot drive) {
+        return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/disk_32x32.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                var files = new JFileChooser(home.toFile());
+                files.setAcceptAllFileFilterUsed(false);
+                files.addChoosableFileFilter(new FileNameExtensionFilter("Disk image", "dsk", "DSK"));
+                int returnVal = files.showOpenDialog(window);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        drive.insert(Disk.of(files.getSelectedFile()));
+                    } catch (IOException ignored) {
+                    }
                 }
             }
         };

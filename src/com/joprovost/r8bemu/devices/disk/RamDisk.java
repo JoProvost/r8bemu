@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.devices.disk;
 
+import com.joprovost.r8bemu.io.Disk;
 import com.joprovost.r8bemu.memory.Memory;
 
 // Reference : http://tlindner.macmess.org/?page_id=86

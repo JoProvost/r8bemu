@@ -15,7 +15,6 @@ import java.util.Queue;
 import java.util.stream.IntStream;
 
 import static com.joprovost.r8bemu.data.DataOutput.subset;
-import static com.joprovost.r8bemu.data.transform.DataAccessSubset.bit;
 import static com.joprovost.r8bemu.devices.disk.Drive.Direction.IN;
 import static com.joprovost.r8bemu.devices.disk.Drive.Direction.OUT;
 
@@ -23,12 +22,12 @@ import static com.joprovost.r8bemu.devices.disk.Drive.Direction.OUT;
 public class FD197x implements MemoryDevice, ClockAware {
 
     private final Variable latch = Variable.ofMask(0xff);
-    private final BitAccess haltMode = bit(latch, 7);
-    private final BitAccess secondSide = bit(latch, 6); // or drive 4
-    private final BitAccess motorOn = bit(latch, 3);
-    private final BitAccess drive3 = bit(latch, 2);
-    private final BitAccess drive2 = bit(latch, 1);
-    private final BitAccess drive1 = bit(latch, 0);
+    private final BitAccess haltMode = DataAccessSubset.bit(latch, 7);
+    private final BitAccess secondSide = DataAccessSubset.bit(latch, 6); // or drive 4
+    private final BitAccess motorOn = DataAccessSubset.bit(latch, 3);
+    private final BitAccess drive3 = DataAccessSubset.bit(latch, 2);
+    private final BitAccess drive2 = DataAccessSubset.bit(latch, 1);
+    private final BitAccess drive1 = DataAccessSubset.bit(latch, 0);
 
     private final Variable status = Variable.ofMask(0xff);
     private final BitAccess notReady = DataAccessSubset.bit(status, 7);
@@ -57,11 +56,17 @@ public class FD197x implements MemoryDevice, ClockAware {
     @Override
     public void tick(Clock clock) {
         if (busy.isClear()) return;
-        if (subset(command, 0xf0) == 0) restore();
-        if (subset(command, 0xf0) == 1) seek();
-        if (subset(command, 0xe0) == 1) step(Update.from(command));
-        if (subset(command, 0xe0) == 2) stepIn(Update.from(command));
-        if (subset(command, 0xe0) == 3) stepOut(Update.from(command));
+
+        if (!DataOutput.bit(command, 7)) { // Type I
+            if (subset(command, 0xf0) == 0) restore();
+            if (subset(command, 0xf0) == 1) seek();
+            if (subset(command, 0xe0) != 0) {
+                if (subset(command, 0xe0) == 2) direction(IN);
+                if (subset(command, 0xe0) == 3) direction(OUT);
+                step(Update.from(command));
+            }
+        }
+
         if (subset(command, 0xe0) == 4) readSector();
     }
     @Override
@@ -187,16 +192,6 @@ public class FD197x implements MemoryDevice, ClockAware {
         drive.step();
         if (update == Update.UPDATE_TRACK_REGISTER) track += direction.offset();
         busy.clear();
-    }
-
-    private void stepIn(Update update) {
-        direction(IN);
-        step(update);
-    }
-
-    private void stepOut(Update update) {
-        direction(OUT);
-        step(update);
     }
 
     enum Update {

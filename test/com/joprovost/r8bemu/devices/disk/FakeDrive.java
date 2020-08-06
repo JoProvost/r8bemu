@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu.devices.disk;
 
 import com.joprovost.r8bemu.data.link.Line;
+import com.joprovost.r8bemu.io.Disk;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,11 @@ class FakeDrive implements Drive {
     @Override
     public void write(Sector sector) {
         writes.add(sector);
+    }
+
+    @Override
+    public void insert(Disk disk) {
+
     }
 
     public List<Direction> steps() {
