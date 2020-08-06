@@ -1,18 +1,18 @@
 package com.joprovost.r8bemu.clock;
 
 import java.io.EOFException;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 
 public class EmulatorContext implements Runnable, BusyState, Clock, Executor {
     private final ClockBus clockBus = new ClockBus();
     private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
     private final List<Runnable> buffer = new ArrayList<>();
+    private final List<Consumer<Exception>> errorHandlers = new ArrayList<>();
     private long ticks = 0;
     private long busy = 0;
 
@@ -32,8 +32,9 @@ public class EmulatorContext implements Runnable, BusyState, Clock, Executor {
                 buffer.clear();
             } catch (EOFException e) {
                 // CTRL+C
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+                return;
+            } catch (Exception e) {
+                for (var handler : errorHandlers) handler.accept(e);
             }
         }
     }
@@ -56,5 +57,9 @@ public class EmulatorContext implements Runnable, BusyState, Clock, Executor {
     @Override
     public void execute(Runnable command) {
         queue.add(command);
+    }
+
+    public void onError(Consumer<Exception> handler) {
+        errorHandlers.add(handler);
     }
 }

@@ -4,9 +4,9 @@ import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 
+import static com.joprovost.r8bemu.data.DataOutput.negative;
 import static com.joprovost.r8bemu.data.transform.DataAccessSubset.lsb;
 import static com.joprovost.r8bemu.data.transform.DataAccessSubset.msb;
-import static com.joprovost.r8bemu.data.DataOutput.negative;
 
 /**
  * Registers of the Motorola 6809
@@ -53,10 +53,19 @@ public final class Register implements DataAccess {
         Y.value(0);
         U.value(0);
         S.value(0);
-        S.value(0);
         DP.value(0);
         CC.value(0);
         PC.value(0);
+    }
+
+    public static String dump() {
+        return "Registers:\n    " +
+                D + "  " + A + " " + B + "\n    " +
+                X + "  " + Y + "\n    " +
+                U + "  " + S + "\n    " +
+                CC + "   " + F + " " + E + " " + H + " " + I + " " + N + " " + Z + " " + V + " " + C + "\n    " +
+                DP + "\n    " +
+                PC;
     }
 
     public static void store(Register register, DataAccess memory) {

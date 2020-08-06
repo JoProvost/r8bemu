@@ -2,6 +2,7 @@ package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.clock.ClockFrequency;
 import com.joprovost.r8bemu.clock.EmulatorContext;
+import com.joprovost.r8bemu.data.Flag;
 import com.joprovost.r8bemu.data.MemoryDataReference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.data.link.ParallelInputProvider;
@@ -26,6 +27,7 @@ import com.joprovost.r8bemu.io.sound.Speaker;
 import com.joprovost.r8bemu.io.sound.TapePlayback;
 import com.joprovost.r8bemu.io.sound.TapeRecorder;
 import com.joprovost.r8bemu.mc6809.MC6809E;
+import com.joprovost.r8bemu.mc6809.Register;
 import com.joprovost.r8bemu.mc6809.Signal;
 import com.joprovost.r8bemu.memory.Memory;
 import com.joprovost.r8bemu.memory.MemoryDevice;
@@ -133,15 +135,21 @@ public class ColorComputer2 {
         debug.label("NMI", MemoryDataReference.of(bus, NMI_VECTOR, Size.WORD_16).value());
 
         var cpu = context.aware(new MC6809E(bus, debug, context));
+        cpu.reset().handle(Flag.value(true));
+
         Signal.RESET.to(cpu.reset());
         Signal.IRQ.to(cpu.irq());
         Signal.FIRQ.to(cpu.firq());
         Signal.NMI.to(cpu.nmi());
         Signal.HALT.to(cpu.halt());
 
-        Signal.RESET.pulse();
-
         if (Files.exists(script)) keyboard.script(Files.readString(script));
+
+        Signal.RESET.to(Signal.HALT); // clear HALT when reset is released
+        context.onError(Throwable::printStackTrace);
+        context.onError(e -> System.err.println(Register.dump()));
+        context.onError(e -> Signal.HALT.set());
+        context.onError(e -> fd179x.reset().handle(Flag.value(true)));
 
         try {
             services.start();
