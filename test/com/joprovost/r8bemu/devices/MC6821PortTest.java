@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.devices;
 
-import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.data.BitOutput;
+import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.mc6809.Signal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -58,7 +58,7 @@ class MC6821PortTest {
     @Test
     void feedsFromFeeder() {
         direction(0b00000000);
-        port.port().inputFrom(input -> input.value(0x32));
+        port.port().from(input -> input.value(0x32));
         assertEquals(0x32, port.read(DATA_REGISTER));
     }
 
@@ -66,7 +66,7 @@ class MC6821PortTest {
     void notifiesConsumer() {
         List<DataOutput> consumer = new ArrayList<>();
         direction(0b11111111);
-        port.port().outputTo(consumer::add);
+        port.port().to(consumer::add);
         port.write(DATA_REGISTER, 0x95);
         assertEquals(1, consumer.size());
         assertEquals(0x95, consumer.get(0).value());

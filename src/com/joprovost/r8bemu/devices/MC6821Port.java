@@ -1,18 +1,18 @@
 package com.joprovost.r8bemu.devices;
 
-import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.DataOutput;
-import com.joprovost.r8bemu.data.transform.DataOutputComplement;
 import com.joprovost.r8bemu.data.BitAccess;
 import com.joprovost.r8bemu.data.BitInput;
-import com.joprovost.r8bemu.data.link.LinePort;
-import com.joprovost.r8bemu.data.link.LineOutputHandler;
-import com.joprovost.r8bemu.data.transform.Filter;
+import com.joprovost.r8bemu.data.DataAccess;
+import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.data.Variable;
-import com.joprovost.r8bemu.memory.MemoryDevice;
+import com.joprovost.r8bemu.data.link.LineOutputHandler;
+import com.joprovost.r8bemu.data.link.LinePort;
 import com.joprovost.r8bemu.data.link.ParallelInputProvider;
 import com.joprovost.r8bemu.data.link.ParallelOutputHandler;
 import com.joprovost.r8bemu.data.link.ParallelPort;
+import com.joprovost.r8bemu.data.transform.DataOutputComplement;
+import com.joprovost.r8bemu.data.transform.Filter;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +107,7 @@ public class MC6821Port implements MemoryDevice {
     public ParallelPort port() {
         return new ParallelPort() {
             @Override
-            public void inputFrom(ParallelInputProvider provider) {
+            public void from(ParallelInputProvider provider) {
                 inputProviders.add(provider);
             }
 
@@ -117,7 +117,7 @@ public class MC6821Port implements MemoryDevice {
             }
 
             @Override
-            public void outputTo(ParallelOutputHandler handler) {
+            public void to(ParallelOutputHandler handler) {
                 outputHandlers.add(handler);
             }
 

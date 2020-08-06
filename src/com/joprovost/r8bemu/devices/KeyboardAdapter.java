@@ -4,12 +4,12 @@ import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.clock.ClockAwareBusyState;
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 import com.joprovost.r8bemu.data.DataOutput;
-import com.joprovost.r8bemu.io.Key;
-import com.joprovost.r8bemu.io.Keyboard;
 import com.joprovost.r8bemu.data.link.ParallelInput;
 import com.joprovost.r8bemu.data.link.ParallelOutput;
+import com.joprovost.r8bemu.data.transform.DataAccessSubset;
+import com.joprovost.r8bemu.io.Key;
+import com.joprovost.r8bemu.io.Keyboard;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -31,7 +31,7 @@ public class KeyboardAdapter implements Keyboard, ClockAware {
     public KeyboardAdapter(ParallelInput rowPort, ParallelOutput columnPort) {
         column = columnPort.output();
         row = DataAccessSubset.of(rowPort.input(), 0x7f);
-        rowPort.inputFrom(this::keyScan);
+        rowPort.from(this::keyScan);
         state.busy(BOOT_DELAY);
     }
 

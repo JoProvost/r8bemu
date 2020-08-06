@@ -96,7 +96,7 @@ public class ColorComputer2 {
         );
 
         var vdg = context.aware(new MC6847(display, s4a::interrupt, s4b::interrupt, sam.videoMemory(ram)));
-        s5b.port().outputTo(vdg.mode());
+        s5b.port().to(vdg.mode());
         Signal.RESET.to(vdg.reset());
 
         keyboard.dispatchTo(context.aware(new KeyboardAdapter(s4a.port(), s4b.port())));
@@ -104,25 +104,25 @@ public class ColorComputer2 {
         var playback = new TapePlayback(uptime, playbackFile);
         cassette.dispatchTo(playback);
         var recorder = new TapeRecorder(uptime, recordingFile);
-        s5a.port().inputFrom(playback.output(P0));
+        s5a.port().from(playback.output(P0));
         s5a.control().to(playback.motor());
         s5a.control().to(recorder.motor());
 
         var speaker = services.declare(new Speaker(new AudioFormat(44100, 16, 1, true, true), uptime));
         var sc77526 = new SC77526(AudioSink.broadcast(speaker.input(), recorder.input()));
-        s5a.port().outputTo(sc77526.dac(P7 | P6 | P5 | P4 | P3 | P2));
+        s5a.port().to(sc77526.dac(P7 | P6 | P5 | P4 | P3 | P2));
         s5b.control().to(sc77526.soundOutput());
-        s4a.port().inputFrom(sc77526.joystick(P7));
+        s4a.port().from(sc77526.joystick(P7));
         s4a.control().to(sc77526.selA());
         s4b.control().to(sc77526.selB());
 
         var leftButton = new PushButton();
-        s4a.port().inputFrom(leftButton.clear(P0));
+        s4a.port().from(leftButton.clear(P0));
         joystickLeft.dispatchTo(Joystick.button(leftButton));
         joystickLeft.dispatchTo(sc77526.left());
 
         var rightButton = new PushButton();
-        s4a.port().inputFrom(rightButton.clear(P1));
+        s4a.port().from(rightButton.clear(P1));
         joystickRight.dispatchTo(Joystick.button(rightButton));
         joystickRight.dispatchTo(sc77526.right());
 
