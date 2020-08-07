@@ -126,9 +126,9 @@ public class Actions {
 
     private static ImageIcon keyboardIcon(BitOutput buffered) {
         if (buffered.isSet()) {
-            return new ImageIcon(Actions.class.getResource("/images/keyboard_abc_64x32.png"));
+            return new ImageIcon(Actions.class.getResource("/images/keyboard_abc_68x32.png"));
         } else {
-            return new ImageIcon(Actions.class.getResource("/images/keyboard_dpad_64x32.png"));
+            return new ImageIcon(Actions.class.getResource("/images/keyboard_dpad_68x32.png"));
         }
     }
 
