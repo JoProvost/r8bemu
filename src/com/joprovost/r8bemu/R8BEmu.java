@@ -12,6 +12,7 @@ import com.joprovost.r8bemu.io.awt.FrameBuffer;
 import com.joprovost.r8bemu.io.awt.NumpadJoystickDriver;
 import com.joprovost.r8bemu.io.awt.UserInterface;
 import com.joprovost.r8bemu.io.linux.LinuxJoystickDriver;
+import com.joprovost.r8bemu.io.sound.Mixer;
 import com.joprovost.r8bemu.io.terminal.InputStreamKeyboard;
 import com.joprovost.r8bemu.io.terminal.Terminal;
 import com.joprovost.r8bemu.mc6809.Register;
@@ -47,6 +48,7 @@ public class R8BEmu {
         var display = Display.dispatcher();
         var cassette = CassetteRecorder.dispatcher(context);
         var drive = DiskSlot.dispatcher(context);
+        var mixer = Mixer.dispatcher(context);
 
         switch (ui) {
             case "terminal":
@@ -74,6 +76,8 @@ public class R8BEmu {
                         SEPARATOR,
                         Actions.keyboard(keyboardBuffer),
                         SEPARATOR,
+                        Actions.mute(mixer),
+                        SEPARATOR,
                         Actions.presentation()
                 ));
                 break;
@@ -85,8 +89,8 @@ public class R8BEmu {
         services.declare(new LinuxJoystickDriver(Path.of("/dev/input/js1"), joystickRight));
 
         Configuration.prepare(home);
-        ColorComputer2.emulate(context, ram, display, keyboard, cassette, drive, services, joystickLeft, joystickRight,
-                               script, playback, recording, home);
+        ColorComputer2.emulate(context, ram, display, keyboard, cassette, drive, services,
+                               joystickLeft, joystickRight, mixer, script, playback, recording, home);
     }
 
     public static Map<String, String> parse(String[] args) {

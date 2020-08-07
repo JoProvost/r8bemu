@@ -6,6 +6,7 @@ import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
 import com.joprovost.r8bemu.io.Disk;
 import com.joprovost.r8bemu.io.DiskSlot;
+import com.joprovost.r8bemu.io.sound.Mixer;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -95,6 +96,23 @@ public class Actions {
         };
     }
 
+    static Function<Window, Action> mute(Mixer mixer) {
+        return window -> new AbstractAction(null, mutedIcon(false)) {
+            boolean muted = false;
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (muted) {
+                    mixer.volume(Mixer.VOLUME_DEFAULT);
+                    muted = false;
+                } else {
+                    mixer.volume(Mixer.VOLUME_MUTED);
+                    muted = true;
+                }
+                putValue(Action.SMALL_ICON, mutedIcon(muted));
+            }
+        };
+    }
+
     static Function<Window, Action> keyboard(BitAccess buffered) {
         return window -> new AbstractAction(null, keyboardIcon(buffered)) {
             @Override
@@ -111,6 +129,14 @@ public class Actions {
             return new ImageIcon(Actions.class.getResource("/images/keyboard_abc_64x32.png"));
         } else {
             return new ImageIcon(Actions.class.getResource("/images/keyboard_dpad_64x32.png"));
+        }
+    }
+
+    private static ImageIcon mutedIcon(boolean muted) {
+        if (muted) {
+            return new ImageIcon(Actions.class.getResource("/images/muted_32x32.png"));
+        } else {
+            return new ImageIcon(Actions.class.getResource("/images/mute_32x32.png"));
         }
     }
 

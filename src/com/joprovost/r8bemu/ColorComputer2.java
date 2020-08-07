@@ -23,6 +23,7 @@ import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.io.Joystick;
 import com.joprovost.r8bemu.io.JoystickDispatcher;
 import com.joprovost.r8bemu.io.KeyboardDispatcher;
+import com.joprovost.r8bemu.io.sound.MixerDispatcher;
 import com.joprovost.r8bemu.io.sound.Speaker;
 import com.joprovost.r8bemu.io.sound.TapePlayback;
 import com.joprovost.r8bemu.io.sound.TapeRecorder;
@@ -62,6 +63,7 @@ public class ColorComputer2 {
                                Services services,
                                JoystickDispatcher joystickLeft,
                                JoystickDispatcher joystickRight,
+                               MixerDispatcher mixer,
                                Path script,
                                Path playbackFile,
                                Path recordingFile,
@@ -111,6 +113,7 @@ public class ColorComputer2 {
         s5a.control().to(recorder.motor());
 
         var speaker = services.declare(new Speaker(new AudioFormat(44100, 16, 1, true, true), uptime));
+        mixer.dispatchTo(speaker);
         var sc77526 = new SC77526(AudioSink.broadcast(speaker.input(), recorder.input()));
         s5a.port().to(sc77526.dac(P7 | P6 | P5 | P4 | P3 | P2));
         s5b.control().to(sc77526.soundOutput());

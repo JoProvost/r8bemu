@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 
-public class Speaker implements Runnable {
+public class Speaker implements Runnable, Mixer {
 
     public static final int TIMEOUT_MS = 10;
     private final AudioFormat format;
@@ -20,7 +20,7 @@ public class Speaker implements Runnable {
     private final BigEndianAudioBuffer buffer;
     private final InputStream input;
     private long last = 0;
-    private final int volume = 256;
+    private int volume = VOLUME_DEFAULT;
 
     public Speaker(AudioFormat format, Uptime uptime) {
         this.format = format;
@@ -54,7 +54,7 @@ public class Speaker implements Runnable {
     }
 
     public int encoded(int amplitude) {
-        return amplitude * volume;
+        return amplitude * volume * 256 / Mixer.VOLUME_MAX;
     }
 
     @Override
@@ -72,5 +72,10 @@ public class Speaker implements Runnable {
         } catch (IOException ignored) {
             // Read simply ended (the thread is stopping)
         }
+    }
+
+    @Override
+    public void volume(int volume) {
+        this.volume = volume;
     }
 }
