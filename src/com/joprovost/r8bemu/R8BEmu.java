@@ -8,7 +8,9 @@ import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.io.Joystick;
 import com.joprovost.r8bemu.io.Keyboard;
 import com.joprovost.r8bemu.io.awt.AWTKeyboardDriver;
+import com.joprovost.r8bemu.io.awt.ArrowsJoystickDriver;
 import com.joprovost.r8bemu.io.awt.FrameBuffer;
+import com.joprovost.r8bemu.io.awt.MouseJoystickDriver;
 import com.joprovost.r8bemu.io.awt.NumpadJoystickDriver;
 import com.joprovost.r8bemu.io.awt.UserInterface;
 import com.joprovost.r8bemu.io.linux.LinuxJoystickDriver;
@@ -39,6 +41,8 @@ public class R8BEmu {
         var recording = Path.of(options.getOrDefault("recording", home + "/recording.wav"));
 
         var keyboardBuffer = Flag.value(Boolean.parseBoolean(options.getOrDefault("keyboard-buffer", "true")));
+        var keyboardGamepad = Flag.value(Boolean.parseBoolean(options.getOrDefault("keyboard-gamepad", "false")));
+        var mouse = Flag.value(Boolean.parseBoolean(options.getOrDefault("mouse", "false")));
 
         var context = new EmulatorContext();
         var ram = new Memory(0x7fff);
@@ -59,8 +63,12 @@ public class R8BEmu {
             case "awt":
                 var frameBuffer = new FrameBuffer();
                 display.dispatchTo(frameBuffer);
-                frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer));
+                frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer, keyboardGamepad));
                 frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickLeft));
+                frameBuffer.addKeyListener(new ArrowsJoystickDriver(joystickLeft, keyboardGamepad));
+                var mouseJoystickDriver = new MouseJoystickDriver(joystickLeft, mouse);
+                frameBuffer.addMouseMotionListener(mouseJoystickDriver);
+                frameBuffer.addMouseListener(mouseJoystickDriver);
                 UserInterface.show(frameBuffer, List.of(
                         Actions.reboot(() -> context.execute(() -> {
                             Signal.RESET.pulse();
@@ -74,12 +82,14 @@ public class R8BEmu {
                         SEPARATOR,
                         Actions.insertDisk(home, drive),
                         SEPARATOR,
-                        Actions.keyboard(keyboardBuffer),
+                        Actions.keyboardBuffered(keyboardBuffer),
+                        Actions.keyboardGamepad(keyboardGamepad),
+                        Actions.mouse(mouse),
                         SEPARATOR,
                         Actions.mute(mixer),
                         SEPARATOR,
                         Actions.presentation()
-                ));
+                ), mouse);
                 break;
         }
 

@@ -1,7 +1,6 @@
 package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.data.BitAccess;
-import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
 import com.joprovost.r8bemu.io.Disk;
@@ -113,23 +112,52 @@ public class Actions {
         };
     }
 
-    static Function<Window, Action> keyboard(BitAccess buffered) {
-        return window -> new AbstractAction(null, keyboardIcon(buffered)) {
+    static Function<Window, Action> keyboardBuffered(BitAccess buffered) {
+        return window -> new AbstractAction(null, keyboardBufferedIcon(buffered)) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (buffered.isSet()) buffered.clear();
-                else buffered.set();
-                putValue(Action.SMALL_ICON, keyboardIcon(buffered));
+                buffered.set(buffered.isClear());
+                putValue(Action.SMALL_ICON, keyboardBufferedIcon(buffered));
             }
         };
     }
 
-    private static ImageIcon keyboardIcon(BitOutput buffered) {
-        if (buffered.isSet()) {
-            return new ImageIcon(Actions.class.getResource("/images/keyboard_abc_68x32.png"));
-        } else {
-            return new ImageIcon(Actions.class.getResource("/images/keyboard_dpad_68x32.png"));
-        }
+    static Function<Window, Action> keyboardGamepad(BitAccess gamepad) {
+        return window -> new AbstractAction(null, keyboardGamepadIcon(gamepad)) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gamepad.set(gamepad.isClear());
+                putValue(Action.SMALL_ICON, keyboardGamepadIcon(gamepad));
+            }
+        };
+    }
+
+    static Function<Window, Action> mouse(BitAccess mouse) {
+        return window -> new AbstractAction(null, mouseIcon(mouse)) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mouse.set(mouse.isClear());
+                putValue(Action.SMALL_ICON, mouseIcon(mouse));
+            }
+        };
+    }
+
+    private static ImageIcon mouseIcon(BitAccess mouse) {
+        if (mouse.isClear())
+            return new ImageIcon(Actions.class.getResource("/images/mouse_32x32.png"));
+        return new ImageIcon(Actions.class.getResource("/images/mouse_selected_32x32.png"));
+    }
+
+    private static ImageIcon keyboardGamepadIcon(BitAccess keyboardGamepad) {
+        if (keyboardGamepad.isClear())
+            return new ImageIcon(Actions.class.getResource("/images/keyboard_dpad_32x32.png"));
+        return new ImageIcon(Actions.class.getResource("/images/keyboard_dpad_selected_32x32.png"));
+    }
+
+    private static ImageIcon keyboardBufferedIcon(BitAccess buffered) {
+        if (buffered.isClear())
+            return new ImageIcon(Actions.class.getResource("/images/keyboard_abc_32x32.png"));
+        return new ImageIcon(Actions.class.getResource("/images/keyboard_abc_selected_32x32.png"));
     }
 
     private static ImageIcon mutedIcon(boolean muted) {
