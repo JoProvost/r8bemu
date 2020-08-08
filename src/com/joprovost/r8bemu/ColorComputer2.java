@@ -6,18 +6,16 @@ import com.joprovost.r8bemu.data.Flag;
 import com.joprovost.r8bemu.data.MemoryDataReference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.data.link.ParallelInputProvider;
+import com.joprovost.r8bemu.devices.DiskDrive;
 import com.joprovost.r8bemu.devices.KeyboardAdapter;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6821Port;
 import com.joprovost.r8bemu.devices.MC6847;
 import com.joprovost.r8bemu.devices.MC6883;
 import com.joprovost.r8bemu.devices.SC77526;
-import com.joprovost.r8bemu.devices.disk.DiskDrive;
-import com.joprovost.r8bemu.devices.disk.FD197x;
 import com.joprovost.r8bemu.io.AudioSink;
 import com.joprovost.r8bemu.io.Button;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
-import com.joprovost.r8bemu.io.Disk;
 import com.joprovost.r8bemu.io.DiskSlotDispatcher;
 import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.io.Joystick;
@@ -75,11 +73,8 @@ public class ColorComputer2 {
         var rom0 = rom(home.resolve("extbas11.rom"));
         var rom1 = rom(home.resolve("bas13.rom"));
         var cart = rom(home.resolve("disk11.rom"));
-        var drive = new DiskDrive();
-        var fd179x = context.aware(new FD197x(drive));
-        fd179x.irq().to(Signal.NMI);
-
-        drive.insert(Disk.blank());
+        var drive = context.aware(new DiskDrive());
+        drive.irq().to(Signal.NMI);
         slot.dispatchTo(drive);
 
         var s4a = new MC6821Port(Signal.IRQ);
@@ -95,7 +90,7 @@ public class ColorComputer2 {
                 MemoryDevice.map(range(0xc000, 0xfeff), cart),  // S=3
                 MemoryDevice.map(range(0xff00, 0xff1f), new MC6821(s4a, s4b)),  // S=4
                 MemoryDevice.map(range(0xff20, 0xff3f), new MC6821(s5a, s5b)),  // S=5
-                MemoryDevice.map(range(0xff40, 0xff5f), fd179x),  // S=6
+                MemoryDevice.map(range(0xff40, 0xff5f), drive),  // S=6
                 MemoryDevice.map(range(0xffe0, 0xffff), rom1)   // S=2
         );
 
@@ -152,7 +147,6 @@ public class ColorComputer2 {
         context.onError(Throwable::printStackTrace);
         context.onError(e -> System.err.println(Register.dump()));
         context.onError(e -> Signal.HALT.set());
-        context.onError(e -> fd179x.reset().handle(Flag.value(true)));
 
         try {
             services.start();

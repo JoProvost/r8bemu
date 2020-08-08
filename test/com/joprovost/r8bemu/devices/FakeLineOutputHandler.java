@@ -1,4 +1,4 @@
-package com.joprovost.r8bemu.devices.disk;
+package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.data.link.LineOutputHandler;

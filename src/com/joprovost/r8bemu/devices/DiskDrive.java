@@ -1,4 +1,4 @@
-package com.joprovost.r8bemu.devices.disk;
+package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
@@ -7,8 +7,9 @@ import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.data.Variable;
 import com.joprovost.r8bemu.data.link.Line;
 import com.joprovost.r8bemu.data.link.LineOutput;
-import com.joprovost.r8bemu.data.link.LineOutputHandler;
 import com.joprovost.r8bemu.data.transform.DataAccessSubset;
+import com.joprovost.r8bemu.io.Disk;
+import com.joprovost.r8bemu.io.DiskSlot;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 
 import java.util.ArrayDeque;
@@ -16,11 +17,18 @@ import java.util.Queue;
 import java.util.stream.IntStream;
 
 import static com.joprovost.r8bemu.data.DataOutput.subset;
-import static com.joprovost.r8bemu.devices.disk.Drive.Direction.IN;
-import static com.joprovost.r8bemu.devices.disk.Drive.Direction.OUT;
 
 // Based on FD 179x-02 Family documentation
-public class FD197x implements MemoryDevice, ClockAware {
+public class DiskDrive implements MemoryDevice, ClockAware, DiskSlot {
+
+    public static final int IN = 1;
+    public static final int OUT = -1;
+    public static final int LATCH = 0xff40;
+    public static final int COMMAND = 0xff48;
+    public static final int STATUS = 0xff48;
+    public static final int TRACK = 0xff49;
+    public static final int SECTOR = 0xff4a;
+    public static final int DATA = 0xff4b;
 
     private final Variable latch = Variable.ofMask(0xff);
     private final BitAccess haltMode = DataAccessSubset.bit(latch, 7);
@@ -38,20 +46,21 @@ public class FD197x implements MemoryDevice, ClockAware {
     private final Line irq = Line.named("INTRQ");
 
     private final Queue<Integer> readQueue = new ArrayDeque<>();
-    private final Drive drive;
     private int sector;
     private int data;
     private int command;
     private int track;
-    private Drive.Direction direction = IN;
-
-    public FD197x(Drive drive) {
-        this.drive = drive;
-        this.drive.ready().to(x -> notReady.set(x.isClear()));
-    }
+    private int direction = 1;
+    private Disk disk;
 
     public LineOutput irq() {
         return irq;
+    }
+
+    @Override
+    public void insert(Disk disk) {
+        this.disk = disk;
+        notReady.set(disk == null);
     }
 
     @Override
@@ -74,14 +83,14 @@ public class FD197x implements MemoryDevice, ClockAware {
     @Override
     public int read(int address) {
         switch (address) {
-            case 0xff48:
+            case STATUS:
                 irq.clear();
                 return status.value();
-            case 0xff49:
+            case TRACK:
                 return track;
-            case 0xff4a:
+            case SECTOR:
                 return sector;
-            case 0xff4b:
+            case DATA:
                 return data();
         }
         return 0;
@@ -90,12 +99,10 @@ public class FD197x implements MemoryDevice, ClockAware {
     @Override
     public void write(int address, int data) {
         switch (address) {
-            case 0xff40:
+            case LATCH:
                 latch.value(data);
-                drive.motor(motorOn.isSet());
-                drive.side(secondSide.isSet() ? 1 : 0);
                 break;
-            case 0xff48:
+            case COMMAND:
                 irq.clear();
                 if (subset(data, 0xf0) == 0xd) {
                     forceInterrupt(data);
@@ -104,13 +111,13 @@ public class FD197x implements MemoryDevice, ClockAware {
                     command = data;
                 }
                 break;
-            case 0xff49:
+            case TRACK:
                 track = data;
                 break;
-            case 0xff4a:
+            case SECTOR:
                 sector = data;
                 break;
-            case 0xff4b:
+            case DATA:
                 this.data = data;
                 break;
         }
@@ -144,33 +151,31 @@ public class FD197x implements MemoryDevice, ClockAware {
 
     private void readSector() {
         readQueue.clear();
-        drive.read().forEach(data -> {
-            if (data.id() != sector) return;
-            IntStream.range(0, data.size()).forEach(i -> readQueue.add(data.read(i)));
 
-            // TODO: Provide real CRC-32
-            //       It actually work ony because Disk Basic skip those two bytes
-            readQueue.add(0);
-            readQueue.add(0);
-        });
-        busy.clear();
-        drq.set();
-    }
-
-    private void direction(Drive.Direction direction) {
-        this.direction = direction;
-        drive.direction(this.direction);
-    }
-
-    private void restore() {
-        if (drive.track00().isSet()) {
-            track = 0;
+        if (disk == null) {
+            notReady.set();
             busy.clear();
             return;
         }
 
-        direction(OUT);
-        drive.step();
+        var data = disk.sector(secondSide.isSet() ? 1 : 0, track, sector);
+        IntStream.range(0, data.size()).forEach(i -> readQueue.add(data.read(i)));
+
+        // TODO: Provide real CRC-32
+        //       It actually work ony because Disk Basic skip those two bytes
+        readQueue.add(0);
+        readQueue.add(0);
+        busy.clear();
+        drq.set();
+    }
+
+    private void direction(int direction) {
+        this.direction = direction;
+    }
+
+    private void restore() {
+        track = 0;
+        busy.clear();
     }
 
     private void seek() {
@@ -180,32 +185,12 @@ public class FD197x implements MemoryDevice, ClockAware {
         }
 
         direction(track < data ? IN : OUT);
-        drive.step();
-        track += direction.offset();
+        track += direction;
     }
 
     private void step(Update update) {
-        if (direction == OUT && drive.track00().isSet()) {
-            if (update == Update.UPDATE_TRACK_REGISTER) track = 0;
-            busy.clear();
-            return;
-        }
-
-        drive.step();
-        if (update == Update.UPDATE_TRACK_REGISTER) track += direction.offset();
+        if (update == Update.UPDATE_TRACK_REGISTER) track += direction;
         busy.clear();
-    }
-
-    public LineOutputHandler reset() {
-        return value -> {
-            if (value.isSet()) {
-                readQueue.clear();
-                irq.clear();
-                drq.clear();
-                command = 0;
-                busy.set();
-            }
-        };
     }
 
     enum Update {

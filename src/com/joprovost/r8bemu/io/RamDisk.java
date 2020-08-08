@@ -1,6 +1,5 @@
-package com.joprovost.r8bemu.devices.disk;
+package com.joprovost.r8bemu.io;
 
-import com.joprovost.r8bemu.io.Disk;
 import com.joprovost.r8bemu.memory.Memory;
 
 // Reference : http://tlindner.macmess.org/?page_id=86
@@ -22,14 +21,14 @@ public class RamDisk implements Disk {
 
     @Override
     public Sector sector(int side, int track, int sector) {
-        var index = track * sectorsPerTrack() * sides() + side * sectorsPerTrack() + sector;
+        int sectorIndex = sector - firstSectorId();
+        var index = track * sectorsPerTrack() * sides() + side * sectorsPerTrack() + sectorIndex;
         var start = (sectorAttributeFlag() == 0) ? index * sectorSize() : index * (sectorSize() + 1);
         var offset = (sectorAttributeFlag() == 0) ? start : start + 1;
-        var id = sector + firstSectorId();
         return new Sector() {
             @Override
             public int id() {
-                return id;
+                return sector;
             }
 
             @Override

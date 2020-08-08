@@ -1,7 +1,5 @@
 package com.joprovost.r8bemu.io;
 
-import com.joprovost.r8bemu.devices.disk.RamDisk;
-import com.joprovost.r8bemu.devices.disk.Sector;
 import com.joprovost.r8bemu.memory.Memory;
 
 import java.io.File;

@@ -1,4 +1,4 @@
-package com.joprovost.r8bemu.devices.disk;
+package com.joprovost.r8bemu.io;
 
 import com.joprovost.r8bemu.memory.MemoryDevice;
 
