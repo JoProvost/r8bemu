@@ -4,7 +4,6 @@ import com.joprovost.r8bemu.Debugger;
 import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.Described;
 
-import static com.joprovost.r8bemu.mc6809.Task.of;
 import static com.joprovost.r8bemu.mc6809.Register.A;
 import static com.joprovost.r8bemu.mc6809.Register.B;
 import static com.joprovost.r8bemu.mc6809.Register.CC;
@@ -13,6 +12,7 @@ import static com.joprovost.r8bemu.mc6809.Register.S;
 import static com.joprovost.r8bemu.mc6809.Register.U;
 import static com.joprovost.r8bemu.mc6809.Register.X;
 import static com.joprovost.r8bemu.mc6809.Register.Y;
+import static com.joprovost.r8bemu.mc6809.Task.of;
 
 public enum Mnemonic implements Described {
     ABX(of(Arithmetic::abx)),
@@ -43,7 +43,7 @@ public enum Mnemonic implements Described {
     BPL(Task.of(Branches::bpl)),
     BRA(Task.of(Branches::bra)),
     BRN(Task.of(Branches::brn)),
-    BSR(Task.of(Branches::bsr)),
+    BSR(Task.of(Stack::bsr)),
     BVC(Task.of(Branches::bvc)),
     BVS(Task.of(Branches::bvs)),
     CLR(Task.of(Logic::clear)),
@@ -71,7 +71,7 @@ public enum Mnemonic implements Described {
     INCA(A, Task.of(Arithmetic::increment)),
     INCB(B, Task.of(Arithmetic::increment)),
     JMP(Task.of(Branches::jump)),
-    JSR(Task.of(Branches::jsr)),
+    JSR(Task.of(Stack::jsr)),
     LBCC(Task.of(Branches::bcc)),
     LBCS(Task.of(Branches::bcs)),
     LBEQ(Task.of(Branches::beq)),
@@ -86,7 +86,7 @@ public enum Mnemonic implements Described {
     LBPL(Task.of(Branches::bpl)),
     LBRA(Task.of(Branches::bra)),
     LBRN(Task.of(Branches::brn)),
-    LBSR(Task.of(Branches::bsr)),
+    LBSR(Task.of(Stack::bsr)),
     LBVC(Task.of(Branches::bvc)),
     LBVS(Task.of(Branches::bvs)),
     LDA(A, Task.of(Register::load)),
@@ -124,8 +124,8 @@ public enum Mnemonic implements Described {
     ROR(Task.of(Shift::ror)),
     RORA(A, Task.of(Shift::ror)),
     RORB(B, Task.of(Shift::ror)),
-    RTI((register, argument, stack, debug) -> Branches.rti(stack)),
-    RTS((register, argument, stack, debug) -> Branches.rts(stack)),
+    RTI((register, argument, stack, debug) -> Stack.rti(stack)),
+    RTS((register, argument, stack, debug) -> Stack.rts(stack)),
     SBCA(A, Task.of(Arithmetic::sbc)),
     SBCB(B, Task.of(Arithmetic::sbc)),
     SEX(of(Arithmetic::sex)),
@@ -139,9 +139,9 @@ public enum Mnemonic implements Described {
     SUBA(A, Task.of(Arithmetic::sub)),
     SUBB(B, Task.of(Arithmetic::sub)),
     SUBD(D, Task.of(Arithmetic::sub)),
-    SWI,
-    SWI2,
-    SWI3,
+    SWI((register, argument, stack, debug) -> Stack.swi(stack)),
+    SWI2((register, argument, stack, debug) -> Stack.swi2(stack)),
+    SWI3((register, argument, stack, debug) -> Stack.swi3(stack)),
     SYNC,
     TFR((register, argument, stack, debug) -> debug.argument(RegisterPair.registers(argument)).transfer()),
     TST(Task.of(Check::test)),

@@ -1,6 +1,8 @@
 package com.joprovost.r8bemu.mc6809;
 
+import com.joprovost.r8bemu.data.DataAccess;
 import com.joprovost.r8bemu.data.DataOutput;
+import com.joprovost.r8bemu.data.Value;
 import com.joprovost.r8bemu.data.transform.DataOutputSubset;
 
 public class RegisterPair implements DataOutput {
@@ -14,7 +16,7 @@ public class RegisterPair implements DataOutput {
         return new RegisterPair(registers);
     }
 
-    private static Register register(DataOutput registerCode) {
+    private static DataAccess register(DataOutput registerCode) {
         switch (registerCode.value()) {
             case 0b0000: return Register.D;
             case 0b0001: return Register.X;
@@ -27,15 +29,19 @@ public class RegisterPair implements DataOutput {
             case 0b1010: return Register.CC;
             case 0b1011: return Register.DP;
             default:
-                throw new UnsupportedOperationException("Unknown register code: 0b" + Integer.toBinaryString(registerCode.value()));
+                // Other operand values result in the constant $FF being transferred; this
+                // value is also used when there is an operation mixing 8 and 16 bit registers
+                // (these effects are undocumented).
+                // See https://techheap.packetizer.com/processors/6809/6809Instructions.html
+                return DataAccess.of(Value.asByte(0xff));
         }
     }
 
-    public Register right() {
+    public DataAccess right() {
         return register(DataOutputSubset.of(this, 0b00001111));
     }
 
-    public Register left() {
+    public DataAccess left() {
         return register(DataOutputSubset.of(this, 0b11110000));
     }
 

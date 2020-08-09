@@ -2,12 +2,15 @@ package com.joprovost.r8bemu.mc6809;
 
 import com.joprovost.r8bemu.clock.BusyState;
 import com.joprovost.r8bemu.data.DataAccess;
+import com.joprovost.r8bemu.data.DataOutput;
+import com.joprovost.r8bemu.data.MemoryDataReference;
+import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 
 import static com.joprovost.r8bemu.data.transform.Addition.increment;
-import static com.joprovost.r8bemu.data.transform.Subtraction.decrement;
 import static com.joprovost.r8bemu.data.transform.DataAccessSubset.bit;
+import static com.joprovost.r8bemu.data.transform.Subtraction.decrement;
 import static com.joprovost.r8bemu.mc6809.Register.A;
 import static com.joprovost.r8bemu.mc6809.Register.B;
 import static com.joprovost.r8bemu.mc6809.Register.CC;
@@ -19,6 +22,7 @@ import static com.joprovost.r8bemu.mc6809.Register.U;
 import static com.joprovost.r8bemu.mc6809.Register.X;
 import static com.joprovost.r8bemu.mc6809.Register.Y;
 
+// See https://techheap.packetizer.com/processors/6809/6809Instructions.html
 public class Stack {
     private final MemoryDevice memory;
     private final BusyState clock;
@@ -26,6 +30,54 @@ public class Stack {
     public Stack(MemoryDevice memory, BusyState clock) {
         this.memory = memory;
         this.clock = clock;
+    }
+
+    public static void rts(Stack stack) {
+        stack.pull(PC, Register.S);
+    }
+
+    public static void rti(Stack stack) {
+        stack.pullAll();
+    }
+
+    public static void jsr(DataOutput address, Stack stack) {
+        stack.push(PC, Register.S);
+        Branches.jump(address);
+    }
+
+    public static void bsr(DataOutput address, Stack stack) {
+        jsr(address, stack);
+    }
+
+    public static void interrupt(DataOutput address, Stack stack) {
+        stack.pushAll();
+        Branches.jump(address);
+    }
+
+    public static void fastInterrupt(DataOutput address, Stack stack) {
+        stack.push(PC, S);
+
+        E.clear();
+        stack.push(CC, S);
+
+        Branches.jump(address);
+    }
+
+    public static void swi(Stack stack) {
+        stack.clock.busy(6);
+        interrupt(MemoryDataReference.of(stack.memory, 0xfffa, Size.WORD_16), stack);
+        Register.I.set();
+        Register.F.set();
+    }
+
+    public static void swi2(Stack stack) {
+        interrupt(MemoryDataReference.of(stack.memory, 0xfff4, Size.WORD_16), stack);
+    }
+
+    public static void swi3(Stack stack) {
+        stack.clock.busy(7);
+        stack.pushAll();
+        Branches.jump(MemoryDataReference.of(stack.memory, 0xfff2, Size.WORD_16));
     }
 
     public void pushAll() {

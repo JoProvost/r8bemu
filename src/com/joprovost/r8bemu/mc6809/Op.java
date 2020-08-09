@@ -87,7 +87,7 @@ public class Op {
         ops.put(0x3b, new Op(2, RTI, INHERENT));
         ops.put(0x3c, new Op(20, CWAI, INHERENT));
         ops.put(0x3d, new Op(11, MUL, INHERENT));
-        ops.put(0x3f, new Op(19, SWI, INHERENT));  // TODO remove cycles of stack operation when implemented
+        ops.put(0x3f, new Op(6, SWI, INHERENT));
 
         ops.put(0x40, new Op(2, NEGA, INHERENT));
         ops.put(0x43, new Op(2, COMA, INHERENT));
@@ -286,7 +286,7 @@ public class Op {
         ops.put(0x102e, new Op(5, LBGT, RELATIVE_ADDRESS_16)); // TODO 6 cycles if branching
         ops.put(0x102f, new Op(5, LBLE, RELATIVE_ADDRESS_16)); // TODO 6 cycles if branching
 
-        ops.put(0x103f, new Op(20, SWI2, INHERENT)); // TODO remove cycles of stack operation when implemented
+        ops.put(0x103f, new Op(7, SWI2, INHERENT));
         ops.put(0x1083, new Op(5, CMPD, IMMEDIATE_VALUE_16));
         ops.put(0x108c, new Op(5, CMPY, IMMEDIATE_VALUE_16));
         ops.put(0x108e, new Op(4, LDY, IMMEDIATE_VALUE_16));
@@ -311,7 +311,7 @@ public class Op {
         ops.put(0x10fe, new Op(7, LDS, EXTENDED_DATA_16));
         ops.put(0x10ff, new Op(7, STS, EXTENDED_DATA_16));
 
-        ops.put(0x113f, new Op(20, SWI3, INHERENT)); // TODO remove cycles of stack operation when implemented
+        ops.put(0x113f, new Op(7, SWI3, INHERENT));
         ops.put(0x1183, new Op(5, CMPU, IMMEDIATE_VALUE_16));
         ops.put(0x118c, new Op(5, CMPS, IMMEDIATE_VALUE_16));
         ops.put(0x1193, new Op(7, CMPU, DIRECT_DATA_16));

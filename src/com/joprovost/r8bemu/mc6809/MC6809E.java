@@ -7,8 +7,8 @@ import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.data.Flag;
 import com.joprovost.r8bemu.data.MemoryDataReference;
 import com.joprovost.r8bemu.data.Size;
-import com.joprovost.r8bemu.memory.MemoryDevice;
 import com.joprovost.r8bemu.data.link.LineOutputHandler;
+import com.joprovost.r8bemu.memory.MemoryDevice;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -76,20 +76,20 @@ public class MC6809E implements ClockAware {
 
     private void doIrq() {
         clock.busy(6);
-        Branches.interrupt(MemoryDataReference.of(memory, IRQ_VECTOR, Size.WORD_16), stack);
+        Stack.interrupt(MemoryDataReference.of(memory, IRQ_VECTOR, Size.WORD_16), stack);
         Register.I.set();
     }
 
     private void doFirq() {
         clock.busy(6);
-        Branches.fastInterrupt(MemoryDataReference.of(memory, FIRQ_VECTOR, Size.WORD_16), stack);
+        Stack.fastInterrupt(MemoryDataReference.of(memory, FIRQ_VECTOR, Size.WORD_16), stack);
         Register.F.set();
         Register.I.set();
     }
 
     private void doNmi() {
         nmi.clear();
-        Branches.interrupt(MemoryDataReference.of(memory, NMI_VECTOR, Size.WORD_16), stack);
+        Stack.interrupt(MemoryDataReference.of(memory, NMI_VECTOR, Size.WORD_16), stack);
         Register.I.set();
         Register.F.set();
     }

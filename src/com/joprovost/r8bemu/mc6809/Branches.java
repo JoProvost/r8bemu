@@ -6,11 +6,8 @@ import com.joprovost.r8bemu.data.DataOutput;
 import java.util.function.Supplier;
 
 import static com.joprovost.r8bemu.mc6809.Register.C;
-import static com.joprovost.r8bemu.mc6809.Register.CC;
-import static com.joprovost.r8bemu.mc6809.Register.E;
 import static com.joprovost.r8bemu.mc6809.Register.N;
 import static com.joprovost.r8bemu.mc6809.Register.PC;
-import static com.joprovost.r8bemu.mc6809.Register.S;
 import static com.joprovost.r8bemu.mc6809.Register.V;
 import static com.joprovost.r8bemu.mc6809.Register.Z;
 
@@ -99,37 +96,6 @@ public class Branches {
     public static void bhi(DataAccess argument) {
         // IFF [ C ∨ Z ] = 0 then PC' ← PC + TEMP
         jumpIf(() -> C.isClear() && Z.isClear(), argument);
-    }
-
-    public static void rts(Stack stack) {
-        stack.pull(PC, Register.S);
-    }
-
-    public static void rti(Stack stack) {
-        stack.pullAll();
-    }
-
-    public static void jsr(DataOutput address, Stack stack) {
-        stack.push(PC, Register.S);
-        jump(address);
-    }
-
-    public static void bsr(DataOutput address, Stack stack) {
-        jsr(address, stack);
-    }
-
-    public static void interrupt(DataOutput address, Stack stack) {
-        stack.pushAll();
-        jump(address);
-    }
-
-    public static void fastInterrupt(DataOutput address, Stack stack) {
-        stack.push(PC, S);
-
-        E.clear();
-        stack.push(CC, S);
-
-        jump(address);
     }
 
     public static void nop() {
