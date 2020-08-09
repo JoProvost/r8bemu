@@ -5,6 +5,7 @@ import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
 import com.joprovost.r8bemu.io.Disk;
 import com.joprovost.r8bemu.io.DiskSlot;
+import com.joprovost.r8bemu.io.DisplayPage;
 import com.joprovost.r8bemu.io.sound.Mixer;
 
 import javax.swing.*;
@@ -148,6 +149,23 @@ public class Actions {
             public void actionPerformed(ActionEvent e) {
                 bw.set(bw.isClear());
                 putValue(Action.SMALL_ICON, disableRg6ColorIcon(bw));
+            }
+        };
+    }
+
+    static Function<Window, Action> previousPage(DisplayPage page) {
+        return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/display_previous_32x32.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                page.previous();
+            }
+        };
+    }
+    static Function<Window, Action> nextPage(DisplayPage page) {
+        return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/display_next_32x32.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                page.next();
             }
         };
     }

@@ -1,12 +1,15 @@
 package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 import com.joprovost.r8bemu.data.Variable;
+import com.joprovost.r8bemu.data.transform.Addition;
+import com.joprovost.r8bemu.data.transform.DataAccessSubset;
+import com.joprovost.r8bemu.data.transform.Subtraction;
+import com.joprovost.r8bemu.io.DisplayPage;
 import com.joprovost.r8bemu.memory.Memory;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 
-public class MC6883 implements MemoryDevice {
+public class MC6883 implements MemoryDevice, DisplayPage {
 
     // FC00-FDFF
     // SAM Programmability
@@ -54,5 +57,15 @@ public class MC6883 implements MemoryDevice {
                 REGISTER.clear(1 << bit);
             }
         }
+    }
+
+    @Override
+    public void previous() {
+        VDG_ADDRESS_OFFSET.update(Subtraction.decrement());
+    }
+
+    @Override
+    public void next() {
+        VDG_ADDRESS_OFFSET.update(Addition.increment());
     }
 }

@@ -18,6 +18,7 @@ import com.joprovost.r8bemu.io.Button;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
 import com.joprovost.r8bemu.io.DiskSlotDispatcher;
 import com.joprovost.r8bemu.io.Display;
+import com.joprovost.r8bemu.io.DisplayPageDispatcher;
 import com.joprovost.r8bemu.io.Joystick;
 import com.joprovost.r8bemu.io.JoystickDispatcher;
 import com.joprovost.r8bemu.io.KeyboardDispatcher;
@@ -56,6 +57,7 @@ public class ColorComputer2 {
                                Memory ram,
                                Display display,
                                Flag disableRg6Color,
+                               DisplayPageDispatcher displayPage,
                                KeyboardDispatcher keyboard,
                                CassetteRecorderDispatcher cassette,
                                DiskSlotDispatcher slot,
@@ -98,6 +100,7 @@ public class ColorComputer2 {
         var vdg = context.aware(new MC6847(display, s4a::interrupt, s4b::interrupt, sam.videoMemory(ram), disableRg6Color));
         s5b.port().to(vdg.mode());
         Signal.RESET.to(vdg.reset());
+        displayPage.dispatchTo(sam);
 
         keyboard.dispatchTo(context.aware(new KeyboardAdapter(s4a.port(), s4b.port())));
 

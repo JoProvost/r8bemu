@@ -5,6 +5,7 @@ import com.joprovost.r8bemu.data.Flag;
 import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.DiskSlot;
 import com.joprovost.r8bemu.io.Display;
+import com.joprovost.r8bemu.io.DisplayPage;
 import com.joprovost.r8bemu.io.Joystick;
 import com.joprovost.r8bemu.io.Keyboard;
 import com.joprovost.r8bemu.io.awt.AWTKeyboardDriver;
@@ -54,6 +55,7 @@ public class R8BEmu {
         var cassette = CassetteRecorder.dispatcher(context);
         var drive = DiskSlot.dispatcher(context);
         var mixer = Mixer.dispatcher(context);
+        var displayPage = DisplayPage.dispatcher(context);
 
         switch (ui) {
             case "terminal":
@@ -88,6 +90,8 @@ public class R8BEmu {
                         Actions.mouse(mouse),
                         SEPARATOR,
                         Actions.disableRg6Color(disableRg6Color),
+                        Actions.previousPage(displayPage),
+                        Actions.nextPage(displayPage),
                         SEPARATOR,
                         Actions.mute(mixer),
                         SEPARATOR,
@@ -102,7 +106,7 @@ public class R8BEmu {
         services.declare(new LinuxJoystickDriver(Path.of("/dev/input/js1"), joystickRight));
 
         Configuration.prepare(home);
-        ColorComputer2.emulate(context, ram, display, disableRg6Color, keyboard, cassette, drive, services,
+        ColorComputer2.emulate(context, ram, display, disableRg6Color, displayPage, keyboard, cassette, drive, services,
                                joystickLeft, joystickRight, mixer, script, playback, recording, home);
     }
 

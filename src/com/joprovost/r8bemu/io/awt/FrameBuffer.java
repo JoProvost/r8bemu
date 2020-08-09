@@ -28,8 +28,8 @@ public class FrameBuffer extends JPanel implements Display {
     public FrameBuffer() {
         timer = new Timer(10, e -> repaint());
         timer.setRepeats(false);
-        setMinimumSize(new Dimension(width * 2, height * 2));
-        setPreferredSize(new Dimension(width * 2, height * 2));
+        setMinimumSize(new Dimension(width * 3, height * 3));
+        setPreferredSize(new Dimension(width * 3, height * 3));
         setVisible(true);
 
         setFocusable(true);
