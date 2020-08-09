@@ -79,6 +79,7 @@ public class R8BEmu {
                             ram.clear();
                         })),
                         Actions.reset(() -> context.execute(Signal.RESET::pulse)),
+                        Actions.halt(Signal.HALT, context),
                         SEPARATOR,
                         Actions.rewindCassette(cassette),
                         Actions.insertCassette(home, cassette),

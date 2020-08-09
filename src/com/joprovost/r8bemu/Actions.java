@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.data.BitAccess;
+import com.joprovost.r8bemu.data.link.LinePort;
 import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
 import com.joprovost.r8bemu.io.Disk;
@@ -14,6 +15,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 
 public class Actions {
@@ -50,6 +52,18 @@ public class Actions {
             @Override
             public void actionPerformed(ActionEvent e) {
                 action.run();
+            }
+        };
+    }
+
+    static Function<Window, Action> halt(LinePort halt, Executor context) {
+        return window -> new AbstractAction(null,  haltIcon(halt.isSet())) {
+            {
+                halt.to(state -> putValue(Action.SMALL_ICON, haltIcon(state.isSet())));
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                context.execute(() -> halt.set(halt.isClear()));
             }
         };
     }
@@ -161,6 +175,7 @@ public class Actions {
             }
         };
     }
+
     static Function<Window, Action> nextPage(DisplayPage page) {
         return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/display_next_32x32.png"))) {
             @Override
@@ -199,6 +214,14 @@ public class Actions {
             return new ImageIcon(Actions.class.getResource("/images/muted_32x32.png"));
         } else {
             return new ImageIcon(Actions.class.getResource("/images/mute_32x32.png"));
+        }
+    }
+
+    private static ImageIcon haltIcon(boolean halt) {
+        if (halt) {
+            return new ImageIcon(Actions.class.getResource("/images/halt_selected_32x32.png"));
+        } else {
+            return new ImageIcon(Actions.class.getResource("/images/halt_32x32.png"));
         }
     }
 
