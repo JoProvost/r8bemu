@@ -43,6 +43,7 @@ public class R8BEmu {
         var keyboardBuffer = Flag.value(Boolean.parseBoolean(options.getOrDefault("keyboard-buffer", "true")));
         var keyboardGamepad = Flag.value(Boolean.parseBoolean(options.getOrDefault("keyboard-gamepad", "false")));
         var mouse = Flag.value(Boolean.parseBoolean(options.getOrDefault("mouse", "false")));
+        var disableRg6Color = Flag.value(Boolean.parseBoolean(options.getOrDefault("disable-rg6-color", "false")));
 
         var context = new EmulatorContext();
         var ram = new Memory(0x7fff);
@@ -86,6 +87,8 @@ public class R8BEmu {
                         Actions.keyboardGamepad(keyboardGamepad),
                         Actions.mouse(mouse),
                         SEPARATOR,
+                        Actions.disableRg6Color(disableRg6Color),
+                        SEPARATOR,
                         Actions.mute(mixer),
                         SEPARATOR,
                         Actions.presentation()
@@ -99,7 +102,7 @@ public class R8BEmu {
         services.declare(new LinuxJoystickDriver(Path.of("/dev/input/js1"), joystickRight));
 
         Configuration.prepare(home);
-        ColorComputer2.emulate(context, ram, display, keyboard, cassette, drive, services,
+        ColorComputer2.emulate(context, ram, display, disableRg6Color, keyboard, cassette, drive, services,
                                joystickLeft, joystickRight, mixer, script, playback, recording, home);
     }
 

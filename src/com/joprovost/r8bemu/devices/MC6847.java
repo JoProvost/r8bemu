@@ -4,15 +4,16 @@ import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
 import com.joprovost.r8bemu.clock.ClockAwareBusyState;
 import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 import com.joprovost.r8bemu.data.DataOutput;
 import com.joprovost.r8bemu.data.DataOutputRedirect;
-import com.joprovost.r8bemu.data.transform.DataOutputSubset;
+import com.joprovost.r8bemu.data.Flag;
 import com.joprovost.r8bemu.data.Variable;
+import com.joprovost.r8bemu.data.link.LineOutputHandler;
+import com.joprovost.r8bemu.data.link.ParallelOutputHandler;
+import com.joprovost.r8bemu.data.transform.DataAccessSubset;
+import com.joprovost.r8bemu.data.transform.DataOutputSubset;
 import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.memory.MemoryDevice;
-import com.joprovost.r8bemu.data.link.ParallelOutputHandler;
-import com.joprovost.r8bemu.data.link.LineOutputHandler;
 
 import static com.joprovost.r8bemu.io.Display.Color.BLACK;
 import static com.joprovost.r8bemu.io.Display.Color.BLUE;
@@ -77,13 +78,15 @@ public class MC6847 implements ClockAware {
     private final Runnable hsync;
     private final Runnable vsync;
     private final MemoryDevice ram;
+    private final Flag disableRg6Color;
     private int rg6ColorOffset = 0;
 
-    public MC6847(Display display, Runnable hsync, Runnable vsync, MemoryDevice ram) {
+    public MC6847(Display display, Runnable hsync, Runnable vsync, MemoryDevice ram, Flag disableRg6Color) {
         this.display = display;
         this.hsync = hsync;
         this.vsync = vsync;
         this.ram = ram;
+        this.disableRg6Color = disableRg6Color;
     }
 
     @Override
@@ -162,7 +165,7 @@ public class MC6847 implements ClockAware {
             }
         }
 
-        if (GM0_2.value() == RG6) rg6Colors(pixels);
+        if (GM0_2.value() == RG6 && disableRg6Color.isClear()) rg6Colors(pixels);
 
         var pixelWidth = WIDTH / pixels.length;
         for (int x = 0; x < WIDTH; x++) {

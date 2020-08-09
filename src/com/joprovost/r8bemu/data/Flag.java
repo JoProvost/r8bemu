@@ -11,7 +11,7 @@ public class Flag implements BitAccess, LineOutputHandler {
         return flag;
     }
 
-    public boolean isClear() {
+    public synchronized boolean isClear() {
         return !value;
     }
 
@@ -21,7 +21,7 @@ public class Flag implements BitAccess, LineOutputHandler {
     }
 
     @Override
-    public void set(boolean value) {
+    public synchronized void set(boolean value) {
         this.value = value;
     }
 

@@ -142,6 +142,22 @@ public class Actions {
         };
     }
 
+    static Function<Window, Action> disableRg6Color(BitAccess bw) {
+        return window -> new AbstractAction(null, disableRg6ColorIcon(bw)) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                bw.set(bw.isClear());
+                putValue(Action.SMALL_ICON, disableRg6ColorIcon(bw));
+            }
+        };
+    }
+
+    private static ImageIcon disableRg6ColorIcon(BitAccess bw) {
+        if (bw.isClear())
+            return new ImageIcon(Actions.class.getResource("/images/bw_32x32.png"));
+        return new ImageIcon(Actions.class.getResource("/images/bw_selected_32x32.png"));
+    }
+
     private static ImageIcon mouseIcon(BitAccess mouse) {
         if (mouse.isClear())
             return new ImageIcon(Actions.class.getResource("/images/mouse_32x32.png"));

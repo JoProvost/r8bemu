@@ -55,6 +55,7 @@ public class ColorComputer2 {
     public static void emulate(EmulatorContext context,
                                Memory ram,
                                Display display,
+                               Flag disableRg6Color,
                                KeyboardDispatcher keyboard,
                                CassetteRecorderDispatcher cassette,
                                DiskSlotDispatcher slot,
@@ -94,7 +95,7 @@ public class ColorComputer2 {
                 MemoryDevice.map(range(0xffe0, 0xffff), rom1)   // S=2
         );
 
-        var vdg = context.aware(new MC6847(display, s4a::interrupt, s4b::interrupt, sam.videoMemory(ram)));
+        var vdg = context.aware(new MC6847(display, s4a::interrupt, s4b::interrupt, sam.videoMemory(ram), disableRg6Color));
         s5b.port().to(vdg.mode());
         Signal.RESET.to(vdg.reset());
 
