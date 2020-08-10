@@ -25,26 +25,24 @@ import com.joprovost.r8bemu.memory.Memory;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.joprovost.r8bemu.io.awt.UserInterface.SEPARATOR;
 
 public class R8BEmu {
 
     public static void main(String[] args) throws IOException, URISyntaxException {
-        var options = parse(args);
-        var ui = options.getOrDefault("interface", "awt");
-        var home = Path.of(options.getOrDefault("home", System.getProperty("user.home") + "/.r8bemu"));
-        var script = Path.of(options.getOrDefault("script", home + "/autorun.bas"));
-        var playback = Path.of(options.getOrDefault("playback", home + "/playback.wav"));
-        var recording = Path.of(options.getOrDefault("recording", home + "/recording.wav"));
-
-        var keyboardBuffer = Flag.value(Boolean.parseBoolean(options.getOrDefault("keyboard-buffer", "true")));
-        var keyboardGamepad = Flag.value(Boolean.parseBoolean(options.getOrDefault("keyboard-gamepad", "false")));
-        var mouse = Flag.value(Boolean.parseBoolean(options.getOrDefault("mouse", "false")));
-        var disableRg6Color = Flag.value(Boolean.parseBoolean(options.getOrDefault("disable-rg6-color", "false")));
+        Settings settings = Settings.parse(args);
+        String ui = settings.string("interface", "awt");
+        Path home = settings.path("home", System.getProperty("user.home") + "/.r8bemu");
+        Path script = settings.path("script", home + "/autorun.bas");
+        Path playback = settings.path("playback", home + "/playback.wav");
+        Path recording = settings.path("recording", home + "/recording.wav");
+        Flag keyboardBuffer = settings.flag("keyboard-buffer", true);
+        Flag keyboardGamepad = settings.flag("keyboard-gamepad", false);
+        Flag mouse = settings.flag("mouse", false);
+        Flag disableRg6Color = settings.flag("disable-rg6-color", false);
+        Flag disassembler = settings.flag("disassembler", false);
 
         var context = new EmulatorContext();
         var ram = new Memory(0x7fff);
@@ -107,25 +105,9 @@ public class R8BEmu {
         services.declare(new LinuxJoystickDriver(Path.of("/dev/input/js1"), joystickRight));
 
         Configuration.prepare(home);
+        Debugger debugger = disassembler.isSet() ? new Disassembler(home.resolve("disassembler.asm")) : Debugger.none();
         ColorComputer2.emulate(context, ram, display, disableRg6Color, displayPage, keyboard, cassette, drive, services,
-                               joystickLeft, joystickRight, mixer, script, playback, recording, home);
-    }
-
-    public static Map<String, String> parse(String[] args) {
-        Map<String, String> params = new HashMap<>();
-
-        String key = null;
-        for (var arg : args) {
-            if (arg.startsWith("--")) {
-                key = arg.substring(2);
-                params.put(key, null);
-            } else if (key != null) {
-                params.put(key, arg);
-                key = null;
-            }
-        }
-
-        return params;
+                               joystickLeft, joystickRight, mixer, script, playback, recording, home, debugger);
     }
 
 }

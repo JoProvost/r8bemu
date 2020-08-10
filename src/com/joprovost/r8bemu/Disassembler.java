@@ -30,7 +30,7 @@ class Disassembler extends Debugger {
         ticks = new long[65536];
     }
 
-    void label(String name, int address) {
+    public void label(String name, int address) {
         label[address] = name;
     }
 

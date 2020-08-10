@@ -68,7 +68,8 @@ public class ColorComputer2 {
                                Path script,
                                Path playbackFile,
                                Path recordingFile,
-                               Path home) throws IOException {
+                               Path home,
+                               Debugger debugger) throws IOException {
 
         var uptime = context.aware(new ClockFrequency(900, context));
 
@@ -130,13 +131,12 @@ public class ColorComputer2 {
         joystickRight.dispatchTo(Joystick.button(rightButton));
         joystickRight.dispatchTo(sc77526.right());
 
-        var debug = new Disassembler(home.resolve("disassembler.asm"));
-        debug.label("RESET", MemoryDataReference.of(bus, RESET_VECTOR, Size.WORD_16).value());
-        debug.label("IRQ", MemoryDataReference.of(bus, IRQ_VECTOR, Size.WORD_16).value());
-        debug.label("FIRQ", MemoryDataReference.of(bus, FIRQ_VECTOR, Size.WORD_16).value());
-        debug.label("NMI", MemoryDataReference.of(bus, NMI_VECTOR, Size.WORD_16).value());
+        debugger.label("RESET", MemoryDataReference.of(bus, RESET_VECTOR, Size.WORD_16).value());
+        debugger.label("IRQ", MemoryDataReference.of(bus, IRQ_VECTOR, Size.WORD_16).value());
+        debugger.label("FIRQ", MemoryDataReference.of(bus, FIRQ_VECTOR, Size.WORD_16).value());
+        debugger.label("NMI", MemoryDataReference.of(bus, NMI_VECTOR, Size.WORD_16).value());
 
-        var cpu = context.aware(new MC6809E(bus, debug, context));
+        var cpu = context.aware(new MC6809E(bus, debugger, context));
         cpu.reset().handle(Flag.value(true));
 
         Signal.RESET.to(cpu.reset());

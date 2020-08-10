@@ -24,6 +24,10 @@ public abstract class Debugger {
         this.argument = DataOutput.NONE;
     }
 
+    public void label(String name, int address) {
+
+    }
+
     public abstract void instruction(Described mnemonic);
 
     protected String column(int size, Object string) {
