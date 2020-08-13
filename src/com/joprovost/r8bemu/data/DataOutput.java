@@ -43,8 +43,8 @@ public interface DataOutput extends BitOutput, Described {
         return signed(value(), mask());
     }
 
-    default boolean isClear() {
-        return value() == 0;
+    default boolean isSet() {
+        return value() != 0;
     }
 
     default int subset(int mask) {

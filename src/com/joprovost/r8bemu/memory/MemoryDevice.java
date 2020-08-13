@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.memory;
 
+import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.data.DataOutput;
 
 /**
@@ -19,18 +20,36 @@ public interface MemoryDevice {
         };
     }
 
-    static MemoryDevice map(AddressRange range, MemoryDevice device) {
+    static MemoryDevice when(BitOutput cs, MemoryDevice device) {
         return new MemoryDevice() {
 
             @Override
             public int read(int address) {
-                if (range.contains(address)) return device.read(address);
-                return 0;
+                if (cs.isClear()) return 0;
+                return device.read(address);
             }
 
             @Override
             public void write(int address, int data) {
-                if (range.contains(address)) device.write(address, data);
+                if (cs.isClear()) return;
+                device.write(address, data);
+            }
+        };
+    }
+
+    static MemoryDevice pageSwitchOn(BitOutput pageSwitch, int mask, MemoryDevice device) {
+        return new MemoryDevice() {
+
+            @Override
+            public int read(int address) {
+                if (pageSwitch.isSet()) address |= mask;
+                return device.read(address);
+            }
+
+            @Override
+            public void write(int address, int data) {
+                if (pageSwitch.isSet()) address |= mask;
+                device.write(address, data);
             }
         };
     }

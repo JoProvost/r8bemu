@@ -145,8 +145,8 @@ public class MC6821Port implements MemoryDevice {
             }
 
             @Override
-            public boolean isClear() {
-                return CA2_OUTPUT_STATE.isClear();
+            public boolean isSet() {
+                return CA2_OUTPUT_STATE.isSet();
             }
 
             @Override

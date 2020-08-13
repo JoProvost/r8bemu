@@ -45,7 +45,7 @@ public class R8BEmu {
         Flag disassembler = settings.flag("disassembler", false);
 
         var context = new EmulatorContext();
-        var ram = new Memory(0x7fff);
+        var ram = new Memory(0xffff);
         var keyboard = Keyboard.dispatcher(context);
         var joystickLeft = Joystick.dispatcher(context);
         var joystickRight = Joystick.dispatcher(context);

@@ -29,8 +29,8 @@ public class Line implements LinePort {
     }
 
     @Override
-    public boolean isClear() {
-        return !value;
+    public boolean isSet() {
+        return value;
     }
 
     @Override

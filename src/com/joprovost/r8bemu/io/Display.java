@@ -1,5 +1,7 @@
 package com.joprovost.r8bemu.io;
 
+import java.util.List;
+
 public interface Display {
     Font FONT = Font.coco8x12();
 

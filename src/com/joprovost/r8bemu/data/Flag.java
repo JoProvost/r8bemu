@@ -11,8 +11,8 @@ public class Flag implements BitAccess, LineOutputHandler {
         return flag;
     }
 
-    public synchronized boolean isClear() {
-        return !value;
+    public synchronized boolean isSet() {
+        return value;
     }
 
     @Override

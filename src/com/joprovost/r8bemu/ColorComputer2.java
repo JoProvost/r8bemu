@@ -38,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.joprovost.r8bemu.DemoROM.demo;
+import static com.joprovost.r8bemu.data.link.ParallelInputProvider.pin;
 import static com.joprovost.r8bemu.data.link.ParallelPort.P0;
 import static com.joprovost.r8bemu.data.link.ParallelPort.P1;
 import static com.joprovost.r8bemu.data.link.ParallelPort.P2;
@@ -50,7 +51,6 @@ import static com.joprovost.r8bemu.mc6809.MC6809E.FIRQ_VECTOR;
 import static com.joprovost.r8bemu.mc6809.MC6809E.IRQ_VECTOR;
 import static com.joprovost.r8bemu.mc6809.MC6809E.NMI_VECTOR;
 import static com.joprovost.r8bemu.mc6809.MC6809E.RESET_VECTOR;
-import static com.joprovost.r8bemu.memory.AddressRange.range;
 
 public class ColorComputer2 {
     public static void emulate(EmulatorContext context,
@@ -73,7 +73,8 @@ public class ColorComputer2 {
 
         var uptime = context.aware(new ClockFrequency(900, context));
 
-        var sam = new MC6883();
+        var sam = new MC6883(ram);
+        Signal.RESET.to(sam.reset());
         var rom0 = rom(home.resolve("extbas11.rom"));
         var rom1 = rom(home.resolve("bas13.rom"));
         var cart = rom(home.resolve("disk11.rom"));
@@ -88,17 +89,15 @@ public class ColorComputer2 {
 
         var bus = MemoryDevice.bus(
                 sam, // S7
-                MemoryDevice.map(range(0x0000, 0x7fff), ram),
-                MemoryDevice.map(range(0x8000, 0x9fff), rom0),  // S=1
-                MemoryDevice.map(range(0xa000, 0xbfff), rom1),  // S=2
-                MemoryDevice.map(range(0xc000, 0xfeff), cart),  // S=3
-                MemoryDevice.map(range(0xff00, 0xff1f), new MC6821(s4a, s4b)),  // S=4
-                MemoryDevice.map(range(0xff20, 0xff3f), new MC6821(s5a, s5b)),  // S=5
-                MemoryDevice.map(range(0xff40, 0xff5f), drive),  // S=6
-                MemoryDevice.map(range(0xffe0, 0xffff), rom1)   // S=2
+                MemoryDevice.when(sam.select(1), rom0),  // S=1
+                MemoryDevice.when(sam.select(2), rom1),  // S=2
+                MemoryDevice.when(sam.select(3), cart),  // S=3
+                MemoryDevice.when(sam.select(4), new MC6821(s4a, s4b)),  // S=4
+                MemoryDevice.when(sam.select(5), new MC6821(s5a, s5b)),  // S=5
+                MemoryDevice.when(sam.select(6), drive)  // S=6
         );
 
-        var vdg = context.aware(new MC6847(display, s4a::interrupt, s4b::interrupt, sam.videoMemory(ram), disableRg6Color));
+        var vdg = context.aware(new MC6847(display, s4a::interrupt, s4b::interrupt, sam.video(), disableRg6Color));
         s5b.port().to(vdg.mode());
         Signal.RESET.to(vdg.reset());
         displayPage.dispatchTo(sam);
@@ -130,6 +129,9 @@ public class ColorComputer2 {
         s4a.port().from(rightButton.clear(P1));
         joystickRight.dispatchTo(Joystick.button(rightButton));
         joystickRight.dispatchTo(sc77526.right());
+
+        // 64K jumper
+        s5b.port().from(pin(P2, s4b.port().output(P6)));
 
         debugger.label("RESET", MemoryDataReference.of(bus, RESET_VECTOR, Size.WORD_16).value());
         debugger.label("IRQ", MemoryDataReference.of(bus, IRQ_VECTOR, Size.WORD_16).value());
