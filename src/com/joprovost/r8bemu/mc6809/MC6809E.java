@@ -10,9 +10,6 @@ import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.data.link.LineOutputHandler;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 
-import java.io.EOFException;
-import java.io.IOException;
-
 public class MC6809E implements ClockAware {
 
     public static final int RESET_VECTOR = 0xfffe;
@@ -30,6 +27,7 @@ public class MC6809E implements ClockAware {
     private final Flag firq = Flag.value(false);
     private final Flag nmi = Flag.value(false);
     private final Flag halt = Flag.value(false);
+    private final Flag sync = Flag.value(false);
 
     public MC6809E(MemoryDevice memory, Debugger debug, BusyState clock) {
         this.memory = memory;
@@ -38,9 +36,14 @@ public class MC6809E implements ClockAware {
         this.stack = new Stack(memory, this.clock);
     }
 
-    public void tick(Clock unused) throws IOException {
+    public void tick(Clock unused) {
         if (clock.isBusy()) return;
         if (halt.isSet()) return;
+
+        if (sync.isSet()) {
+            if (irq.isSet() || firq.isSet() || nmi.isSet()) sync.clear();
+            return;
+        }
 
         if (reset.isSet()) doReset();
         else if (nmi.isSet()) doNmi();
@@ -49,7 +52,7 @@ public class MC6809E implements ClockAware {
         else execute();
     }
 
-    private void execute() throws EOFException {
+    private void execute() {
         var address = Register.PC.value();
         debug.at(address);
         var instruction = Op.next(memory, Register.PC);
@@ -59,8 +62,13 @@ public class MC6809E implements ClockAware {
         clock.busy(instruction.cycles());
 
         if (!mnemonic.execute(argument, stack, debug)) {
-            if (mnemonic == Mnemonic.SYNC) throw new EOFException("SYNC");
-            throw new IllegalStateException("Unexpected instruction: " + instruction + " at 0x" + Integer.toHexString(address));
+            switch (mnemonic) {
+                case SYNC:
+                    sync.set();
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected instruction: " + instruction + " at 0x" + Integer.toHexString(address));
+            }
         }
         debug.instruction(mnemonic);
     }
