@@ -19,14 +19,14 @@ public class Terminal implements Display {
     }
 
     @Override
-    public void character(int row, int column, Color fg, Color bg, char character) {
-        if (alreadyDisplayed(row, column, fg, bg, character))
+    public void glyph(int row, int column, Color fg, Color bg, char glyph, int line) {
+        if (alreadyDisplayed(row, column, fg, bg, glyph))
             return;
 
         begin();
         move(row, column);
         color(fg, bg);
-        printStream.print(character);
+        printStream.print(glyph);
         end();
     }
 

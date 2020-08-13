@@ -7,14 +7,12 @@ public interface Display {
         return new DisplayDispatcher();
     }
 
-    default void character(int row, int column, Color fg, Color bg, char character) {
-        var glyph = FONT.character(character);
-        if (glyph == null) return;
-        for (int y = 0; y < glyph.size(); y++) {
-            int pixels = glyph.get(y);
-            for (int x = 0; x < 8; x++) {
-                pixel(column * 8 + x, row * 12 + y, (((pixels >> (7 - x)) & 1) == 0) ? bg : fg);
-            }
+    default void glyph(int row, int column, Color fg, Color bg, char glyph, int line) {
+        List<Integer> image = FONT.image(glyph);
+        if (image == null) return;
+        int pixels = image.get(line);
+        for (int x = 0; x < 8; x++) {
+            pixel(column * 8 + x, row * 12 + line, (((pixels >> (7 - x)) & 1) == 0) ? bg : fg);
         }
     }
 

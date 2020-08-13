@@ -122,17 +122,19 @@ public class MC6847 implements ClockAware {
     }
 
     private void characterScan(int row, int col) {
-        VDG_DATA_BUS.value(ram.read(row * 32 * 24 + col));
-        if (AS.isSet()) {
-            var character = GRAPHICS4.charAt(SGM4_LUMA.value() % GRAPHICS4.length());
-            display.character(row, col, color(SGM4_CHROMA.value()), BLACK, character);
-        } else {
-            var character = ASCII.charAt(ASCII_CODE.value() % ASCII.length());
-            Display.Color color = CSS.isSet() ? ORANGE : GREEN;
-            if (INV.isSet()) {
-                display.character(row, col, BLACK, color, character);
+        for (int line = 0; line < 12; line ++) {
+            VDG_DATA_BUS.value(ram.read(row * 32 * 12 + (line * 32) + col));
+            if (AS.isSet()) {
+                var character = GRAPHICS4.charAt(SGM4_LUMA.value() % GRAPHICS4.length());
+                display.glyph(row, col, color(SGM4_CHROMA.value()), BLACK, character, line);
             } else {
-                display.character(row, col, color, BLACK, character);
+                var character = ASCII.charAt(ASCII_CODE.value() % ASCII.length());
+                Display.Color color = CSS.isSet() ? ORANGE : GREEN;
+                if (INV.isSet()) {
+                    display.glyph(row, col, BLACK, color, character, line);
+                } else {
+                    display.glyph(row, col, color, BLACK, character, line);
+                }
             }
         }
     }

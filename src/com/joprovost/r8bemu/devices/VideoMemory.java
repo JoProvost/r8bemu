@@ -28,7 +28,7 @@ class VideoMemory implements MemoryDevice {
     public int address(int address) {
         switch (mode.value()) {
             case 0b000: // S4 S6
-                return address(address, 32, 24);
+                return address(address, 32, 12);
             case 0b001: // CG1 (64x64) RG1 (128x64)
                 return address(address, 16, 3);
             case 0b010: // S8 CG2 (128x64)

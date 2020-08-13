@@ -1117,5 +1117,5 @@ public interface Font {
         return standard::get;
     }
 
-    List<Integer> character(char c);
+    List<Integer> image(char c);
 }

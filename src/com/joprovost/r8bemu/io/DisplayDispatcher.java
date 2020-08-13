@@ -11,8 +11,8 @@ public class DisplayDispatcher implements Display {
     }
 
     @Override
-    public void character(int row, int column, Color fg, Color bg, char character) {
-        for (var target : targets) target.character(row, column, fg, bg, character);
+    public void glyph(int row, int column, Color fg, Color bg, char glyph, int line) {
+        for (var target : targets) target.glyph(row, column, fg, bg, glyph, line);
     }
 
     @Override
