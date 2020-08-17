@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.io.awt;
 
+import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.io.Joystick;
 
 import java.awt.event.KeyEvent;
@@ -21,10 +22,12 @@ import static java.awt.event.KeyEvent.VK_NUMPAD9;
 
 public class NumpadJoystickDriver implements KeyListener {
     private final Joystick joystick;
+    private final BitOutput numpadGamepad;
     private final Set<Integer> arrows = new HashSet<>();
 
-    public NumpadJoystickDriver(Joystick joystick) {
+    public NumpadJoystickDriver(Joystick joystick, BitOutput numpadGamepad) {
         this.joystick = joystick;
+        this.numpadGamepad = numpadGamepad;
     }
 
     @Override
@@ -34,6 +37,7 @@ public class NumpadJoystickDriver implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if (numpadGamepad.isClear()) return;
         onArrowEvent(e, arrows::add);
         switch (e.getKeyCode()) {
             case VK_NUMPAD1:
@@ -96,6 +100,7 @@ public class NumpadJoystickDriver implements KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
+        if (numpadGamepad.isClear()) return;
         onArrowEvent(e, keycode -> {
             arrows.remove(keycode);
             if (arrows.isEmpty()) {

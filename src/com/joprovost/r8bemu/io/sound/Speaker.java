@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu.io.sound;
 
 import com.joprovost.r8bemu.clock.Uptime;
+import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.data.buffer.BigEndianAudioBuffer;
 import com.joprovost.r8bemu.io.AudioSink;
 
@@ -18,13 +19,15 @@ public class Speaker implements Runnable, Mixer {
     private final AudioFormat format;
     private final Uptime uptime;
     private final BigEndianAudioBuffer buffer;
+    private final BitOutput mute;
     private final InputStream input;
     private long last = 0;
     private int volume = VOLUME_DEFAULT;
 
-    public Speaker(AudioFormat format, Uptime uptime) {
+    public Speaker(AudioFormat format, Uptime uptime, BitOutput mute) {
         this.format = format;
         this.uptime = uptime;
+        this.mute = mute;
         buffer = new BigEndianAudioBuffer(
                 (int) (format.getSampleRate() / 10),
                 TIMEOUT_MS,
@@ -54,6 +57,7 @@ public class Speaker implements Runnable, Mixer {
     }
 
     public int encoded(int amplitude) {
+        if (mute.isSet()) return 0;
         return amplitude * volume * 256 / Mixer.VOLUME_MAX;
     }
 

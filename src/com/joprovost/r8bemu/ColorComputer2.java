@@ -2,6 +2,7 @@ package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.clock.ClockFrequency;
 import com.joprovost.r8bemu.clock.EmulatorContext;
+import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.data.Flag;
 import com.joprovost.r8bemu.data.MemoryDataReference;
 import com.joprovost.r8bemu.data.Size;
@@ -65,6 +66,7 @@ public class ColorComputer2 {
                                JoystickDispatcher joystickLeft,
                                JoystickDispatcher joystickRight,
                                MixerDispatcher mixer,
+                               BitOutput mute,
                                Path script,
                                Path playbackFile,
                                Path recordingFile,
@@ -111,7 +113,7 @@ public class ColorComputer2 {
         s5a.control().to(playback.motor());
         s5a.control().to(recorder.motor());
 
-        var speaker = services.declare(new Speaker(new AudioFormat(44100, 16, 1, true, true), uptime));
+        var speaker = services.declare(new Speaker(new AudioFormat(44100, 16, 1, true, true), uptime, mute));
         mixer.dispatchTo(speaker);
         var sc77526 = new SC77526(AudioSink.broadcast(speaker.input(), recorder.input()));
         s5a.port().to(sc77526.dac(P7 | P6 | P5 | P4 | P3 | P2));

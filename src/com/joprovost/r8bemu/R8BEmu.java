@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.clock.EmulatorContext;
+import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.data.Flag;
 import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.DiskSlot;
@@ -9,6 +10,8 @@ import com.joprovost.r8bemu.io.DisplayPage;
 import com.joprovost.r8bemu.io.Joystick;
 import com.joprovost.r8bemu.io.Keyboard;
 import com.joprovost.r8bemu.io.awt.AWTKeyboardDriver;
+import com.joprovost.r8bemu.io.awt.ActionIcon;
+import com.joprovost.r8bemu.io.awt.Actions;
 import com.joprovost.r8bemu.io.awt.ArrowsJoystickDriver;
 import com.joprovost.r8bemu.io.awt.FrameBuffer;
 import com.joprovost.r8bemu.io.awt.MouseJoystickDriver;
@@ -22,11 +25,19 @@ import com.joprovost.r8bemu.mc6809.Register;
 import com.joprovost.r8bemu.mc6809.Signal;
 import com.joprovost.r8bemu.memory.Memory;
 
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 
+import static com.joprovost.r8bemu.io.awt.ActionIcon.HALT;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.KEYBOARD_BUFFER;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.KEYBOARD_DPAD_LEFT;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.KEYBOARD_DPAD_RIGHT;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.MOUSE;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.MUTE;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.RG6_BW;
 import static com.joprovost.r8bemu.io.awt.UserInterface.SEPARATOR;
 
 public class R8BEmu {
@@ -39,10 +50,12 @@ public class R8BEmu {
         Path playback = settings.path("playback", home + "/playback.wav");
         Path recording = settings.path("recording", home + "/recording.wav");
         Flag keyboardBuffer = settings.flag("keyboard-buffer", true);
-        Flag keyboardGamepad = settings.flag("keyboard-gamepad", false);
+        Flag dpadRight = settings.flag("dpad-right", false);
+        Flag dpadLeft = settings.flag("dpad-left", false);
         Flag mouse = settings.flag("mouse", false);
         Flag disableRg6Color = settings.flag("disable-rg6-color", false);
         Flag disassembler = settings.flag("disassembler", false);
+        Flag mute = settings.flag("mute", false);
 
         var context = new EmulatorContext();
         var ram = new Memory(0xffff);
@@ -64,35 +77,42 @@ public class R8BEmu {
             case "awt":
                 var frameBuffer = new FrameBuffer();
                 display.dispatchTo(frameBuffer);
-                frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer, keyboardGamepad));
-                frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickLeft));
-                frameBuffer.addKeyListener(new ArrowsJoystickDriver(joystickLeft, keyboardGamepad));
+
+                frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer, BitOutput.or(dpadLeft, dpadRight)));
+
+                frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickLeft, BitOutput.not(dpadRight)));
+                frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickRight, BitOutput.not(dpadLeft)));
+                frameBuffer.addKeyListener(new ArrowsJoystickDriver(joystickLeft, dpadLeft));
+                frameBuffer.addKeyListener(new ArrowsJoystickDriver(joystickRight, dpadRight));
+
                 var mouseJoystickDriver = new MouseJoystickDriver(joystickLeft, mouse);
                 frameBuffer.addMouseMotionListener(mouseJoystickDriver);
                 frameBuffer.addMouseListener(mouseJoystickDriver);
+
                 UserInterface.show(frameBuffer, List.of(
-                        Actions.reboot(() -> context.execute(() -> {
+                        Actions.action(ActionIcon.REBOOT, () -> context.execute(() -> {
                             Signal.RESET.pulse();
                             Register.reset();
                             ram.clear();
                         })),
-                        Actions.reset(() -> context.execute(Signal.RESET::pulse)),
-                        Actions.halt(Signal.HALT, context),
+                        Actions.action(ActionIcon.RESET, context.aware(Signal.RESET)::pulse),
+                        Actions.toggle(HALT, context.aware(Signal.HALT)),
                         SEPARATOR,
-                        Actions.rewindCassette(cassette),
-                        Actions.insertCassette(home, cassette),
+                        Actions.action(ActionIcon.CASSETTE_REWIND, cassette::rewind),
+                        Actions.file(ActionIcon.CASSETTE, cassette::insert, home, new FileNameExtensionFilter("Audio file", "wav")),
                         SEPARATOR,
-                        Actions.insertDisk(home, drive),
+                        Actions.file(ActionIcon.DISK, drive::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
                         SEPARATOR,
-                        Actions.keyboardBuffered(keyboardBuffer),
-                        Actions.keyboardGamepad(keyboardGamepad),
-                        Actions.mouse(mouse),
+                        Actions.toggle(KEYBOARD_BUFFER, keyboardBuffer),
+                        Actions.toggle(KEYBOARD_DPAD_LEFT, dpadLeft),
+                        Actions.toggle(KEYBOARD_DPAD_RIGHT, dpadRight),
+                        Actions.toggle(MOUSE, mouse),
                         SEPARATOR,
-                        Actions.disableRg6Color(disableRg6Color),
-                        Actions.previousPage(displayPage),
-                        Actions.nextPage(displayPage),
+                        Actions.toggle(RG6_BW, disableRg6Color),
+                        Actions.action(ActionIcon.DISPLAY_PREVIOUS, ((DisplayPage) displayPage)::previous),
+                        Actions.action(ActionIcon.DISPLAY_NEXT, ((DisplayPage) displayPage)::next),
                         SEPARATOR,
-                        Actions.mute(mixer),
+                        Actions.toggle(MUTE, mute),
                         SEPARATOR,
                         Actions.presentation()
                 ), mouse);
@@ -107,7 +127,7 @@ public class R8BEmu {
         Configuration.prepare(home);
         Debugger debugger = disassembler.isSet() ? new Disassembler(home.resolve("disassembler.asm")) : Debugger.none();
         ColorComputer2.emulate(context, ram, display, disableRg6Color, displayPage, keyboard, cassette, drive, services,
-                               joystickLeft, joystickRight, mixer, script, playback, recording, home, debugger);
+                               joystickLeft, joystickRight, mixer, mute, script, playback, recording, home, debugger);
     }
 
 }

@@ -1,5 +1,8 @@
 package com.joprovost.r8bemu.clock;
 
+import com.joprovost.r8bemu.data.link.LineOutputHandler;
+import com.joprovost.r8bemu.data.link.LinePort;
+
 import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +21,31 @@ public class EmulatorContext implements Runnable, BusyState, Clock, Executor {
 
     public <T extends ClockAware> T aware(T device) {
         return clockBus.aware(device);
+    }
+
+    public LinePort aware(LinePort line) {
+        return new LinePort() {
+
+            @Override
+            public void to(LineOutputHandler handler) {
+                line.to(handler);
+            }
+
+            @Override
+            public void set(boolean value) {
+                execute(() -> line.set(value));
+            }
+
+            @Override
+            public String description() {
+                return line.description();
+            }
+
+            @Override
+            public boolean isSet() {
+                return line.isSet();
+            }
+        };
     }
 
     public void run() {

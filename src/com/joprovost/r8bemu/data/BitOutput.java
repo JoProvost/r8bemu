@@ -3,7 +3,7 @@ package com.joprovost.r8bemu.data;
 import java.util.function.Supplier;
 
 public interface BitOutput extends Described {
-    static BitOutput not(DataAccess bit) {
+    static BitOutput not(BitOutput bit) {
         return new BitOutput() {
             @Override
             public boolean isSet() {
