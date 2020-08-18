@@ -5,10 +5,10 @@ import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.data.Flag;
 import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.DiskSlot;
-import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.io.DisplayPage;
 import com.joprovost.r8bemu.io.Joystick;
 import com.joprovost.r8bemu.io.Keyboard;
+import com.joprovost.r8bemu.io.Screen;
 import com.joprovost.r8bemu.io.awt.AWTKeyboardDriver;
 import com.joprovost.r8bemu.io.awt.ActionIcon;
 import com.joprovost.r8bemu.io.awt.Actions;
@@ -21,13 +21,12 @@ import com.joprovost.r8bemu.io.linux.LinuxJoystickDriver;
 import com.joprovost.r8bemu.io.sound.Mixer;
 import com.joprovost.r8bemu.io.terminal.InputStreamKeyboard;
 import com.joprovost.r8bemu.io.terminal.Terminal;
-import com.joprovost.r8bemu.mc6809.Register;
 import com.joprovost.r8bemu.mc6809.Signal;
-import com.joprovost.r8bemu.memory.Memory;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -47,8 +46,10 @@ public class R8BEmu {
         String ui = settings.string("interface", "awt");
         Path home = settings.path("home", System.getProperty("user.home") + "/.r8bemu");
         Path script = settings.path("script", home + "/autorun.bas");
+        String scriptText = settings.string("script-text", null);
         Path playback = settings.path("playback", home + "/playback.wav");
         Path recording = settings.path("recording", home + "/recording.wav");
+        Path disk = settings.path("disk", home + "/disk.dsk");
         Flag keyboardBuffer = settings.flag("keyboard-buffer", true);
         Flag dpadRight = settings.flag("dpad-right", false);
         Flag dpadLeft = settings.flag("dpad-left", false);
@@ -58,25 +59,29 @@ public class R8BEmu {
         Flag mute = settings.flag("mute", false);
 
         var context = new EmulatorContext();
-        var ram = new Memory(0xffff);
         var keyboard = Keyboard.dispatcher(context);
         var joystickLeft = Joystick.dispatcher(context);
         var joystickRight = Joystick.dispatcher(context);
-        var display = Display.dispatcher();
+        var screen = Screen.dispatcher();
         var cassette = CassetteRecorder.dispatcher(context);
         var drive = DiskSlot.dispatcher(context);
         var mixer = Mixer.dispatcher(context);
         var displayPage = DisplayPage.dispatcher(context);
 
+        if (Files.exists(playback)) cassette.insert(playback.toFile());
+        if (Files.exists(disk)) drive.insert(disk.toFile());
+        if (Files.exists(script)) keyboard.script(Files.readString(script));
+        if (scriptText != null) keyboard.script(scriptText);
+
         switch (ui) {
             case "terminal":
                 context.aware(new InputStreamKeyboard(System.in, keyboard));
-                display.dispatchTo(new Terminal(System.out));
+                screen.dispatchTo(new Terminal(System.out));
                 break;
 
             case "awt":
                 var frameBuffer = new FrameBuffer();
-                display.dispatchTo(frameBuffer);
+                screen.dispatchTo(frameBuffer);
 
                 frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer, BitOutput.or(dpadLeft, dpadRight)));
 
@@ -90,11 +95,7 @@ public class R8BEmu {
                 frameBuffer.addMouseListener(mouseJoystickDriver);
 
                 UserInterface.show(frameBuffer, List.of(
-                        Actions.action(ActionIcon.REBOOT, () -> context.execute(() -> {
-                            Signal.RESET.pulse();
-                            Register.reset();
-                            ram.clear();
-                        })),
+                        Actions.action(ActionIcon.REBOOT, context.aware(Signal.REBOOT)::pulse),
                         Actions.action(ActionIcon.RESET, context.aware(Signal.RESET)::pulse),
                         Actions.toggle(HALT, context.aware(Signal.HALT)),
                         SEPARATOR,
@@ -126,8 +127,8 @@ public class R8BEmu {
 
         Configuration.prepare(home);
         Debugger debugger = disassembler.isSet() ? new Disassembler(home.resolve("disassembler.asm")) : Debugger.none();
-        ColorComputer2.emulate(context, ram, display, disableRg6Color, displayPage, keyboard, cassette, drive, services,
-                               joystickLeft, joystickRight, mixer, mute, script, playback, recording, home, debugger);
+        ColorComputer2.emulate(context, screen, disableRg6Color, displayPage, keyboard, cassette, drive, services,
+                               joystickLeft, joystickRight, mixer, mute, recording, home, debugger);
     }
 
 }

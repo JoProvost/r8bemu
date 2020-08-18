@@ -9,7 +9,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -38,13 +37,14 @@ public class Actions {
         return window -> new AbstractAction(null, icon.icon(state)) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                state.set(state.isClear());
-                putValue(Action.SMALL_ICON, icon.icon(state));
+                boolean newState = state.isClear();
+                state.set(newState);
+                putValue(Action.SMALL_ICON, icon.icon(newState));
             }
         };
     }
 
-    public static Function<Window, Action> toggle(ActionIcon icon, LinePort line, Executor context) {
+    public static Function<Window, Action> toggle(ActionIcon icon, LinePort line) {
         return window -> new AbstractAction(null, icon.icon(line)) {
             {
                 line.to(state -> putValue(Action.SMALL_ICON, icon.icon(state)));
@@ -52,7 +52,7 @@ public class Actions {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                context.execute(() -> line.set(line.isClear()));
+                line.set(line.isClear());
             }
         };
     }

@@ -18,11 +18,11 @@ import com.joprovost.r8bemu.io.AudioSink;
 import com.joprovost.r8bemu.io.Button;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
 import com.joprovost.r8bemu.io.DiskSlotDispatcher;
-import com.joprovost.r8bemu.io.Display;
 import com.joprovost.r8bemu.io.DisplayPageDispatcher;
 import com.joprovost.r8bemu.io.Joystick;
 import com.joprovost.r8bemu.io.JoystickDispatcher;
 import com.joprovost.r8bemu.io.KeyboardDispatcher;
+import com.joprovost.r8bemu.io.Screen;
 import com.joprovost.r8bemu.io.sound.MixerDispatcher;
 import com.joprovost.r8bemu.io.sound.Speaker;
 import com.joprovost.r8bemu.io.sound.TapePlayback;
@@ -55,8 +55,7 @@ import static com.joprovost.r8bemu.mc6809.MC6809E.RESET_VECTOR;
 
 public class ColorComputer2 {
     public static void emulate(EmulatorContext context,
-                               Memory ram,
-                               Display display,
+                               Screen screen,
                                Flag disableRg6Color,
                                DisplayPageDispatcher displayPage,
                                KeyboardDispatcher keyboard,
@@ -67,13 +66,13 @@ public class ColorComputer2 {
                                JoystickDispatcher joystickRight,
                                MixerDispatcher mixer,
                                BitOutput mute,
-                               Path script,
-                               Path playbackFile,
                                Path recordingFile,
                                Path home,
                                Debugger debugger) throws IOException {
 
         var uptime = context.aware(new ClockFrequency(900, context));
+
+        Memory ram = new Memory(0xffff);
 
         var sam = new MC6883(ram);
         Signal.RESET.to(sam.reset());
@@ -99,14 +98,14 @@ public class ColorComputer2 {
                 MemoryDevice.when(sam.select(6), drive)  // S=6
         );
 
-        var vdg = context.aware(new MC6847(display, s4a::interrupt, s4b::interrupt, sam.video(), disableRg6Color));
+        var vdg = context.aware(new MC6847(screen, s4a::interrupt, s4b::interrupt, sam.video(), disableRg6Color));
         s5b.port().to(vdg.mode());
         Signal.RESET.to(vdg.reset());
         displayPage.dispatchTo(sam);
 
         keyboard.dispatchTo(context.aware(new KeyboardAdapter(s4a.port(), s4b.port())));
 
-        var playback = new TapePlayback(uptime, playbackFile);
+        var playback = new TapePlayback(uptime);
         cassette.dispatchTo(playback);
         var recorder = new TapeRecorder(uptime, recordingFile);
         s5a.port().from(playback.output(P0));
@@ -149,12 +148,17 @@ public class ColorComputer2 {
         Signal.NMI.to(cpu.nmi());
         Signal.HALT.to(cpu.halt());
 
-        if (Files.exists(script)) keyboard.script(Files.readString(script));
-
         Signal.RESET.to(Signal.HALT); // clear HALT when reset is released
         context.onError(Throwable::printStackTrace);
         context.onError(e -> System.err.println(Register.dump()));
         context.onError(e -> Signal.HALT.set());
+
+        Signal.REBOOT.to(line -> {
+            if (line.isClear()) return;
+            Signal.RESET.pulse();
+            Register.reset();
+            ram.clear();
+        });
 
         try {
             services.start();

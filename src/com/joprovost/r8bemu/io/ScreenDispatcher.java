@@ -3,10 +3,10 @@ package com.joprovost.r8bemu.io;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DisplayDispatcher implements Display {
-    private final List<Display> targets = new ArrayList<>();
+public class ScreenDispatcher implements Screen {
+    private final List<Screen> targets = new ArrayList<>();
 
-    public void dispatchTo(Display target) {
+    public void dispatchTo(Screen target) {
         this.targets.add(target);
     }
 

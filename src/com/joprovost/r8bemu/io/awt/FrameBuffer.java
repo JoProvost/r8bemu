@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.io.awt;
 
-import com.joprovost.r8bemu.io.Display;
+import com.joprovost.r8bemu.io.Screen;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +18,7 @@ import static java.awt.Color.YELLOW;
 import static java.awt.RenderingHints.KEY_INTERPOLATION;
 import static java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
 
-public class FrameBuffer extends JPanel implements Display {
+public class FrameBuffer extends JPanel implements Screen {
 
     public static final int width = 256;
     public static final int height = 192;

@@ -28,14 +28,14 @@ public final class Register implements DataAccess {
     public static final Register DP = Register.of(Variable.ofMask(0xff).describedAs("DP"));
 
     public static final Register CC = Register.of(Variable.ofMask(0xff).describedAs("CC"));
+    public static final Register E = Register.of(DataAccessSubset.bit(CC, 7).describedAs("E"));
+    public static final Register F = Register.of(DataAccessSubset.bit(CC, 6).describedAs("F"));
     public static final Register H = Register.of(DataAccessSubset.bit(CC, 5).describedAs("H"));
+    public static final Register I = Register.of(DataAccessSubset.bit(CC, 4).describedAs("I"));
     public static final Register N = Register.of(DataAccessSubset.bit(CC, 3).describedAs("N"));
     public static final Register Z = Register.of(DataAccessSubset.bit(CC, 2).describedAs("Z"));
     public static final Register V = Register.of(DataAccessSubset.bit(CC, 1).describedAs("V"));
     public static final Register C = Register.of(DataAccessSubset.bit(CC, 0).describedAs("C"));
-    public static final Register F = Register.of(DataAccessSubset.bit(CC, 6).describedAs("F"));
-    public static final Register I = Register.of(DataAccessSubset.bit(CC, 4).describedAs("I"));
-    public static final Register E = Register.of(DataAccessSubset.bit(CC, 7).describedAs("E"));
 
     private final DataAccess register;
 

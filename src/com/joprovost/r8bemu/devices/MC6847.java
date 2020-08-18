@@ -12,18 +12,18 @@ import com.joprovost.r8bemu.data.link.LineOutputHandler;
 import com.joprovost.r8bemu.data.link.ParallelOutputHandler;
 import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 import com.joprovost.r8bemu.data.transform.DataOutputSubset;
-import com.joprovost.r8bemu.io.Display;
+import com.joprovost.r8bemu.io.Screen;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 
-import static com.joprovost.r8bemu.io.Display.Color.BLACK;
-import static com.joprovost.r8bemu.io.Display.Color.BLUE;
-import static com.joprovost.r8bemu.io.Display.Color.BUFF;
-import static com.joprovost.r8bemu.io.Display.Color.CYAN;
-import static com.joprovost.r8bemu.io.Display.Color.GREEN;
-import static com.joprovost.r8bemu.io.Display.Color.MAGENTA;
-import static com.joprovost.r8bemu.io.Display.Color.ORANGE;
-import static com.joprovost.r8bemu.io.Display.Color.RED;
-import static com.joprovost.r8bemu.io.Display.Color.YELLOW;
+import static com.joprovost.r8bemu.io.Screen.Color.BLACK;
+import static com.joprovost.r8bemu.io.Screen.Color.BLUE;
+import static com.joprovost.r8bemu.io.Screen.Color.BUFF;
+import static com.joprovost.r8bemu.io.Screen.Color.CYAN;
+import static com.joprovost.r8bemu.io.Screen.Color.GREEN;
+import static com.joprovost.r8bemu.io.Screen.Color.MAGENTA;
+import static com.joprovost.r8bemu.io.Screen.Color.ORANGE;
+import static com.joprovost.r8bemu.io.Screen.Color.RED;
+import static com.joprovost.r8bemu.io.Screen.Color.YELLOW;
 
 // VideoDisplayGenerator
 public class MC6847 implements ClockAware {
@@ -74,15 +74,15 @@ public class MC6847 implements ClockAware {
     private final ClockAwareBusyState hClock = new ClockAwareBusyState();
     private final ClockAwareBusyState vClock = new ClockAwareBusyState();
 
-    private final Display display;
+    private final Screen screen;
     private final Runnable hsync;
     private final Runnable vsync;
     private final MemoryDevice ram;
     private final Flag disableRg6Color;
     private int rg6ColorOffset = 0;
 
-    public MC6847(Display display, Runnable hsync, Runnable vsync, MemoryDevice ram, Flag disableRg6Color) {
-        this.display = display;
+    public MC6847(Screen screen, Runnable hsync, Runnable vsync, MemoryDevice ram, Flag disableRg6Color) {
+        this.screen = screen;
         this.hsync = hsync;
         this.vsync = vsync;
         this.ram = ram;
@@ -126,14 +126,14 @@ public class MC6847 implements ClockAware {
             VDG_DATA_BUS.value(ram.read(row * 32 * 12 + (line * 32) + col));
             if (AS.isSet()) {
                 var character = GRAPHICS4.charAt(SGM4_LUMA.value() % GRAPHICS4.length());
-                display.glyph(row, col, color(SGM4_CHROMA.value()), BLACK, character, line);
+                screen.glyph(row, col, color(SGM4_CHROMA.value()), BLACK, character, line);
             } else {
                 var character = ASCII.charAt(ASCII_CODE.value() % ASCII.length());
-                Display.Color color = CSS.isSet() ? ORANGE : GREEN;
+                Screen.Color color = CSS.isSet() ? ORANGE : GREEN;
                 if (INV.isSet()) {
-                    display.glyph(row, col, BLACK, color, character, line);
+                    screen.glyph(row, col, BLACK, color, character, line);
                 } else {
-                    display.glyph(row, col, color, BLACK, character, line);
+                    screen.glyph(row, col, color, BLACK, character, line);
                 }
             }
         }
@@ -144,10 +144,10 @@ public class MC6847 implements ClockAware {
         int bytes = lineWidth() / pixelsPerByte;
         int address = bytes * line;
 
-        Display.Color foreground = CSS.isSet() ? BUFF : GREEN;
-        Display.Color background = BLACK;
+        Screen.Color foreground = CSS.isSet() ? BUFF : GREEN;
+        Screen.Color background = BLACK;
 
-        Display.Color[] pixels = new Display.Color[bytes * pixelsPerByte];
+        Screen.Color[] pixels = new Screen.Color[bytes * pixelsPerByte];
         for (int i = 0; i < bytes; i++) {
             VDG_DATA_BUS.value(ram.read(address + i));
             if (pixelsPerByte == 4) {
@@ -171,11 +171,11 @@ public class MC6847 implements ClockAware {
 
         var pixelWidth = WIDTH / pixels.length;
         for (int x = 0; x < WIDTH; x++) {
-            display.pixel(x, line, pixels[x / pixelWidth]);
+            screen.pixel(x, line, pixels[x / pixelWidth]);
         }
     }
 
-    private void rg6Colors(Display.Color[] pixels) {
+    private void rg6Colors(Screen.Color[] pixels) {
         for (int x = 0; x < WIDTH; x++) {
             var left = (x > 0) ? pixels[x - 1] : BLACK;
             var right = (x < WIDTH - 1) ? pixels[x + 1] : BLACK;
@@ -225,7 +225,7 @@ public class MC6847 implements ClockAware {
         }
     }
 
-    private Display.Color color(int chroma) {
+    private Screen.Color color(int chroma) {
         switch (chroma) {
             case 0: return GREEN;
             case 1: return YELLOW;
@@ -239,7 +239,7 @@ public class MC6847 implements ClockAware {
         }
     }
 
-    private Display.Color color(boolean css, int chroma) {
+    private Screen.Color color(boolean css, int chroma) {
         if (css) {
             switch (chroma) {
                 case 0: return BUFF;

@@ -2,11 +2,11 @@ package com.joprovost.r8bemu.io;
 
 import java.util.List;
 
-public interface Display {
+public interface Screen {
     Font FONT = Font.coco8x12();
 
-    static DisplayDispatcher dispatcher() {
-        return new DisplayDispatcher();
+    static ScreenDispatcher dispatcher() {
+        return new ScreenDispatcher();
     }
 
     default void glyph(int row, int column, Color fg, Color bg, char glyph, int line) {

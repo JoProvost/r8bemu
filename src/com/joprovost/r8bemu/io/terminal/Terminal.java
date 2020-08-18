@@ -1,10 +1,10 @@
 package com.joprovost.r8bemu.io.terminal;
 
-import com.joprovost.r8bemu.io.Display;
+import com.joprovost.r8bemu.io.Screen;
 
 import java.io.PrintStream;
 
-public class Terminal implements Display {
+public class Terminal implements Screen {
     private static final int WIDTH = 32;
     private static final int HEIGHT = 16;
 
