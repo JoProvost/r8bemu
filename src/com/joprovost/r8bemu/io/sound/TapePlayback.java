@@ -62,11 +62,9 @@ public class TapePlayback implements CassetteRecorder {
     @Override
     public void insert(File cassette) {
         rewind();
-        if (motor) {
-            try {
-                playback = WaveFile.load(cassette.toPath());
-            } catch (IOException ignored) {
-            }
+        try {
+            playback = WaveFile.load(cassette.toPath());
+        } catch (IOException ignored) {
         }
     }
 
