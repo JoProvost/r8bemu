@@ -5,7 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShiftTest {
 
@@ -27,6 +28,18 @@ class ShiftTest {
             assertTrue(Register.Z.isSet());
             assertTrue(Register.C.isClear());
             assertTrue(Register.V.isClear());
+            assertTrue(Register.N.isClear());
+        }
+
+        @Test
+        void becomesEmpty() {
+            data.value(0b10000000);
+            Shift.lsl(data);
+            assertEquals(0b00000000, data.value());
+
+            assertTrue(Register.Z.isSet());
+            assertTrue(Register.C.isSet());
+            assertTrue(Register.V.isSet());
             assertTrue(Register.N.isClear());
         }
 
@@ -174,6 +187,18 @@ class ShiftTest {
             assertTrue(Register.Z.isSet());
             assertTrue(Register.C.isClear());
             assertTrue(Register.V.isClear());
+            assertTrue(Register.N.isClear());
+        }
+
+        @Test
+        void becomesEmpty() {
+            data.value(0b10000000);
+            Shift.rol(data);
+            assertEquals(0b00000000, data.value());
+
+            assertTrue(Register.Z.isSet());
+            assertTrue(Register.C.isSet());
+            assertTrue(Register.V.isSet());
             assertTrue(Register.N.isClear());
         }
 
