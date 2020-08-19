@@ -8,8 +8,4 @@ cd "$(dirname "$(realpath $0)")"
 clear
 stty raw -echo
 
-if [ -n "${1:-}" ]; then
-  ./r8bemu --interface terminal --playback "./cassette/$1.wav" --script "./script/$1.bas"
-else
-  ./r8bemu --interface terminal
-fi
+./r8bemu --terminal true "$@"

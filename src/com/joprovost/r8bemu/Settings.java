@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class Settings {
     private final Map<String, String> options;
+    private final StringBuilder help = new StringBuilder();
 
     public Settings(Map<String, String> options) {
         this.options = options;
@@ -30,15 +31,40 @@ public class Settings {
         return new Settings(params);
     }
 
-    public Flag flag(String option, boolean value) {
+    public Flag flag(String option, boolean value, String description) {
+        help(option, "[true|false]", description);
         return Flag.value(Boolean.parseBoolean(options.getOrDefault(option, String.valueOf(value))));
     }
 
-    public String string(String key, String defaultValue) {
-        return options.getOrDefault(key, defaultValue);
+    public String string(String option, String value, String description) {
+        help(option, "<text>", description);
+        return options.getOrDefault(option, value);
     }
 
-    public Path path(String key, String defaultValue) {
-        return Path.of(string(key, defaultValue));
+    public Path path(String option, String value, String description) {
+        help(option, "<path>", description, value);
+        return Path.of(options.getOrDefault(option, value));
+    }
+
+    private void help(String option, String type, String description) {
+        help.append("  ")
+            .append(column(22, "--" + option))
+            .append(column(16, type))
+            .append(description)
+            .append('\n');
+    }
+
+    private void help(String option, String type, String description, String value) {
+        help(option, type, column(50, description) + " (default: " + value + ")");
+    }
+
+    public void help() {
+        System.out.println("Usage: r8bemu [options]");
+        System.out.println();
+        System.out.println(help);
+    }
+
+    private String column(int size, Object string) {
+        return string + " ".repeat(Math.max(size - string.toString().length(), 2));
     }
 }

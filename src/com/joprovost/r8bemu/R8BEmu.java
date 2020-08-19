@@ -43,20 +43,29 @@ public class R8BEmu {
 
     public static void main(String[] args) throws IOException, URISyntaxException {
         Settings settings = Settings.parse(args);
-        String ui = settings.string("interface", "awt");
-        Path home = settings.path("home", System.getProperty("user.home") + "/.r8bemu");
-        Path script = settings.path("script", home + "/autorun.bas");
-        String scriptText = settings.string("script-text", null);
-        Path playback = settings.path("playback", home + "/playback.wav");
-        Path recording = settings.path("recording", home + "/recording.wav");
-        Path disk = settings.path("disk", home + "/disk.dsk");
-        Flag keyboardBuffer = settings.flag("keyboard-buffer", true);
-        Flag dpadRight = settings.flag("dpad-right", false);
-        Flag dpadLeft = settings.flag("dpad-left", false);
-        Flag mouse = settings.flag("mouse", false);
-        Flag disableRg6Color = settings.flag("disable-rg6-color", false);
-        Flag disassembler = settings.flag("disassembler", false);
-        Flag mute = settings.flag("mute", false);
+
+        Flag terminalGraphic = settings.flag("terminal-graphic", false, "Activate the terminal interface in graphic mode");
+        Flag terminal = settings.flag("terminal", terminalGraphic.isSet(), "Activate the terminal interface in ASCII");
+        Flag window = settings.flag("window", terminal.isClear(), "Activate the windowed graphic interface");
+        Flag disableComposite = settings.flag("disable-composite", false, "Disable composite blue/red color emulation");
+
+        Path home = settings.path("home", System.getProperty("user.home") + "/.r8bemu", "Home directory (used to load ROM files)");
+        Path disk = settings.path("disk", home + "/disk.dsk", "Insert the diskette image file in drive 0");
+        Path playback = settings.path("playback", home + "/playback.wav", "Define the audio file used for playback");
+        Path recording = settings.path("recording", home + "/recording.wav", "Define the audio file used for recording");
+        Path script = settings.path("script", home + "/autorun.bas", "Load a script file at boot");
+        String scriptText = settings.string("script-text", null, "Type the following keys at boot");
+        Flag mouse = settings.flag("mouse", false, "Use the keyboard arow keys as the left joystick");
+        Flag dpadLeft = settings.flag("dpad-left", false, "Use the keyboard arow keys as the left joystick");
+        Flag dpadRight = settings.flag("dpad-right", false, "Use the keyboard arow keys as the right joystick");
+        Flag keyboardBuffer = settings.flag("keyboard-buffer", true, "Enable keyboard input buffering");
+        Flag disassembler = settings.flag("disassembler", false, "Enable the disassembler");
+        Flag mute = settings.flag("mute", false, "Mute the speaker");
+
+        if (settings.flag("help", false, "Show help").isSet()) {
+            settings.help();
+            return;
+        }
 
         var context = new EmulatorContext();
         var keyboard = Keyboard.dispatcher(context);
@@ -73,51 +82,49 @@ public class R8BEmu {
         if (Files.exists(script)) keyboard.script(Files.readString(script));
         if (scriptText != null) keyboard.script(scriptText);
 
-        switch (ui) {
-            case "terminal":
-                context.aware(new InputStreamKeyboard(System.in, keyboard));
-                screen.dispatchTo(new Terminal(System.out));
-                break;
+        if (terminal.isSet()) {
+            context.aware(new InputStreamKeyboard(System.in, keyboard));
+            screen.dispatchTo(new Terminal(System.out, terminalGraphic));
+        }
 
-            case "awt":
-                var frameBuffer = new FrameBuffer();
-                screen.dispatchTo(frameBuffer);
+        if (window.isSet()) {
+            var frameBuffer = new FrameBuffer();
+            screen.dispatchTo(frameBuffer);
 
-                frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer, BitOutput.or(dpadLeft, dpadRight)));
+            frameBuffer.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer, BitOutput.or(dpadLeft, dpadRight)));
 
-                frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickLeft, BitOutput.not(dpadRight)));
-                frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickRight, BitOutput.not(dpadLeft)));
-                frameBuffer.addKeyListener(new ArrowsJoystickDriver(joystickLeft, dpadLeft));
-                frameBuffer.addKeyListener(new ArrowsJoystickDriver(joystickRight, dpadRight));
+            frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickLeft, BitOutput.not(dpadRight)));
+            frameBuffer.addKeyListener(new NumpadJoystickDriver(joystickRight, BitOutput.not(dpadLeft)));
+            frameBuffer.addKeyListener(new ArrowsJoystickDriver(joystickLeft, dpadLeft));
+            frameBuffer.addKeyListener(new ArrowsJoystickDriver(joystickRight, dpadRight));
 
-                var mouseJoystickDriver = new MouseJoystickDriver(joystickLeft, mouse);
-                frameBuffer.addMouseMotionListener(mouseJoystickDriver);
-                frameBuffer.addMouseListener(mouseJoystickDriver);
+            var mouseJoystickDriver = new MouseJoystickDriver(joystickLeft, mouse);
+            frameBuffer.addMouseMotionListener(mouseJoystickDriver);
+            frameBuffer.addMouseListener(mouseJoystickDriver);
 
-                UserInterface.show(frameBuffer, List.of(
-                        Actions.action(ActionIcon.REBOOT, context.aware(Signal.REBOOT)::pulse),
-                        Actions.action(ActionIcon.RESET, context.aware(Signal.RESET)::pulse),
-                        Actions.toggle(HALT, context.aware(Signal.HALT)),
-                        SEPARATOR,
-                        Actions.action(ActionIcon.CASSETTE_REWIND, cassette::rewind),
-                        Actions.file(ActionIcon.CASSETTE, cassette::insert, home, new FileNameExtensionFilter("Audio file", "wav")),
-                        SEPARATOR,
-                        Actions.file(ActionIcon.DISK, drive::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
-                        SEPARATOR,
-                        Actions.toggle(KEYBOARD_BUFFER, keyboardBuffer),
-                        Actions.toggle(KEYBOARD_DPAD_LEFT, dpadLeft),
-                        Actions.toggle(KEYBOARD_DPAD_RIGHT, dpadRight),
-                        Actions.toggle(MOUSE, mouse),
-                        SEPARATOR,
-                        Actions.toggle(RG6_BW, disableRg6Color),
-                        Actions.action(ActionIcon.DISPLAY_PREVIOUS, ((DisplayPage) displayPage)::previous),
-                        Actions.action(ActionIcon.DISPLAY_NEXT, ((DisplayPage) displayPage)::next),
-                        SEPARATOR,
-                        Actions.toggle(MUTE, mute),
-                        SEPARATOR,
-                        Actions.presentation()
-                ), mouse);
-                break;
+            UserInterface.show(frameBuffer, List.of(
+                    Actions.action(ActionIcon.REBOOT, context.aware(Signal.REBOOT)::pulse),
+                    Actions.action(ActionIcon.RESET, context.aware(Signal.RESET)::pulse),
+                    Actions.toggle(HALT, context.aware(Signal.HALT)),
+                    SEPARATOR,
+                    Actions.action(ActionIcon.CASSETTE_REWIND, cassette::rewind),
+                    Actions.file(ActionIcon.CASSETTE, cassette::insert, home, new FileNameExtensionFilter("Audio file", "wav")),
+                    SEPARATOR,
+                    Actions.file(ActionIcon.DISK, drive::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
+                    SEPARATOR,
+                    Actions.toggle(KEYBOARD_BUFFER, keyboardBuffer),
+                    Actions.toggle(KEYBOARD_DPAD_LEFT, dpadLeft),
+                    Actions.toggle(KEYBOARD_DPAD_RIGHT, dpadRight),
+                    Actions.toggle(MOUSE, mouse),
+                    SEPARATOR,
+                    Actions.toggle(RG6_BW, disableComposite),
+                    Actions.action(ActionIcon.DISPLAY_PREVIOUS, ((DisplayPage) displayPage)::previous),
+                    Actions.action(ActionIcon.DISPLAY_NEXT, ((DisplayPage) displayPage)::next),
+                    SEPARATOR,
+                    Actions.toggle(MUTE, mute),
+                    SEPARATOR,
+                    Actions.presentation()
+            ), mouse);
         }
 
         var services = new Threads();
@@ -127,7 +134,7 @@ public class R8BEmu {
 
         Configuration.prepare(home);
         Debugger debugger = disassembler.isSet() ? new Disassembler(home.resolve("disassembler.asm")) : Debugger.none();
-        ColorComputer2.emulate(context, screen, disableRg6Color, displayPage, keyboard, cassette, drive, services,
+        ColorComputer2.emulate(context, screen, disableComposite, displayPage, keyboard, cassette, drive, services,
                                joystickLeft, joystickRight, mixer, mute, recording, home, debugger);
     }
 
