@@ -135,14 +135,36 @@ class ArithmeticTest {
         }
 
         @Test
-        void overflow() {
-            Register.X.value(0b1000000000000000);
+        void overflowOnHighestBitOnly() {
+            // The Overflow flag is set if the original value was 0x80 (8-bit) or 0x8000 (16-bit); cleared otherwise
+            Register.X.value(0x8000);
             Arithmetic.neg(Register.X);
-            assertEquals(0b1000000000000000, Register.X.value());
+            assertEquals(0x8000, Register.X.value());
             assertTrue(Register.Z.isClear());
             assertTrue(Register.C.isSet());
             assertTrue(Register.N.isSet());
             assertTrue(Register.V.isSet());
+
+            for (int i = 0; i <= 0xffff; i++) {
+                if (i == 0x8000) continue;
+                Register.X.value(i);
+                Arithmetic.neg(Register.X);
+                assertTrue(Register.V.isClear());
+            }
+        }
+
+        @Test
+        void carryOnlyOnAllExceptZero() {
+            // C The Carry flag is cleared if the original value was 0; set otherwise.
+            Register.X.value(0);
+            Arithmetic.neg(Register.X);
+            assertTrue(Register.C.isClear());
+
+            for (int i = 1; i <= 0xffff; i++) {
+                Register.X.value(i);
+                Arithmetic.neg(Register.X);
+                assertTrue(Register.C.isSet());
+            }
         }
     }
 
