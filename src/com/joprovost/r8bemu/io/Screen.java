@@ -1,7 +1,5 @@
 package com.joprovost.r8bemu.io;
 
-import java.util.List;
-
 public interface Screen {
     Font FONT = Font.coco8x12();
 
@@ -10,11 +8,8 @@ public interface Screen {
     }
 
     default void glyph(int row, int column, Color fg, Color bg, char glyph, int line) {
-        List<Integer> image = FONT.image(glyph);
-        if (image == null) return;
-        int pixels = image.get(line);
         for (int x = 0; x < 8; x++) {
-            pixel(column * 8 + x, row * 12 + line, (((pixels >> (7 - x)) & 1) == 0) ? bg : fg);
+            pixel(column * 8 + x, row * 12 + line, FONT.pixel(glyph, line, x) ? fg : bg);
         }
     }
 

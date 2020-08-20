@@ -4,7 +4,6 @@ import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.io.Screen;
 
 import java.io.PrintStream;
-import java.util.List;
 
 public class Terminal implements Screen {
     private static final int COLUMNS = 32;
@@ -28,11 +27,8 @@ public class Terminal implements Screen {
     @Override
     public void glyph(int row, int column, Color fg, Color bg, char glyph, int line) {
         if (graphic.isSet()) {
-            List<Integer> image = FONT.image(glyph);
-            if (image == null) return;
-            int pixels = image.get(line);
             for (int x = 0; x < 8; x++) {
-                pixel(column * 8 + x, row * 12 + line, (((pixels >> (7 - x)) & 1) == 0) ? bg : fg);
+                pixel(column * 8 + x, row * 12 + line, FONT.pixel(glyph, line, x) ? fg : bg);
             }
         } else {
             if (alreadyDisplayed(row, column, fg, bg, glyph)) return;
