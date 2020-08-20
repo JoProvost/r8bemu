@@ -42,7 +42,7 @@ public class Settings {
     }
 
     public Path path(String option, String value, String description) {
-        help(option, "<path>", description, value);
+        help(option, "<path>", description, value.replace(System.getProperty("user.home"), "~"));
         return Path.of(options.getOrDefault(option, value));
     }
 
@@ -55,7 +55,7 @@ public class Settings {
     }
 
     private void help(String option, String type, String description, String value) {
-        help(option, type, column(50, description) + " (default: " + value + ")");
+        help(option, type, column(42, description) + " (default: " + value + ")");
     }
 
     public void help() {
@@ -65,6 +65,6 @@ public class Settings {
     }
 
     private String column(int size, Object string) {
-        return string + " ".repeat(Math.max(size - string.toString().length(), 2));
+        return string + " ".repeat(Math.max(size - string.toString().length(), 1));
     }
 }

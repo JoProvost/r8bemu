@@ -45,19 +45,19 @@ public class R8BEmu {
         Settings settings = Settings.parse(args);
 
         Flag terminalGraphic = settings.flag("terminal-graphic", false, "Activate the terminal interface in graphic mode");
-        Flag terminal = settings.flag("terminal", terminalGraphic.isSet(), "Activate the terminal interface in ASCII");
+        Flag terminal = settings.flag("terminal", terminalGraphic.isSet(), "Activate the terminal interface in text mode");
         Flag window = settings.flag("window", terminal.isClear(), "Activate the windowed graphic interface");
         Flag disableComposite = settings.flag("disable-composite", false, "Disable composite blue/red color emulation");
 
-        Path home = settings.path("home", System.getProperty("user.home") + "/.r8bemu", "Home directory (used to load ROM files)");
+        Path home = settings.path("home", System.getProperty("user.home") + "/.r8bemu", "Home directory (location of ROM files)");
         Path disk = settings.path("disk", home + "/disk.dsk", "Insert the diskette image file in drive 0");
         Path playback = settings.path("playback", home + "/playback.wav", "Define the audio file used for playback");
         Path recording = settings.path("recording", home + "/recording.wav", "Define the audio file used for recording");
         Path script = settings.path("script", home + "/autorun.bas", "Load a script file at boot");
         String scriptText = settings.string("script-text", null, "Type the following keys at boot");
-        Flag mouse = settings.flag("mouse", false, "Use the keyboard arow keys as the left joystick");
-        Flag dpadLeft = settings.flag("dpad-left", false, "Use the keyboard arow keys as the left joystick");
-        Flag dpadRight = settings.flag("dpad-right", false, "Use the keyboard arow keys as the right joystick");
+        Flag mouse = settings.flag("mouse", false, "Use the mouse as the left joystick");
+        Flag dpadLeft = settings.flag("dpad-left", false, "Use the keyboard arrow keys as the left joystick");
+        Flag dpadRight = settings.flag("dpad-right", false, "Use the keyboard arrow keys as the right joystick");
         Flag keyboardBuffer = settings.flag("keyboard-buffer", true, "Enable keyboard input buffering");
         Flag disassembler = settings.flag("disassembler", false, "Enable the disassembler");
         Flag mute = settings.flag("mute", false, "Mute the speaker");

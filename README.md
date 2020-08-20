@@ -11,14 +11,26 @@ __Just for fun!__
 
 ## Usage
 
-    # From an ANSI compatible terminal
-    ./r8bemu-terminal
-
-    # From any desktop environment
-    ./r8bemu
-
-    # or, when already compiled
-    java -jar ./r8bemu.jar
+    $ ./r8bemu --help
+    Usage: r8bemu [options]
+    
+      --terminal-graphic    [true|false]    Activate the terminal interface in graphic mode
+      --terminal            [true|false]    Activate the terminal interface in text mode
+      --window              [true|false]    Activate the windowed graphic interface
+      --disable-composite   [true|false]    Disable composite blue/red color emulation
+      --home                <path>          Home directory (location of ROM files)     (default: ~/.r8bemu)
+      --disk                <path>          Insert the diskette image file in drive 0  (default: ~/.r8bemu/disk.dsk)
+      --playback            <path>          Define the audio file used for playback    (default: ~/.r8bemu/playback.wav)
+      --recording           <path>          Define the audio file used for recording   (default: ~/.r8bemu/recording.wav)
+      --script              <path>          Load a script file at boot                 (default: ~/.r8bemu/autorun.bas)
+      --script-text         <text>          Type the following keys at boot
+      --mouse               [true|false]    Use the mouse as the left joystick
+      --dpad-left           [true|false]    Use the keyboard arrow keys as the left joystick
+      --dpad-right          [true|false]    Use the keyboard arrow keys as the right joystick
+      --keyboard-buffer     [true|false]    Enable keyboard input buffering
+      --disassembler        [true|false]    Enable the disassembler
+      --mute                [true|false]    Mute the speaker
+      --help                [true|false]    Show help
 
 ### Boot ROM
 In order to use this emulator, you must provide the ROM to boot on.  You can download it from an actual CoCo 2 you
