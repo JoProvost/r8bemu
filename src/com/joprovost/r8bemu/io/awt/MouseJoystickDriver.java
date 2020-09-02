@@ -32,12 +32,12 @@ public class MouseJoystickDriver extends MouseInputAdapter {
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        release(e);
+        move(e);
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        press(e);
+        move(e);
     }
 
     private void press(MouseEvent e) {
