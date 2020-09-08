@@ -12,6 +12,7 @@ import com.joprovost.r8bemu.data.link.LineOutputHandler;
 import com.joprovost.r8bemu.data.link.ParallelOutputHandler;
 import com.joprovost.r8bemu.data.transform.DataAccessSubset;
 import com.joprovost.r8bemu.data.transform.DataOutputSubset;
+import com.joprovost.r8bemu.font.Font;
 import com.joprovost.r8bemu.io.Screen;
 import com.joprovost.r8bemu.memory.MemoryDevice;
 
@@ -79,14 +80,16 @@ public class MC6847 implements ClockAware {
     private final Runnable vsync;
     private final MemoryDevice ram;
     private final Flag disableRg6Color;
+    private final Font font;
     private int rg6ColorOffset = 0;
 
-    public MC6847(Screen screen, Runnable hsync, Runnable vsync, MemoryDevice ram, Flag disableRg6Color) {
+    public MC6847(Screen screen, Runnable hsync, Runnable vsync, MemoryDevice ram, Flag disableRg6Color, Font font) {
         this.screen = screen;
         this.hsync = hsync;
         this.vsync = vsync;
         this.ram = ram;
         this.disableRg6Color = disableRg6Color;
+        this.font = font;
     }
 
     @Override
@@ -125,18 +128,27 @@ public class MC6847 implements ClockAware {
         for (int line = 0; line < 12; line ++) {
             VDG_DATA_BUS.value(ram.read(row * 32 * 12 + (line * 32) + col));
             if (AS.isSet()) {
-                var character = GRAPHICS4.charAt(SGM4_LUMA.value() % GRAPHICS4.length());
-                screen.glyph(row, col, color(SGM4_CHROMA.value()), BLACK, character, line);
+                var utf8 = GRAPHICS4.charAt(SGM4_LUMA.value() % GRAPHICS4.length());
+                character(utf8, row, col, line, color(SGM4_CHROMA.value()), BLACK);
             } else {
-                var character = ASCII.charAt(ASCII_CODE.value() % ASCII.length());
+                var utf8 = ASCII.charAt(ASCII_CODE.value() % ASCII.length());
                 Screen.Color color = CSS.isSet() ? ORANGE : GREEN;
                 if (INV.isSet()) {
-                    screen.glyph(row, col, BLACK, color, character, line);
+                    character(utf8, row, col, line, BLACK, color);
                 } else {
-                    screen.glyph(row, col, color, BLACK, character, line);
+                    character(utf8, row, col, line, color, BLACK);
                 }
             }
         }
+    }
+
+    private void character(char utf8, int row, int column, int line, Screen.Color fg, Screen.Color bg) {
+        screen.character(utf8, row, column, fg, bg);
+        font.sprite(utf8).ifPresent(sprite -> {
+            for (int x = 0; x < 8; x++) {
+                screen.pixel(column * 8 + x, row * 12 + line, sprite.pixel(x, line) ? fg : bg);
+            }
+        });
     }
 
     private void horizontalScan(int line) {

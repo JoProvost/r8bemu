@@ -1,4 +1,4 @@
-package com.joprovost.r8bemu.devices;
+package com.joprovost.r8bemu.devices.sam;
 
 import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.data.DataAccess;

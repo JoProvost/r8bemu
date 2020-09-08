@@ -11,8 +11,8 @@ public class ScreenDispatcher implements Screen {
     }
 
     @Override
-    public void glyph(int row, int column, Color fg, Color bg, char glyph, int line) {
-        for (var target : targets) target.glyph(row, column, fg, bg, glyph, line);
+    public void character(char utf8, int row, int column, Color fg, Color bg) {
+        for (var target : targets) target.character(utf8, row, column, fg, bg);
     }
 
     @Override

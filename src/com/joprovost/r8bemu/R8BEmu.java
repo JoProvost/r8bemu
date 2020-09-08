@@ -3,6 +3,9 @@ package com.joprovost.r8bemu;
 import com.joprovost.r8bemu.clock.EmulatorContext;
 import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.data.Flag;
+import com.joprovost.r8bemu.font.Font;
+import com.joprovost.r8bemu.font.Model2Font;
+import com.joprovost.r8bemu.font.Model3Font;
 import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.DiskSlot;
 import com.joprovost.r8bemu.io.DisplayPage;
@@ -43,6 +46,7 @@ public class R8BEmu {
 
     public static void main(String[] args) throws IOException, URISyntaxException {
         Settings settings = Settings.parse(args);
+        Flag coco2 = settings.flag("coco2", true, "Use Color Computer Model 2 hardware emulation");
 
         Flag terminalGraphic = settings.flag("terminal-graphic", false, "Activate the terminal interface in graphic mode");
         Flag terminal = settings.flag("terminal", terminalGraphic.isSet(), "Activate the terminal interface in text mode");
@@ -61,6 +65,8 @@ public class R8BEmu {
         Flag keyboardBuffer = settings.flag("keyboard-buffer", true, "Enable keyboard input buffering");
         Flag disassembler = settings.flag("disassembler", false, "Enable the disassembler");
         Flag mute = settings.flag("mute", false, "Mute the speaker");
+
+        Font font = coco2.isSet() ? new Model2Font() : new Model3Font();
 
         if (settings.flag("help", false, "Show help").isSet()) {
             settings.help();
@@ -134,7 +140,7 @@ public class R8BEmu {
 
         Configuration.prepare(home);
         Debugger debugger = disassembler.isSet() ? new Disassembler(home.resolve("disassembler.asm")) : Debugger.none();
-        ColorComputer2.emulate(context, screen, disableComposite, displayPage, keyboard, cassette, drive, services,
+        ColorComputer2.emulate(context, screen, font, disableComposite, displayPage, keyboard, cassette, drive, services,
                                joystickLeft, joystickRight, mixer, mute, recording, home, debugger);
     }
 

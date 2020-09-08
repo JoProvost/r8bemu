@@ -12,8 +12,9 @@ import com.joprovost.r8bemu.devices.KeyboardAdapter;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6821Port;
 import com.joprovost.r8bemu.devices.MC6847;
-import com.joprovost.r8bemu.devices.MC6883;
 import com.joprovost.r8bemu.devices.SC77526;
+import com.joprovost.r8bemu.devices.sam.MC6883;
+import com.joprovost.r8bemu.font.Font;
 import com.joprovost.r8bemu.io.AudioSink;
 import com.joprovost.r8bemu.io.Button;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
@@ -56,6 +57,7 @@ import static com.joprovost.r8bemu.mc6809.MC6809E.RESET_VECTOR;
 public class ColorComputer2 {
     public static void emulate(EmulatorContext context,
                                Screen screen,
+                               Font font,
                                Flag disableRg6Color,
                                DisplayPageDispatcher displayPage,
                                KeyboardDispatcher keyboard,
@@ -98,7 +100,7 @@ public class ColorComputer2 {
                 MemoryDevice.when(sam.select(6), drive)  // S=6
         );
 
-        var vdg = context.aware(new MC6847(screen, s4a::interrupt, s4b::interrupt, sam.video(), disableRg6Color));
+        var vdg = context.aware(new MC6847(screen, s4a::interrupt, s4b::interrupt, sam.video(), disableRg6Color, font));
         s5b.port().to(vdg.mode());
         Signal.RESET.to(vdg.reset());
         displayPage.dispatchTo(sam);

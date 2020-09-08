@@ -25,29 +25,25 @@ public class Terminal implements Screen {
     }
 
     @Override
-    public void glyph(int row, int column, Color fg, Color bg, char glyph, int line) {
-        if (graphic.isSet()) {
-            for (int x = 0; x < 8; x++) {
-                pixel(column * 8 + x, row * 12 + line, FONT.pixel(glyph, line, x) ? fg : bg);
-            }
-        } else {
-            if (alreadyDisplayed(row, column, fg, bg, glyph)) return;
+    public void character(char utf8, int row, int column, Color fg, Color bg) {
+        if (graphic.isClear()) {
+            if (alreadyDisplayed(utf8, row, column, fg, bg)) return;
             begin();
             move(row, column);
             color(fg, bg);
-            printStream.print(glyph);
+            printStream.print(utf8);
             end();
         }
     }
 
-    public boolean alreadyDisplayed(int row, int column, Color fg, Color bg, char character) {
+    public boolean alreadyDisplayed(char utf8, int row, int column, Color fg, Color bg) {
         int pos = row * 32 + column;
-        if (fgColors[pos] == fg && bgColors[pos] == bg && characters[pos] == character)
+        if (fgColors[pos] == fg && bgColors[pos] == bg && characters[pos] == utf8)
             return true;
 
         fgColors[pos] = fg;
         bgColors[pos] = bg;
-        characters[pos] = character;
+        characters[pos] = utf8;
         return false;
     }
 

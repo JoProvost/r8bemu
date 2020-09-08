@@ -1,12 +1,13 @@
-package com.joprovost.r8bemu.io;
+package com.joprovost.r8bemu.font;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-public interface Font {
-    Map<Character, List<String>> standard = new HashMap<>() {{
-        put(' ', List.of(
+public class Model2Font implements Font {
+    private static final Font GRAPHIC = new GraphicFont();
+    private static final Map<Character, Sprite> SPRITES = new HashMap<>() {{
+        put(' ', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -21,7 +22,7 @@ public interface Font {
                 "                "
         ));
 
-        put('!', List.of(
+        put('!', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -36,7 +37,7 @@ public interface Font {
                 "                "
         ));
 
-        put('"', List.of(
+        put('"', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -51,7 +52,7 @@ public interface Font {
                 "                "
         ));
 
-        put('#', List.of(
+        put('#', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -66,7 +67,7 @@ public interface Font {
                 "                "
         ));
 
-        put('$', List.of(
+        put('$', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -81,7 +82,7 @@ public interface Font {
                 "                "
         ));
 
-        put('%', List.of(
+        put('%', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -96,7 +97,7 @@ public interface Font {
                 "                "
         ));
 
-        put('&', List.of(
+        put('&', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -111,7 +112,7 @@ public interface Font {
                 "                "
         ));
 
-        put('\'', List.of(
+        put('\'', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -126,7 +127,7 @@ public interface Font {
                 "                "
         ));
 
-        put('(', List.of(
+        put('(', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -141,7 +142,7 @@ public interface Font {
                 "                "
         ));
 
-        put(')', List.of(
+        put(')', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -156,7 +157,7 @@ public interface Font {
                 "                "
         ));
 
-        put('*', List.of(
+        put('*', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -171,7 +172,7 @@ public interface Font {
                 "                "
         ));
 
-        put('+', List.of(
+        put('+', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -186,7 +187,7 @@ public interface Font {
                 "                "
         ));
 
-        put(',', List.of(
+        put(',', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -201,7 +202,7 @@ public interface Font {
                 "                "
         ));
 
-        put('-', List.of(
+        put('-', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -216,7 +217,7 @@ public interface Font {
                 "                "
         ));
 
-        put('.', List.of(
+        put('.', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -231,7 +232,7 @@ public interface Font {
                 "                "
         ));
 
-        put('/', List.of(
+        put('/', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -246,7 +247,7 @@ public interface Font {
                 "                "
         ));
 
-        put('0', List.of(
+        put('0', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -261,7 +262,7 @@ public interface Font {
                 "                "
         ));
 
-        put('1', List.of(
+        put('1', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -276,7 +277,7 @@ public interface Font {
                 "                "
         ));
 
-        put('2', List.of(
+        put('2', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -291,7 +292,7 @@ public interface Font {
                 "                "
         ));
 
-        put('3', List.of(
+        put('3', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -306,7 +307,7 @@ public interface Font {
                 "                "
         ));
 
-        put('4', List.of(
+        put('4', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -321,7 +322,7 @@ public interface Font {
                 "                "
         ));
 
-        put('5', List.of(
+        put('5', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -336,7 +337,7 @@ public interface Font {
                 "                "
         ));
 
-        put('6', List.of(
+        put('6', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -351,7 +352,7 @@ public interface Font {
                 "                "
         ));
 
-        put('7', List.of(
+        put('7', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -366,7 +367,7 @@ public interface Font {
                 "                "
         ));
 
-        put('8', List.of(
+        put('8', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -381,7 +382,7 @@ public interface Font {
                 "                "
         ));
 
-        put('9', List.of(
+        put('9', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -396,7 +397,7 @@ public interface Font {
                 "                "
         ));
 
-        put(':', List.of(
+        put(':', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -411,7 +412,7 @@ public interface Font {
                 "                "
         ));
 
-        put(';', List.of(
+        put(';', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -426,7 +427,7 @@ public interface Font {
                 "                "
         ));
 
-        put('<', List.of(
+        put('<', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -441,7 +442,7 @@ public interface Font {
                 "                "
         ));
 
-        put('=', List.of(
+        put('=', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -456,7 +457,7 @@ public interface Font {
                 "                "
         ));
 
-        put('>', List.of(
+        put('>', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -471,7 +472,7 @@ public interface Font {
                 "                "
         ));
 
-        put('?', List.of(
+        put('?', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -486,7 +487,7 @@ public interface Font {
                 "                "
         ));
 
-        put('@', List.of(
+        put('@', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -501,7 +502,7 @@ public interface Font {
                 "                "
         ));
 
-        put('A', List.of(
+        put('A', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -516,7 +517,7 @@ public interface Font {
                 "                "
         ));
 
-        put('B', List.of(
+        put('B', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -531,7 +532,7 @@ public interface Font {
                 "                "
         ));
 
-        put('C', List.of(
+        put('C', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -546,7 +547,7 @@ public interface Font {
                 "                "
         ));
 
-        put('D', List.of(
+        put('D', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -561,7 +562,7 @@ public interface Font {
                 "                "
         ));
 
-        put('E', List.of(
+        put('E', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -576,7 +577,7 @@ public interface Font {
                 "                "
         ));
 
-        put('F', List.of(
+        put('F', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -591,7 +592,7 @@ public interface Font {
                 "                "
         ));
 
-        put('G', List.of(
+        put('G', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -606,7 +607,7 @@ public interface Font {
                 "                "
         ));
 
-        put('H', List.of(
+        put('H', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -621,7 +622,7 @@ public interface Font {
                 "                "
         ));
 
-        put('I', List.of(
+        put('I', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -636,7 +637,7 @@ public interface Font {
                 "                "
         ));
 
-        put('J', List.of(
+        put('J', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -651,7 +652,7 @@ public interface Font {
                 "                "
         ));
 
-        put('K', List.of(
+        put('K', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -666,7 +667,7 @@ public interface Font {
                 "                "
         ));
 
-        put('L', List.of(
+        put('L', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -681,7 +682,7 @@ public interface Font {
                 "                "
         ));
 
-        put('M', List.of(
+        put('M', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -696,7 +697,7 @@ public interface Font {
                 "                "
         ));
 
-        put('N', List.of(
+        put('N', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -711,7 +712,7 @@ public interface Font {
                 "                "
         ));
 
-        put('O', List.of(
+        put('O', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -726,7 +727,7 @@ public interface Font {
                 "                "
         ));
 
-        put('P', List.of(
+        put('P', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -741,7 +742,7 @@ public interface Font {
                 "                "
         ));
 
-        put('Q', List.of(
+        put('Q', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -756,7 +757,7 @@ public interface Font {
                 "                "
         ));
 
-        put('R', List.of(
+        put('R', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -771,7 +772,7 @@ public interface Font {
                 "                "
         ));
 
-        put('S', List.of(
+        put('S', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -786,7 +787,7 @@ public interface Font {
                 "                "
         ));
 
-        put('T', List.of(
+        put('T', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -801,7 +802,7 @@ public interface Font {
                 "                "
         ));
 
-        put('U', List.of(
+        put('U', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -816,7 +817,7 @@ public interface Font {
                 "                "
         ));
 
-        put('V', List.of(
+        put('V', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -831,7 +832,7 @@ public interface Font {
                 "                "
         ));
 
-        put('W', List.of(
+        put('W', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -846,7 +847,7 @@ public interface Font {
                 "                "
         ));
 
-        put('X', List.of(
+        put('X', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -861,7 +862,7 @@ public interface Font {
                 "                "
         ));
 
-        put('Y', List.of(
+        put('Y', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -876,7 +877,7 @@ public interface Font {
                 "                "
         ));
 
-        put('Z', List.of(
+        put('Z', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -892,7 +893,7 @@ public interface Font {
         ));
 
 
-        put('[', List.of(
+        put('[', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -907,7 +908,7 @@ public interface Font {
                 "                "
         ));
 
-        put('\\', List.of(
+        put('\\', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -922,7 +923,7 @@ public interface Font {
                 "                "
         ));
 
-        put(']', List.of(
+        put(']', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -937,7 +938,7 @@ public interface Font {
                 "                "
         ));
 
-        put('↑', List.of(
+        put('↑', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -952,7 +953,7 @@ public interface Font {
                 "                "
         ));
 
-        put('←', List.of(
+        put('←', Sprite.of(
                 "                ",
                 "                ",
                 "                ",
@@ -967,235 +968,11 @@ public interface Font {
                 "                "
         ));
 
-        put('▗', List.of(
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████"
-        ));
-
-        put('▖', List.of(
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        "
-        ));
-
-        put('▄', List.of(
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████"
-        ));
-
-        put('▝', List.of(
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                "
-        ));
-
-        put('▐', List.of(
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████"
-        ));
-
-        put('▞', List.of(
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        "
-        ));
-
-        put('▟', List.of(
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████"
-        ));
-
-        put('▘', List.of(
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                "
-        ));
-
-        put('▚', List.of(
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████"
-        ));
-
-        put('▌', List.of(
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        "
-        ));
-
-        put('▙', List.of(
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████"
-        ));
-
-        put('▀', List.of(
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                "
-        ));
-
-        put('▜', List.of(
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████",
-                "        ████████"
-        ));
-
-        put('▛', List.of(
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        ",
-                "████████        "
-        ));
-
-        put('█', List.of(
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████",
-                "████████████████"
-        ));
     }};
 
-    static Font coco8x12() {
-        return (glyph, row, column) -> standard.get(glyph).get(row).charAt(column * 2) != ' ';
+    @Override
+    public Optional<Sprite> sprite(Character character) {
+        return Optional.ofNullable(SPRITES.get(character))
+                       .or(() -> GRAPHIC.sprite(character));
     }
-
-    boolean pixel(char glyph, int row, int column);
 }
