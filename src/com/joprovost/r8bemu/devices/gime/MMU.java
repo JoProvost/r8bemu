@@ -135,4 +135,10 @@ public class MMU implements MemoryDevice {
             default: throw new IllegalStateException("task : " + task);
         }
     }
+
+    public void clear() {
+        init0.clear();
+        init1.clear();
+        sam.clear();
+    }
 }

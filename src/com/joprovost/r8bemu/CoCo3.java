@@ -118,6 +118,7 @@ public class CoCo3 {
             Signal.RESET.pulse();
             Register.reset();
             ram.clear();
+            mmu.clear();
         });
 
         try {
