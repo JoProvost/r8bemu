@@ -1,9 +1,9 @@
 package com.joprovost.r8bemu.data;
 
 import com.joprovost.r8bemu.data.transform.DataAccessSubset;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static com.joprovost.r8bemu.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -116,7 +116,4 @@ class DataAccessSubsetTest {
         assertEquals(0b101010_01010101_10, source.value());
     }
 
-    public void assertEquals(int expected, int actual) {
-        Assertions.assertEquals("0x" + Integer.toHexString(expected), "0x" + Integer.toHexString(actual));
-    }
 }

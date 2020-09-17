@@ -2,7 +2,7 @@ package com.joprovost.r8bemu.data;
 
 import java.util.function.Supplier;
 
-public interface BitOutput extends Described {
+public interface BitOutput extends Supplier<Boolean>, Described {
     static BitOutput not(BitOutput bit) {
         return new BitOutput() {
             @Override
@@ -21,6 +21,10 @@ public interface BitOutput extends Described {
 
     default boolean isClear() {
         return !isSet();
+    }
+
+    default Boolean get() {
+        return isSet();
     }
 
     static BitOutput of(String description, Supplier<Boolean> condition) {

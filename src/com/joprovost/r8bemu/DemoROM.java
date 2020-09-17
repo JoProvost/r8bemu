@@ -8,6 +8,7 @@ public class DemoROM {
         Memory memory = new Memory(0x1fff);
 
         memory.write(0xbffe, 0xa0, 0x00); // Boot vector at $a000
+        memory.write(0x8c1b, 0x7e, 0xa0, 0x00); // Jump to $a000
 
         memory.write(
                 0xa000,           //        ORG   $a000
@@ -35,7 +36,6 @@ public class DemoROM {
 
         memory.write(0xb000, strings(
                 black("                                ",
-                      "                                ",
                       " ###   ##  ###   ###            ",
                       " #  # #  # #  #  #              ",
                       " ###   ##  ###   ##  ## #  #  # ",
@@ -45,6 +45,9 @@ public class DemoROM {
                 green("                                ",
                       " ROM FILES :                    ",
                       "  .R8BEMU/BAS13.ROM    "),
+                black("REQUIRED"),
+                green(" ",
+                      "  .R8BEMU/COCO3.ROM    "),
                 black("REQUIRED"),
                 green(" ",
                       "  .R8BEMU/EXTBAS11.ROM          ",

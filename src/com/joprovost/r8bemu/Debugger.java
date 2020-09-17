@@ -7,6 +7,7 @@ import com.joprovost.r8bemu.mc6809.Register;
 public abstract class Debugger {
 
     protected int address;
+    protected String[] addresses = new String[32];
     protected DataOutput argument;
 
     public static Debugger none() {
@@ -22,6 +23,8 @@ public abstract class Debugger {
     public void at(int address) {
         this.address = address;
         this.argument = DataOutput.NONE;
+        System.arraycopy(addresses, 0, addresses, 1, addresses.length - 1);
+        addresses[0] = DataOutput.hex(address, 0xffff);
     }
 
     public void label(String name, int address) {
@@ -45,6 +48,7 @@ public abstract class Debugger {
                 column(8, mnemonic.description()),
                 column(24, argument.description() + (isJump(mnemonic) ? " ;" + argument.hex() : "")),
                 "; ",
+                column(12, Register.PC),
                 column(12, Register.A),
                 column(12, Register.B),
                 column(12, Register.D),

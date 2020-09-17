@@ -6,10 +6,10 @@ import com.joprovost.r8bemu.data.MemoryDataReference;
 import com.joprovost.r8bemu.data.Size;
 import com.joprovost.r8bemu.memory.Addressing;
 import com.joprovost.r8bemu.memory.Memory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.joprovost.r8bemu.Assert.assertEquals;
 import static com.joprovost.r8bemu.mc6809.Register.DP;
 import static com.joprovost.r8bemu.mc6809.Register.PC;
 import static com.joprovost.r8bemu.mc6809.Register.S;
@@ -191,9 +191,5 @@ class ArgumentTest {
         assertEquals(0x4000, MemoryDataReference.of(memory, 0x2000, Size.WORD_16).value());
 
         assertEquals(0x02, PC.value());
-    }
-
-    public void assertEquals(int expected, int actual) {
-        Assertions.assertEquals("0x" + Integer.toHexString(expected), "0x" + Integer.toHexString(actual));
     }
 }

@@ -1,7 +1,8 @@
 package com.joprovost.r8bemu.data;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static com.joprovost.r8bemu.Assert.assertEquals;
 
 class DataTest {
 
@@ -18,9 +19,5 @@ class DataTest {
 
         assertEquals(0xabc, word16.value());
         assertEquals(0xffff, word16.mask());
-    }
-
-    public static void assertEquals(int expected, int actual) {
-        Assertions.assertEquals("0x" + Integer.toHexString(expected), "0x" + Integer.toHexString(actual));
     }
 }

@@ -2,6 +2,12 @@ package com.joprovost.r8bemu.memory;
 
 import com.joprovost.r8bemu.data.BitOutput;
 import com.joprovost.r8bemu.data.DataOutput;
+import com.joprovost.r8bemu.data.Flag;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Represents a device directly connected on the address and data bus.
@@ -20,36 +26,58 @@ public interface MemoryDevice {
         };
     }
 
-    static MemoryDevice when(BitOutput cs, MemoryDevice device) {
+    static MemoryDevice when(BitOutput select, MemoryDevice ... devices) {
         return new MemoryDevice() {
-
             @Override
             public int read(int address) {
-                if (cs.isClear()) return 0;
-                return device.read(address);
+                int data = 0;
+                if (select.isSet())
+                    for (var device : devices)
+                        data |= device.read(address);
+                return data;
             }
 
             @Override
             public void write(int address, int data) {
-                if (cs.isClear()) return;
-                device.write(address, data);
+                if (select.isSet()) for (var device : devices) device.write(address, data);
             }
         };
     }
 
-    static MemoryDevice pageSwitchOn(BitOutput pageSwitch, int mask, MemoryDevice device) {
+    static MemoryDevice select(int addr, int mask, MemoryDevice ... devices) {
         return new MemoryDevice() {
-
             @Override
             public int read(int address) {
-                if (pageSwitch.isSet()) address |= mask;
-                return device.read(address);
+                int data = 0;
+                if ((address & mask) == addr)
+                    for (var device : devices)
+                        data |= device.read(address);
+                return data;
             }
 
             @Override
             public void write(int address, int data) {
-                if (pageSwitch.isSet()) address |= mask;
-                device.write(address, data);
+                if ((address & mask) == addr) for (var device : devices) device.write(address, data);
+            }
+        };
+    }
+
+    static MemoryDevice mask(int mask, MemoryDevice ... devices) {
+        return new MemoryDevice() {
+            @Override
+            public int read(int address) {
+                address |= mask;
+                int data = 0;
+                for (var device : devices)
+                    data |= device.read(address);
+                return data;
+            }
+
+            @Override
+            public void write(int address, int data) {
+                address |= mask;
+                for (var device : devices)
+                    device.write(address, data);
             }
         };
     }
@@ -60,23 +88,7 @@ public interface MemoryDevice {
      * each parallel device must return "0" on unmapped addresses.
      */
     static MemoryDevice bus(MemoryDevice... devices) {
-        return new MemoryDevice() {
-            @Override
-            public int read(int address) {
-                int data = 0;
-                for (var device : devices) {
-                    data |= device.read(address);
-                }
-                return data;
-            }
-
-            @Override
-            public void write(int address, int data) {
-                for (var device : devices) {
-                    device.write(address, data);
-                }
-            }
-        };
+        return MemoryDevice.when(Flag.value(true), devices);
     }
 
     /**
@@ -93,6 +105,15 @@ public interface MemoryDevice {
             public void write(int address, int data) {
             }
         };
+    }
+
+    static Optional<MemoryDevice> rom(Path path) {
+        if (!Files.exists(path)) return Optional.empty();
+        try {
+            return Optional.of(MemoryDevice.readOnly(Memory.file(path)));
+        } catch (IOException e) {
+            return Optional.empty();
+        }
     }
 
     int read(int address);

@@ -5,13 +5,11 @@ import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.FakeBusyState;
 import com.joprovost.r8bemu.memory.Memory;
 import com.joprovost.r8bemu.memory.MemoryDevice;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
+import static com.joprovost.r8bemu.Assert.assertEquals;
 import static com.joprovost.r8bemu.data.Flag.value;
 import static com.joprovost.r8bemu.mc6809.Register.A;
 import static com.joprovost.r8bemu.mc6809.Register.B;
@@ -45,7 +43,6 @@ class MC6809ETest {
     FakeBusyState clock = new FakeBusyState();
     MC6809E cpu = new MC6809E(memory, debugger, clock);
 
-
     @BeforeEach
     void setUp() {
         Register.reset();
@@ -53,14 +50,10 @@ class MC6809ETest {
         clock.reset();
     }
 
-    public void assertEquals(int expected, int actual) {
-        Assertions.assertEquals("0x" + Integer.toHexString(expected), "0x" + Integer.toHexString(actual));
-    }
-
     @Nested
     class OpCodes {
         @Test
-        void nopTakesTwoTicks() throws IOException {
+        void nopTakesTwoTicks() {
             PC.value(0x0000);
             memory.write(0x00, NOP, NOP);
 
@@ -70,7 +63,7 @@ class MC6809ETest {
         }
 
         @Test
-        void abx() throws IOException {
+        void abx() {
             B.value(0x15);
             X.value(0x1202);
             PC.value(0x0000);
@@ -83,7 +76,7 @@ class MC6809ETest {
         }
 
         @Test
-        void mul() throws IOException {
+        void mul() {
             A.value(0x04);
             B.value(0x04);
 
@@ -95,7 +88,7 @@ class MC6809ETest {
         }
 
         @Test
-        void neg() throws IOException {
+        void neg() {
             DP.value(0x04);
 
             memory.write(0x00, NEG_DIRECT, 0x01);
@@ -110,7 +103,7 @@ class MC6809ETest {
         }
 
         @Test
-        void neg0x0() throws IOException {
+        void neg0x0() {
             DP.value(0x04);
 
             memory.write(0x00, NEG_DIRECT, 0x01);
@@ -125,7 +118,7 @@ class MC6809ETest {
         }
 
         @Test
-        void neg0x00() throws IOException {
+        void neg0x00() {
             DP.value(0x04);
 
             memory.write(0x00, NEG_DIRECT, 0x01);
@@ -140,7 +133,7 @@ class MC6809ETest {
         }
 
         @Test
-        void cmpa() throws IOException {
+        void cmpa() {
             A.value(0x10);
 
             memory.write(0x00, CMPA_INDEXED, EXTENDED_INDIRECT, 0x10, 0x00);
@@ -155,7 +148,7 @@ class MC6809ETest {
         }
 
         @Test
-        void sbca() throws IOException {
+        void sbca() {
             A.value(0x10);
 
             memory.write(0x00, 0xa2, EXTENDED_INDIRECT, 0x10, 0x00);
@@ -173,7 +166,7 @@ class MC6809ETest {
     @Nested
     class InterruptRequest {
         @Test
-        void savesFullStateAndLoadsCounterFrom0xfff8() throws IOException {
+        void savesFullStateAndLoadsCounterFrom0xfff8() {
             memory.write(IRQ_VECTOR, 0xab, 0xcd);
 
             CC.value(0x01);
@@ -214,7 +207,7 @@ class MC6809ETest {
         }
 
         @Test
-        void doesNothingWhenIFlagIsSet() throws IOException {
+        void doesNothingWhenIFlagIsSet() {
             memory.write(IRQ_VECTOR, 0xab, 0xcd);
             memory.write(0x0000, NOP);
 
@@ -238,7 +231,7 @@ class MC6809ETest {
     @Nested
     class FastInterruptRequest {
         @Test
-        void savesProgramCounterAndLoadsCounterFrom0xfff6() throws IOException {
+        void savesProgramCounterAndLoadsCounterFrom0xfff6() {
             memory.write(FIRQ_VECTOR, 0xab, 0xcd);
 
             CC.value(0x01);
@@ -265,7 +258,7 @@ class MC6809ETest {
         }
 
         @Test
-        void doesNothingWhenIFlagIsSet() throws IOException {
+        void doesNothingWhenIFlagIsSet() {
             memory.write(FIRQ_VECTOR, 0xab, 0xcd);
             memory.write(0x0000, NOP);
 
@@ -283,7 +276,7 @@ class MC6809ETest {
         }
 
         @Test
-        void hasPriorityOverIRQ() throws IOException {
+        void hasPriorityOverIRQ() {
             memory.write(FIRQ_VECTOR, 0xab, 0xcd);
             memory.write(IRQ_VECTOR, 0x00, 0x00);
 

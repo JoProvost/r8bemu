@@ -1,8 +1,9 @@
 package com.joprovost.r8bemu.data;
 
 import com.joprovost.r8bemu.data.transform.Filter;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static com.joprovost.r8bemu.Assert.assertEquals;
 
 class FilterTest {
 
@@ -70,11 +71,4 @@ class FilterTest {
         assertEquals(0xaf, variable.value());
     }
 
-    public void assertEquals(int expected, int actual) {
-        Assertions.assertEquals("0x" + Integer.toHexString(expected), "0x" + Integer.toHexString(actual));
-    }
-
-    public void assertEquals(String expected, String actual) {
-        Assertions.assertEquals(expected, actual);
-    }
 }
