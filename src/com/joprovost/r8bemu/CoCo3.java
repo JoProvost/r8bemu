@@ -61,7 +61,9 @@ public class CoCo3 {
 
         Memory ram = new Memory(0x7ffff);
 
-        var rom = rom(home.resolve("coco3.rom")).orElse(demo());
+        var rom = rom(home.resolve("coco3.rom"))
+                .or(() -> rom(home.resolve("BASIC3.ROM")))
+                .orElse(demo());
         var cart = rom(home.resolve("disk12.rom"))
                 .or(() -> rom(home.resolve("disk11.rom")))
                 .orElse(none());

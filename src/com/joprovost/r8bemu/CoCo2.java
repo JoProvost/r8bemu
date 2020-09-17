@@ -58,10 +58,15 @@ public class CoCo2 {
 
         var sam = new MC6883(ram);
         Signal.RESET.to(sam.reset());
-        var rom0 = rom(home.resolve("extbas11.rom")).orElse(none());
-        var rom1 = rom(home.resolve("bas13.rom")).orElse(DemoROM.demo());
+        var rom0 = rom(home.resolve("extbas11.rom"))
+                .or(() -> rom(home.resolve("EXTBASIC.ROM")))
+                .orElse(none());
+        var rom1 = rom(home.resolve("bas13.rom"))
+                .or(() -> rom(home.resolve("BASIC.ROM")))
+                .orElse(DemoROM.demo());
         var cart = rom(home.resolve("disk12.rom"))
                 .or(() -> rom(home.resolve("disk11.rom")))
+                .or(() -> rom(home.resolve("DSKBASIC.ROM")))
                 .orElse(none());
         var drive = context.aware(new DiskDrive());
         drive.irq().to(Signal.NMI);
