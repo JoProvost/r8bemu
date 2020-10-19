@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu.io.awt;
 
-import com.joprovost.r8bemu.data.BitOutput;
+import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,14 +16,14 @@ import static java.awt.BorderLayout.PAGE_START;
 public class UserInterface extends JFrame {
     public static final Function<Window, Action> SEPARATOR = window -> null;
 
-    private UserInterface(String name, FrameBuffer frameBuffer, List<Function<Window, Action>> actions, BitOutput toolbarOnEdge) {
+    private UserInterface(String name, Display display, List<Function<Window, Action>> actions, DiscreteOutput toolbarOnEdge) {
         super(name);
 
-        var toolbar = toolbar(actions, frameBuffer);
-        add(frameBuffer, CENTER);
+        var toolbar = toolbar(actions, display);
+        add(display, CENTER);
         add(toolbar, PAGE_START);
 
-        frameBuffer.addMouseMotionListener(new MouseAdapter() {
+        display.addMouseMotionListener(new MouseAdapter() {
             public void mouseMoved(MouseEvent e) {
                 if (toolbar.isVisible()) {
                     toolbar.setVisible(e.getY() == 0);
@@ -34,8 +34,8 @@ public class UserInterface extends JFrame {
         });
     }
 
-    public static UserInterface show(FrameBuffer frameBuffer, List<Function<Window, Action>> actions, BitOutput toolbarOnEdge) {
-        UserInterface ui = new UserInterface("R8BEmu", frameBuffer, actions, toolbarOnEdge);
+    public static UserInterface show(Display display, List<Function<Window, Action>> actions, DiscreteOutput toolbarOnEdge) {
+        UserInterface ui = new UserInterface("R8BEmu", display, actions, toolbarOnEdge);
         List<Image> icons  = new ArrayList<>();
         icons.add(new ImageIcon(UserInterface.class.getResource("/images/logo_64x64.png")).getImage());
         icons.add(new ImageIcon(UserInterface.class.getResource("/images/logo_128x128.png")).getImage());
@@ -49,7 +49,7 @@ public class UserInterface extends JFrame {
         return ui;
     }
 
-    private JToolBar toolbar(List<Function<Window, Action>> actions, FrameBuffer frameBuffer) {
+    private JToolBar toolbar(List<Function<Window, Action>> actions, Display display) {
         JToolBar toolBar = new JToolBar();
         toolBar.setVisible(false);
         toolBar.setFloatable(false);
@@ -61,7 +61,7 @@ public class UserInterface extends JFrame {
                 var button = new JButton(action.apply(this));
                 button.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
                 button.setContentAreaFilled(false);
-                button.addActionListener(xit-> frameBuffer.requestFocusInWindow());
+                button.addActionListener(xit-> display.requestFocusInWindow());
                 toolBar.add(button);
             }
         }

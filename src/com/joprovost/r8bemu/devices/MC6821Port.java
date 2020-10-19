@@ -1,67 +1,70 @@
 package com.joprovost.r8bemu.devices;
 
-import com.joprovost.r8bemu.data.BitAccess;
-import com.joprovost.r8bemu.data.BitInput;
-import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.DataOutput;
-import com.joprovost.r8bemu.data.Variable;
-import com.joprovost.r8bemu.data.link.LineOutputHandler;
-import com.joprovost.r8bemu.data.link.LinePort;
-import com.joprovost.r8bemu.data.link.ParallelInputProvider;
-import com.joprovost.r8bemu.data.link.ParallelOutputHandler;
-import com.joprovost.r8bemu.data.link.ParallelPort;
-import com.joprovost.r8bemu.data.transform.DataOutputComplement;
+import com.joprovost.r8bemu.data.binary.BinaryAccess;
+import com.joprovost.r8bemu.data.binary.BinaryInputProvider;
+import com.joprovost.r8bemu.data.binary.BinaryOutput;
+import com.joprovost.r8bemu.data.binary.BinaryOutputHandler;
+import com.joprovost.r8bemu.data.binary.BinaryPort;
+import com.joprovost.r8bemu.data.binary.BinaryRegister;
+import com.joprovost.r8bemu.data.discrete.DiscreteAccess;
+import com.joprovost.r8bemu.data.discrete.DiscreteInput;
+import com.joprovost.r8bemu.data.discrete.DiscreteLineInput;
+import com.joprovost.r8bemu.data.discrete.DiscretePort;
+import com.joprovost.r8bemu.data.discrete.DiscteteOutputHandler;
+import com.joprovost.r8bemu.data.transform.BinaryAccessSubset;
+import com.joprovost.r8bemu.data.transform.BinaryOutputComplement;
+import com.joprovost.r8bemu.data.transform.BinaryOutputSubset;
 import com.joprovost.r8bemu.data.transform.Filter;
-import com.joprovost.r8bemu.memory.MemoryDevice;
+import com.joprovost.r8bemu.devices.memory.Addressable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.joprovost.r8bemu.data.transform.DataAccessSubset.bit;
+import static com.joprovost.r8bemu.data.transform.BinaryAccessSubset.bit;
 
-public class MC6821Port implements MemoryDevice {
+public class MC6821Port implements Addressable {
 
     // Control Register
-    private final Variable CONTROL_REGISTER = Variable.ofMask(0xff);
+    private final BinaryRegister CONTROL_REGISTER = BinaryRegister.ofMask(0xff);
 
-    public final BitAccess CA2_OUTPUT_MODE = (bit(CONTROL_REGISTER, 5));
-    public final BitAccess CA2_OUTPUT_STATE = (bit(CONTROL_REGISTER, 3));
+    public final DiscreteAccess CA2_OUTPUT_MODE = (bit(CONTROL_REGISTER, 5));
+    public final DiscreteAccess CA2_OUTPUT_STATE = (bit(CONTROL_REGISTER, 3));
 
     // IRQA2 Interrupt Flag (bit 6)
     // When CA2 is an input, IRQA goes high  on active transition CA2; Automatically cleared by MPQ
     // Read of Output Register A. May also be cleared by hardware Reset.
     // CA2 Established as Output (b5=1); IRQA2=0, not affected by CA2 transition.
-    private final BitAccess CA2_IRQ_FLAG = (bit(CONTROL_REGISTER, 6));
+    private final DiscreteAccess CA2_IRQ_FLAG = (bit(CONTROL_REGISTER, 6));
 
-    public final BitAccess CA2_IRQ_ENABLED = (bit(CONTROL_REGISTER, 3));
+    public final DiscreteAccess CA2_IRQ_ENABLED = (bit(CONTROL_REGISTER, 3));
 
     // Determines if Data Direction Register Or Output Register is Addressed
     // b2=0: Data Direction Register selected.
     // b2=1: Output Register selected.
-    private final BitAccess DDR_ACCESS = (bit(CONTROL_REGISTER, 2));
+    private final DiscreteAccess DDR_ACCESS = (bit(CONTROL_REGISTER, 2));
 
     // IRQA1 Interrupt Flag (bit 7)
     // Goes high on active transition of CA1; Automatically cleared by MPU Read of Output Register A.
     // May also be cleared by hardware Reset.
-    private final BitAccess CA1_IRQ_FLAG = (bit(CONTROL_REGISTER, 7));
+    private final DiscreteAccess CA1_IRQ_FLAG = (bit(CONTROL_REGISTER, 7));
 
-    private final BitAccess CA1_IRQ_ENABLED = (bit(CONTROL_REGISTER, 0));
+    private final DiscreteAccess CA1_IRQ_ENABLED = (bit(CONTROL_REGISTER, 0));
 
     // Peripheral Register A
-    private final Variable PERIPHERAL_REGISTER = Variable.ofMask(0xff);
+    private final BinaryRegister PERIPHERAL_REGISTER = BinaryRegister.ofMask(0xff);
 
     // Data Direction Register A
-    private final Variable DATA_DIRECTION_REGISTER = Variable.ofMask(0xff);
+    private final BinaryRegister DATA_DIRECTION_REGISTER = BinaryRegister.ofMask(0xff);
 
-    private final List<ParallelInputProvider> inputProviders = new ArrayList<>();
-    private final List<ParallelOutputHandler> outputHandlers = new ArrayList<>();
-    private final List<LineOutputHandler> controlHandlers = new ArrayList<>();
-    private final Filter input = Filter.of(PERIPHERAL_REGISTER, DataOutputComplement.of(DATA_DIRECTION_REGISTER));
+    private final List<BinaryInputProvider> inputProviders = new ArrayList<>();
+    private final List<BinaryOutputHandler> outputHandlers = new ArrayList<>();
+    private final List<DiscteteOutputHandler> controlHandlers = new ArrayList<>();
+    private final Filter input = Filter.of(PERIPHERAL_REGISTER, BinaryOutputComplement.of(DATA_DIRECTION_REGISTER));
     private final Filter output = Filter.of(PERIPHERAL_REGISTER, DATA_DIRECTION_REGISTER);
 
-    private final BitInput irq;
+    private final DiscreteInput irq;
 
-    public MC6821Port(BitInput irq) {
+    public MC6821Port(DiscreteInput irq) {
         this.irq = irq;
     }
     // 1=output 0=input
@@ -99,37 +102,66 @@ public class MC6821Port implements MemoryDevice {
         }
     }
 
-    public void interrupt() {
-        CA1_IRQ_FLAG.set();
-        if (CA1_IRQ_ENABLED.isSet()) irq.set();
+    public DiscreteLineInput interrupt() {
+        return value -> {
+            if (!value) return; // TODO: Only interrupt on low to high is supported
+            CA1_IRQ_FLAG.set();
+            if (CA1_IRQ_ENABLED.isSet()) irq.set();
+        };
     }
 
-    public ParallelPort port() {
-        return new ParallelPort() {
+    public BinaryPort port() {
+        return new BinaryPort() {
             @Override
-            public void from(ParallelInputProvider provider) {
+            public void from(BinaryInputProvider provider) {
                 inputProviders.add(provider);
             }
 
             @Override
-            public DataAccess input() {
+            public BinaryAccess input() {
                 return input;
             }
 
             @Override
-            public void to(ParallelOutputHandler handler) {
+            public void to(BinaryOutputHandler handler) {
                 outputHandlers.add(handler);
             }
 
             @Override
-            public DataOutput output() {
+            public BinaryOutput output() {
                 return output;
             }
         };
     }
 
-    public LinePort control() {
-        return new LinePort() {
+    public BinaryPort port(int mask) {
+        BinaryAccessSubset input = BinaryAccessSubset.of(this.input, mask);
+        BinaryOutputSubset output = BinaryOutputSubset.of(this.output, mask);
+        return new BinaryPort() {
+            @Override
+            public void from(BinaryInputProvider provider) {
+                inputProviders.add(unused -> provider.provide(input));
+            }
+
+            @Override
+            public BinaryAccess input() {
+                return input;
+            }
+
+            @Override
+            public void to(BinaryOutputHandler handler) {
+                outputHandlers.add(unused -> handler.handle(output));
+            }
+
+            @Override
+            public BinaryOutput output() {
+                return output;
+            }
+        };
+    }
+
+    public DiscretePort control() {
+        return new DiscretePort() {
             @Override
             public void set(boolean value) {
                 if (!value) return; // TODO: Only interrupt on low to high is supported
@@ -150,7 +182,7 @@ public class MC6821Port implements MemoryDevice {
             }
 
             @Override
-            public void to(LineOutputHandler handler) {
+            public void to(DiscteteOutputHandler handler) {
                 controlHandlers.add(handler);
             }
         };

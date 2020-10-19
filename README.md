@@ -1,7 +1,6 @@
 # R8BEmu : Retro 8-Bits Emulator
 
-R8BEmu's goal is to emulate the Tandy's Color Computer family, starting with the Color Computer II but could be the
-base of any other type of emulator.
+R8BEmu's goal is to emulate the Tandy's Color Computer family but could be the base of any other type of emulator.
 ![](boot.png)
 
 ## Why another emulator?
@@ -14,10 +13,12 @@ __Just for fun!__
     $ ./r8bemu --help
     Usage: r8bemu [options]
     
+      --coco2               [true|false]    Use Color Computer Model 2 hardware emulation
+      --coco3               [true|false]    Use Color Computer Model 3 hardware emulation
       --terminal-graphic    [true|false]    Activate the terminal interface in graphic mode
       --terminal            [true|false]    Activate the terminal interface in text mode
       --window              [true|false]    Activate the windowed graphic interface
-      --disable-composite   [true|false]    Disable composite blue/red color emulation
+      --composite           [true|false]    Composite blue/red color emulation
       --home                <path>          Home directory (location of ROM files)     (default: ~/.r8bemu)
       --disk                <path>          Insert the diskette image file in drive 0  (default: ~/.r8bemu/disk.dsk)
       --playback            <path>          Define the audio file used for playback    (default: ~/.r8bemu/playback.wav)
@@ -40,6 +41,9 @@ own and put the content of `Color Basic` in `bas13.rom`, `Extended Color Basic` 
  * __`bas13.rom`__ starting at __0xA000__ ending at __0xBFFF__, boot vector must be at __0xBFFE__ ;
  * __`extbas11.rom`__ starting at __0x8000__ ending at __0x9FFF__ .
  * __`disk11.rom`__ starting at __0xC000__ ending at __0xFF00__ .
+
+For CoCo 3 emulation, you need to provide the image of `Extended Color Basic 2.0` in `BASIC3.ROM` or `coco3.rom`
+and `Disk Extended Color Basic` in `disk11.rom`.
 
 ### Scripting
 In order to perform integration tests the content of a script may be is typed on the emulator keyboard.
@@ -66,7 +70,10 @@ To load a program from a `.dsk` file, choose a disk by clicking on the disk icon
  - https://www.maddes.net/m6809pm/
  - http://tlindner.macmess.org/?page_id=86
  - https://techheap.packetizer.com/processors/6809/6809Instructions.html
+ - https://www.lomont.org/software/misc/coco/
+ - https://exstructus.com/tags/coco/australia-colour-palette/
 
 ## Other emulators
  - JS Mocha : https://www.haplessgenius.com/mocha/
  - XRoaR : http://www.6809.org.uk/xroar/
+ - VCC : https://sourceforge.net/projects/vcce/

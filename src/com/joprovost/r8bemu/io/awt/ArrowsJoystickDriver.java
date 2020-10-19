@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.io.awt;
 
-import com.joprovost.r8bemu.data.BitOutput;
-import com.joprovost.r8bemu.io.Joystick;
+import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
+import com.joprovost.r8bemu.io.JoystickInput;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -13,10 +13,10 @@ import static java.awt.event.KeyEvent.VK_SHIFT;
 import static java.awt.event.KeyEvent.VK_UP;
 
 public class ArrowsJoystickDriver implements KeyListener {
-    private final Joystick joystick;
-    private final BitOutput keyboardGamepad;
+    private final JoystickInput joystick;
+    private final DiscreteOutput keyboardGamepad;
 
-    public ArrowsJoystickDriver(Joystick joystick, BitOutput keyboardGamepad) {
+    public ArrowsJoystickDriver(JoystickInput joystick, DiscreteOutput keyboardGamepad) {
         this.joystick = joystick;
         this.keyboardGamepad = keyboardGamepad;
     }
@@ -31,16 +31,16 @@ public class ArrowsJoystickDriver implements KeyListener {
         if (keyboardGamepad.isClear()) return;
         switch (e.getKeyCode()) {
             case VK_UP:
-                joystick.vertical(Joystick.MINIMUM);
+                joystick.vertical(JoystickInput.MINIMUM);
                 break;
             case VK_LEFT:
-                joystick.horizontal(Joystick.MINIMUM);
+                joystick.horizontal(JoystickInput.MINIMUM);
                 break;
             case VK_RIGHT:
-                joystick.horizontal(Joystick.MAXIMUM);
+                joystick.horizontal(JoystickInput.MAXIMUM);
                 break;
             case VK_DOWN:
-                joystick.vertical(Joystick.MAXIMUM);
+                joystick.vertical(JoystickInput.MAXIMUM);
                 break;
             case VK_SHIFT:
                 joystick.press();
@@ -53,16 +53,16 @@ public class ArrowsJoystickDriver implements KeyListener {
         if (keyboardGamepad.isClear()) return;
         switch (e.getKeyCode()) {
             case VK_UP:
-                joystick.vertical(Joystick.CENTER);
+                joystick.vertical(JoystickInput.CENTER);
                 break;
             case VK_LEFT:
-                joystick.horizontal(Joystick.CENTER);
+                joystick.horizontal(JoystickInput.CENTER);
                 break;
             case VK_RIGHT:
-                joystick.horizontal(Joystick.CENTER);
+                joystick.horizontal(JoystickInput.CENTER);
                 break;
             case VK_DOWN:
-                joystick.vertical(Joystick.CENTER);
+                joystick.vertical(JoystickInput.CENTER);
                 break;
             case VK_SHIFT:
                 joystick.release();

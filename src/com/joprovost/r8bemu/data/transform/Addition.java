@@ -1,29 +1,29 @@
 package com.joprovost.r8bemu.data.transform;
 
-import com.joprovost.r8bemu.data.DataOutput;
+import com.joprovost.r8bemu.data.binary.BinaryOutput;
 
 import java.util.function.Function;
 
-public class Addition implements DataOutput {
-    private static final Function<DataOutput, DataOutput> INCREMENT = incrementBy(ONE);
+public class Addition implements BinaryOutput {
+    private static final Function<BinaryOutput, BinaryOutput> INCREMENT = incrementBy(ONE);
 
-    private final DataOutput origin;
-    private final DataOutput offset;
+    private final BinaryOutput origin;
+    private final BinaryOutput offset;
 
-    private Addition(DataOutput origin, DataOutput offset) {
+    private Addition(BinaryOutput origin, BinaryOutput offset) {
         this.origin = origin;
         this.offset = offset;
     }
 
-    public static Addition of(DataOutput origin, DataOutput offset) {
+    public static Addition of(BinaryOutput origin, BinaryOutput offset) {
         return new Addition(origin, offset);
     }
 
-    public static Function<DataOutput, DataOutput> incrementBy(DataOutput offset) {
+    public static Function<BinaryOutput, BinaryOutput> incrementBy(BinaryOutput offset) {
         return origin -> new Addition(origin, offset);
     }
 
-    public static Function<DataOutput, DataOutput> increment() {
+    public static Function<BinaryOutput, BinaryOutput> increment() {
         return INCREMENT;
     }
 

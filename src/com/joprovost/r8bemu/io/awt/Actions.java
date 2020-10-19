@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.io.awt;
 
-import com.joprovost.r8bemu.data.BitAccess;
-import com.joprovost.r8bemu.data.link.LinePort;
+import com.joprovost.r8bemu.data.discrete.DiscreteAccess;
+import com.joprovost.r8bemu.data.discrete.DiscretePort;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -33,7 +33,7 @@ public class Actions {
         };
     }
 
-    public static Function<Window, Action> toggle(ActionIcon icon, BitAccess state) {
+    public static Function<Window, Action> toggle(ActionIcon icon, DiscreteAccess state) {
         return window -> new AbstractAction(null, icon.icon(state)) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -44,7 +44,7 @@ public class Actions {
         };
     }
 
-    public static Function<Window, Action> toggle(ActionIcon icon, LinePort line) {
+    public static Function<Window, Action> toggle(ActionIcon icon, DiscretePort line) {
         return window -> new AbstractAction(null, icon.icon(line)) {
             {
                 line.to(state -> putValue(Action.SMALL_ICON, icon.icon(state)));

@@ -1,9 +1,10 @@
 package com.joprovost.r8bemu.io.sound;
 
 import com.joprovost.r8bemu.clock.Uptime;
-import com.joprovost.r8bemu.data.BitOutput;
+import com.joprovost.r8bemu.data.NumericRange;
+import com.joprovost.r8bemu.data.analog.AnalogInput;
 import com.joprovost.r8bemu.data.buffer.BigEndianAudioBuffer;
-import com.joprovost.r8bemu.io.AudioSink;
+import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -16,15 +17,16 @@ import java.io.UncheckedIOException;
 public class Speaker implements Runnable, Mixer {
 
     public static final int TIMEOUT_MS = 10;
+    private static final NumericRange AUDIO_SAMPLE = new NumericRange(-32768, 0, 32767);
     private final AudioFormat format;
     private final Uptime uptime;
     private final BigEndianAudioBuffer buffer;
-    private final BitOutput mute;
+    private final DiscreteOutput mute;
     private final InputStream input;
     private long last = 0;
-    private int volume = VOLUME_DEFAULT;
+    private double volume = VOLUME_DEFAULT;
 
-    public Speaker(AudioFormat format, Uptime uptime, BitOutput mute) {
+    public Speaker(AudioFormat format, Uptime uptime, DiscreteOutput mute) {
         this.format = format;
         this.uptime = uptime;
         this.mute = mute;
@@ -40,7 +42,7 @@ public class Speaker implements Runnable, Mixer {
         return (nanoTime * (long) format.getSampleRate() / 1000000000);
     }
 
-    public AudioSink input() {
+    public AnalogInput input() {
         return amplitude -> {
             try {
                 var pos = position(uptime.nanoTime());
@@ -56,9 +58,9 @@ public class Speaker implements Runnable, Mixer {
         };
     }
 
-    public int encoded(int amplitude) {
+    public int encoded(double amplitude) {
         if (mute.isSet()) return 0;
-        return amplitude * volume * 256 / Mixer.VOLUME_MAX;
+        return (int) AUDIO_SAMPLE.from(amplitude * volume);
     }
 
     @Override
@@ -79,7 +81,7 @@ public class Speaker implements Runnable, Mixer {
     }
 
     @Override
-    public void volume(int volume) {
+    public void volume(double volume) {
         this.volume = volume;
     }
 }

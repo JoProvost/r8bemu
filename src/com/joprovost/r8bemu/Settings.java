@@ -1,6 +1,6 @@
 package com.joprovost.r8bemu;
 
-import com.joprovost.r8bemu.data.Flag;
+import com.joprovost.r8bemu.data.discrete.Flag;
 
 import java.nio.file.Path;
 import java.util.HashMap;

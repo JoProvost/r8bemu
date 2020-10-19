@@ -4,27 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-public class JoystickDispatcher implements Joystick {
-    private final List<Joystick> targets = new ArrayList<>();
+public class JoystickDispatcher implements JoystickInput {
+    private final List<JoystickInput> targets = new ArrayList<>();
     private final Executor context;
 
     public JoystickDispatcher(Executor context) {
         this.context = context;
     }
 
-    public void dispatchTo(Joystick target) {
+    public void dispatchTo(JoystickInput target) {
         this.targets.add(target);
     }
 
     @Override
-    public void horizontal(int value) {
+    public void horizontal(double value) {
         context.execute(() -> {
             for (var target : targets) target.horizontal(value);
         });
     }
 
     @Override
-    public void vertical(int value) {
+    public void vertical(double value) {
         context.execute(() -> {
             for (var target : targets) target.vertical(value);
         });

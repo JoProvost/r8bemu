@@ -2,24 +2,24 @@ package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
-import com.joprovost.r8bemu.data.BitAccess;
-import com.joprovost.r8bemu.data.DataOutput;
-import com.joprovost.r8bemu.data.Variable;
-import com.joprovost.r8bemu.data.link.Line;
-import com.joprovost.r8bemu.data.link.LineOutput;
-import com.joprovost.r8bemu.data.transform.DataAccessSubset;
-import com.joprovost.r8bemu.io.Disk;
-import com.joprovost.r8bemu.io.DiskSlot;
-import com.joprovost.r8bemu.memory.MemoryDevice;
+import com.joprovost.r8bemu.data.binary.BinaryOutput;
+import com.joprovost.r8bemu.data.binary.BinaryRegister;
+import com.joprovost.r8bemu.data.discrete.DiscreteAccess;
+import com.joprovost.r8bemu.data.discrete.DiscreteLine;
+import com.joprovost.r8bemu.data.discrete.DiscreteLineOutput;
+import com.joprovost.r8bemu.data.transform.BinaryAccessSubset;
+import com.joprovost.r8bemu.devices.memory.Addressable;
+import com.joprovost.r8bemu.storage.Disk;
+import com.joprovost.r8bemu.storage.DiskSlot;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.stream.IntStream;
 
-import static com.joprovost.r8bemu.data.DataOutput.subset;
+import static com.joprovost.r8bemu.data.binary.BinaryOutput.subset;
 
 // Based on FD 179x-02 Family documentation
-public class DiskDrive implements MemoryDevice, ClockAware, DiskSlot {
+public class DiskDrive implements Addressable, ClockAware, DiskSlot {
 
     public static final int IN = 1;
     public static final int OUT = -1;
@@ -30,20 +30,20 @@ public class DiskDrive implements MemoryDevice, ClockAware, DiskSlot {
     public static final int SECTOR = 0xff4a;
     public static final int DATA = 0xff4b;
 
-    private final Variable latch = Variable.ofMask(0xff);
-    private final BitAccess haltMode = DataAccessSubset.bit(latch, 7);
-    private final BitAccess secondSide = DataAccessSubset.bit(latch, 6); // or drive 4
-    private final BitAccess motorOn = DataAccessSubset.bit(latch, 3);
-    private final BitAccess drive3 = DataAccessSubset.bit(latch, 2);
-    private final BitAccess drive2 = DataAccessSubset.bit(latch, 1);
-    private final BitAccess drive1 = DataAccessSubset.bit(latch, 0);
+    private final BinaryRegister latch = BinaryRegister.ofMask(0xff);
+    private final DiscreteAccess haltMode = BinaryAccessSubset.bit(latch, 7);
+    private final DiscreteAccess secondSide = BinaryAccessSubset.bit(latch, 6); // or drive 4
+    private final DiscreteAccess motorOn = BinaryAccessSubset.bit(latch, 3);
+    private final DiscreteAccess drive3 = BinaryAccessSubset.bit(latch, 2);
+    private final DiscreteAccess drive2 = BinaryAccessSubset.bit(latch, 1);
+    private final DiscreteAccess drive1 = BinaryAccessSubset.bit(latch, 0);
 
-    private final Variable status = Variable.ofMask(0xff);
-    private final BitAccess notReady = DataAccessSubset.bit(status, 7);
-    private final BitAccess drq = DataAccessSubset.bit(status, 1);
-    private final BitAccess busy = DataAccessSubset.bit(status, 0);
+    private final BinaryRegister status = BinaryRegister.ofMask(0xff);
+    private final DiscreteAccess notReady = BinaryAccessSubset.bit(status, 7);
+    private final DiscreteAccess drq = BinaryAccessSubset.bit(status, 1);
+    private final DiscreteAccess busy = BinaryAccessSubset.bit(status, 0);
 
-    private final Line irq = Line.named("INTRQ");
+    private final DiscreteLine irq = DiscreteLine.named("INTRQ");
 
     private final Queue<Integer> readQueue = new ArrayDeque<>();
     private int sector;
@@ -53,7 +53,7 @@ public class DiskDrive implements MemoryDevice, ClockAware, DiskSlot {
     private int direction = 1;
     private Disk disk;
 
-    public LineOutput irq() {
+    public DiscreteLineOutput irq() {
         return irq;
     }
 
@@ -67,7 +67,7 @@ public class DiskDrive implements MemoryDevice, ClockAware, DiskSlot {
     public void tick(Clock clock) {
         if (busy.isClear()) return;
 
-        if (!DataOutput.bit(command, 7)) { // Type I
+        if (!BinaryOutput.bit(command, 7)) { // Type I
             if (subset(command, 0xf0) == 0) restore();
             if (subset(command, 0xf0) == 1) seek();
             if (subset(command, 0xe0) != 0) {
@@ -138,7 +138,7 @@ public class DiskDrive implements MemoryDevice, ClockAware, DiskSlot {
     }
 
     private void forceInterrupt(int command) {
-        boolean immediateInterrupt = DataOutput.bit(command, 3);
+        boolean immediateInterrupt = BinaryOutput.bit(command, 3);
         // boolean indexPulse = DataOutput.bit(command, 2);
         // boolean readyToNotReady = DataOutput.bit(command, 1);
         // boolean notReadyToReady = DataOutput.bit(command, 0);

@@ -1,5 +1,7 @@
 package com.joprovost.r8bemu.data;
 
+import com.joprovost.r8bemu.data.binary.BinaryAccess;
+import com.joprovost.r8bemu.data.binary.BinaryRegister;
 import com.joprovost.r8bemu.data.transform.Filter;
 import org.junit.jupiter.api.Test;
 
@@ -7,8 +9,8 @@ import static com.joprovost.r8bemu.Assert.assertEquals;
 
 class FilterTest {
 
-    DataAccess variable = Variable.ofMask(0xff).describedAs("variable");
-    DataAccess filterMask = Variable.ofMask(0xff).describedAs("filtered");
+    BinaryAccess variable = BinaryRegister.ofMask(0xff).describedAs("variable");
+    BinaryAccess filterMask = BinaryRegister.ofMask(0xff).describedAs("filtered");
     Filter filtered = Filter.of(variable, filterMask);
 
     @Test

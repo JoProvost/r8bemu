@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu;
 
 import com.joprovost.r8bemu.data.Described;
+import com.joprovost.r8bemu.devices.mc6809.Debugger;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -9,13 +10,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 
-import static com.joprovost.r8bemu.data.DataOutput.hex;
+import static com.joprovost.r8bemu.data.binary.BinaryOutput.hex;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 
-class Disassembler extends Debugger {
-    private static final boolean DEBUG = false;
+public class Disassembler extends Debugger {
+    private static final boolean DEBUG = true;
     private final String[] code;
     private final String[] label;
     private final long[] ticks;

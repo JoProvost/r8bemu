@@ -1,21 +1,24 @@
 package com.joprovost.r8bemu.io.awt;
 
-import com.joprovost.r8bemu.data.BitOutput;
-import com.joprovost.r8bemu.io.Joystick;
+import com.joprovost.r8bemu.data.NumericRange;
+import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
+import com.joprovost.r8bemu.io.JoystickInput;
 
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+import static com.joprovost.r8bemu.io.JoystickInput.AXIS_RANGE;
+
 public class MouseJoystickDriver extends MouseInputAdapter {
-    private final Joystick joystick;
-    private final BitOutput mouse;
+    private final JoystickInput joystick;
+    private final DiscreteOutput mouse;
     private final Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
             new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB),
             new Point(0, 0), "blank cursor");
 
-    public MouseJoystickDriver(Joystick joystick, BitOutput mouse) {
+    public MouseJoystickDriver(JoystickInput joystick, DiscreteOutput mouse) {
         this.joystick = joystick;
         this.mouse = mouse;
     }
@@ -52,9 +55,15 @@ public class MouseJoystickDriver extends MouseInputAdapter {
 
     private void move(MouseEvent e) {
         if (mouse.isSet()) {
-            joystick.horizontal(e.getX() * (Joystick.MAXIMUM - Joystick.MINIMUM) / e.getComponent().getWidth() + Joystick.MINIMUM);
-            joystick.vertical(e.getY() * (Joystick.MAXIMUM - Joystick.MINIMUM) / e.getComponent().getHeight() + Joystick.MINIMUM);
-            e.getComponent().setCursor(blankCursor);
+            int border = 64;
+
+            Component c = e.getComponent();
+            NumericRange xRange = new NumericRange(border, c.getWidth() / 2.0, c.getWidth() - border);
+            NumericRange yRange = new NumericRange(border, c.getHeight() / 2.0, c.getHeight() - border);
+
+            joystick.horizontal(AXIS_RANGE.from(e.getX(), xRange));
+            joystick.vertical(AXIS_RANGE.from(e.getY(), yRange));
+            c.setCursor(blankCursor);
         } else {
             e.getComponent().setCursor(Cursor.getDefaultCursor());
         }

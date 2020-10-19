@@ -1,8 +1,8 @@
 package com.joprovost.r8bemu.devices;
 
-import com.joprovost.r8bemu.memory.MemoryDevice;
+import com.joprovost.r8bemu.devices.memory.Addressable;
 
-public class MC6821 implements MemoryDevice {
+public class MC6821 implements Addressable {
 
     private final MC6821Port portA;
     private final MC6821Port portB;

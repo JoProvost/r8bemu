@@ -1,18 +1,18 @@
 package com.joprovost.r8bemu.data.transform;
 
-import com.joprovost.r8bemu.data.DataAccess;
-import com.joprovost.r8bemu.data.DataOutput;
+import com.joprovost.r8bemu.data.binary.BinaryAccess;
+import com.joprovost.r8bemu.data.binary.BinaryOutput;
 
-public class Filter implements DataAccess {
-    final DataAccess data;
-    final DataOutput filter;
+public class Filter implements BinaryAccess {
+    final BinaryAccess data;
+    final BinaryOutput filter;
 
-    private Filter(DataAccess data, DataOutput filter) {
+    private Filter(BinaryAccess data, BinaryOutput filter) {
         this.data = data;
         this.filter = filter;
     }
 
-    public static Filter of(DataAccess data, DataOutput filter) {
+    public static Filter of(BinaryAccess data, BinaryOutput filter) {
         return new Filter(data, filter);
     }
 

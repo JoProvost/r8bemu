@@ -1,8 +1,8 @@
 package com.joprovost.r8bemu.devices;
 
-import com.joprovost.r8bemu.data.BitOutput;
-import com.joprovost.r8bemu.data.DataOutput;
-import com.joprovost.r8bemu.mc6809.Signal;
+import com.joprovost.r8bemu.data.binary.BinaryOutput;
+import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
+import com.joprovost.r8bemu.devices.mc6809.Signal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -64,7 +64,7 @@ class MC6821PortTest {
 
     @Test
     void notifiesConsumer() {
-        List<DataOutput> consumer = new ArrayList<>();
+        List<BinaryOutput> consumer = new ArrayList<>();
         direction(0b11111111);
         port.port().to(consumer::add);
         port.write(DATA_REGISTER, 0x95);
@@ -77,7 +77,7 @@ class MC6821PortTest {
         @Test
         void setsIrq1FlagOnTrigger() {
             assertFalse(irq1IsSet());
-            port.interrupt();
+            port.interrupt().pulse();
             assertTrue(irq1IsSet());
         }
 
@@ -91,7 +91,7 @@ class MC6821PortTest {
         @Test
         void setsMcuIrqWhenEnabled() {
             enableIrq1();
-            port.interrupt();
+            port.interrupt().pulse();
             assertTrue(Signal.IRQ.isSet());
             port.read(DATA_REGISTER);
             assertTrue(Signal.IRQ.isClear());
@@ -162,7 +162,7 @@ class MC6821PortTest {
 
         @Test
         void notifiesControlHandlers() {
-            List<BitOutput> consumer = new ArrayList<>();
+            List<DiscreteOutput> consumer = new ArrayList<>();
             configureControlAsOutput();
             port.control().to(consumer::add);
 

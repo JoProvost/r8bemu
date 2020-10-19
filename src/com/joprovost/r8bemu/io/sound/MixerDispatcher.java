@@ -17,7 +17,7 @@ public class MixerDispatcher implements Mixer {
     }
 
     @Override
-    public void volume(int volume) {
+    public void volume(double volume) {
         context.execute(() -> {
             for (var target : targets) target.volume(volume);
         });

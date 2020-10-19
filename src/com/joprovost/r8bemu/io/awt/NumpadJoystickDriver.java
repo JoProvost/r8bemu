@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.io.awt;
 
-import com.joprovost.r8bemu.data.BitOutput;
-import com.joprovost.r8bemu.io.Joystick;
+import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
+import com.joprovost.r8bemu.io.JoystickInput;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -21,11 +21,11 @@ import static java.awt.event.KeyEvent.VK_NUMPAD8;
 import static java.awt.event.KeyEvent.VK_NUMPAD9;
 
 public class NumpadJoystickDriver implements KeyListener {
-    private final Joystick joystick;
-    private final BitOutput numpadGamepad;
+    private final JoystickInput joystick;
+    private final DiscreteOutput numpadGamepad;
     private final Set<Integer> arrows = new HashSet<>();
 
-    public NumpadJoystickDriver(Joystick joystick, BitOutput numpadGamepad) {
+    public NumpadJoystickDriver(JoystickInput joystick, DiscreteOutput numpadGamepad) {
         this.joystick = joystick;
         this.numpadGamepad = numpadGamepad;
     }
@@ -41,40 +41,40 @@ public class NumpadJoystickDriver implements KeyListener {
         onArrowEvent(e, arrows::add);
         switch (e.getKeyCode()) {
             case VK_NUMPAD1:
-                joystick.horizontal(Joystick.MINIMUM);
-                joystick.vertical(Joystick.MAXIMUM);
+                joystick.horizontal(JoystickInput.MINIMUM);
+                joystick.vertical(JoystickInput.MAXIMUM);
                 break;
             case VK_NUMPAD2:
-                joystick.horizontal(Joystick.CENTER);
-                joystick.vertical(Joystick.MAXIMUM);
+                joystick.horizontal(JoystickInput.CENTER);
+                joystick.vertical(JoystickInput.MAXIMUM);
                 break;
             case VK_NUMPAD3:
-                joystick.horizontal(Joystick.MAXIMUM);
-                joystick.vertical(Joystick.MAXIMUM);
+                joystick.horizontal(JoystickInput.MAXIMUM);
+                joystick.vertical(JoystickInput.MAXIMUM);
                 break;
             case VK_NUMPAD4:
-                joystick.horizontal(Joystick.MINIMUM);
-                joystick.vertical(Joystick.CENTER);
+                joystick.horizontal(JoystickInput.MINIMUM);
+                joystick.vertical(JoystickInput.CENTER);
                 break;
             case VK_NUMPAD5:
-                joystick.horizontal(Joystick.CENTER);
-                joystick.vertical(Joystick.CENTER);
+                joystick.horizontal(JoystickInput.CENTER);
+                joystick.vertical(JoystickInput.CENTER);
                 break;
             case VK_NUMPAD6:
-                joystick.horizontal(Joystick.MAXIMUM);
-                joystick.vertical(Joystick.CENTER);
+                joystick.horizontal(JoystickInput.MAXIMUM);
+                joystick.vertical(JoystickInput.CENTER);
                 break;
             case VK_NUMPAD7:
-                joystick.horizontal(Joystick.MINIMUM);
-                joystick.vertical(Joystick.MINIMUM);
+                joystick.horizontal(JoystickInput.MINIMUM);
+                joystick.vertical(JoystickInput.MINIMUM);
                 break;
             case VK_NUMPAD8:
-                joystick.horizontal(Joystick.CENTER);
-                joystick.vertical(Joystick.MINIMUM);
+                joystick.horizontal(JoystickInput.CENTER);
+                joystick.vertical(JoystickInput.MINIMUM);
                 break;
             case VK_NUMPAD9:
-                joystick.horizontal(Joystick.MAXIMUM);
-                joystick.vertical(Joystick.MINIMUM);
+                joystick.horizontal(JoystickInput.MAXIMUM);
+                joystick.vertical(JoystickInput.MINIMUM);
                 break;
             case VK_NUMPAD0:
                 joystick.press();
@@ -104,8 +104,8 @@ public class NumpadJoystickDriver implements KeyListener {
         onArrowEvent(e, keycode -> {
             arrows.remove(keycode);
             if (arrows.isEmpty()) {
-                joystick.horizontal(Joystick.CENTER);
-                joystick.vertical(Joystick.CENTER);
+                joystick.horizontal(JoystickInput.CENTER);
+                joystick.vertical(JoystickInput.CENTER);
             }
         });
 

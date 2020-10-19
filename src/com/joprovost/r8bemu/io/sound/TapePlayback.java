@@ -1,8 +1,8 @@
 package com.joprovost.r8bemu.io.sound;
 
 import com.joprovost.r8bemu.clock.Uptime;
-import com.joprovost.r8bemu.data.link.LineOutputHandler;
-import com.joprovost.r8bemu.data.link.ParallelInputProvider;
+import com.joprovost.r8bemu.data.binary.BinaryInputProvider;
+import com.joprovost.r8bemu.data.discrete.DiscteteOutputHandler;
 import com.joprovost.r8bemu.io.CassetteRecorder;
 
 import java.io.File;
@@ -24,23 +24,23 @@ public class TapePlayback implements CassetteRecorder {
         this.uptime = uptime;
     }
 
-    public ParallelInputProvider output(int mask) {
+    public BinaryInputProvider output() {
         return input -> {
             if (!motor) return;
             var pos = position(uptime.nanoTime() - offset);
             if (pos < playback.data.length) {
                 if ((playback.data[pos] & 0xff) >= 128) {
-                    input.set(mask);
+                    input.set();
                 } else {
-                    input.clear(mask);
+                    input.clear();
                 }
             } else {
-                input.set(mask);
+                input.set();
             }
         };
     }
 
-    public LineOutputHandler motor() {
+    public DiscteteOutputHandler motor() {
         return state -> motor(state.isSet());
     }
 

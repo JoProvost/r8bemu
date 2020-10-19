@@ -2,7 +2,7 @@ package com.joprovost.r8bemu.data;
 
 import org.junit.jupiter.api.Test;
 
-import static com.joprovost.r8bemu.data.Value.asByte;
+import static com.joprovost.r8bemu.data.binary.BinaryValue.asByte;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AdditionTest {

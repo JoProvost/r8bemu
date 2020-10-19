@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.clock.FakeClock;
-import com.joprovost.r8bemu.io.Disk;
+import com.joprovost.r8bemu.storage.Disk;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class DiskDriveTest {
 
     FakeClock clock = new FakeClock();
-    FakeLineOutputHandler interrupt = new FakeLineOutputHandler();
+    FakeDiscteteOutputHandler interrupt = new FakeDiscteteOutputHandler();
 
     DiskDrive drive = new DiskDrive();
 
