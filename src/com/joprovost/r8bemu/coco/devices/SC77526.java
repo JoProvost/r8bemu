@@ -37,12 +37,12 @@ public class SC77526 {
         };
     }
 
-    public BinaryInputProvider cmp(int mask) {
+    public BinaryInputProvider cmp() {
         return input -> {
             if (analog <= joy[(selB ? 2 : 0) | (selA ? 1 : 0)].value()) {
-                input.set(mask);
+                input.set();
             } else {
-                input.clear(mask);
+                input.clear();
             }
         };
     }

@@ -1,13 +1,11 @@
 package com.joprovost.r8bemu.data.binary;
 
-import com.joprovost.r8bemu.data.transform.BinaryOutputSubset;
-
-public interface BinaryLineOutput {
+public interface BinaryLineOutput extends BinaryInputProvider {
     void to(BinaryOutputHandler handler);
 
     BinaryOutput output();
 
-    default BinaryOutput output(int mask) {
-        return BinaryOutputSubset.of(output(), mask);
+    default void provide(BinaryAccess input) {
+        input.value(output());
     }
 }

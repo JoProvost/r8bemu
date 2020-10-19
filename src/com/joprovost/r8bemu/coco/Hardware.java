@@ -30,7 +30,6 @@ import com.joprovost.r8bemu.io.sound.TapeRecorder;
 import javax.sound.sampled.AudioFormat;
 import java.nio.file.Path;
 
-import static com.joprovost.r8bemu.data.binary.BinaryInputProvider.pin;
 import static com.joprovost.r8bemu.data.binary.BinaryPort.P0;
 import static com.joprovost.r8bemu.data.binary.BinaryPort.P1;
 import static com.joprovost.r8bemu.data.binary.BinaryPort.P2;
@@ -66,7 +65,7 @@ public class Hardware {
 
         AnalogInput audio = AnalogInput.broadcast(speaker.input(), recorder.input());
         var sc77526 = new SC77526(audio);
-        pia0a.port().from(sc77526.cmp(P7));
+        pia0a.port(P7).from(sc77526.cmp());
         pia1a.port(P7 | P6 | P5 | P4 | P3 | P2).to(sc77526.dac());
         pia0a.control().to(sc77526.selA());
         pia0b.control().to(sc77526.selB());
@@ -79,8 +78,9 @@ public class Hardware {
         var right = new JoystickConnector(sc77526.joy(2), sc77526.joy(3));
         pia0a.port(P1).from(right.button());
         jsRight.dispatchTo(right);
+
         // jumper64k
-        pia1b.port().from(pin(P2, pia0b.port().output(P6)));
+        pia1b.port(P2).from(pia0b.port(P6));
 
         debugger.label("RESET", BinaryReference.of(bus, RESET_VECTOR, Size.WORD_16).value());
         debugger.label("IRQ", BinaryReference.of(bus, IRQ_VECTOR, Size.WORD_16).value());
