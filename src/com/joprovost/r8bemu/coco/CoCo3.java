@@ -5,12 +5,13 @@ import com.joprovost.r8bemu.clock.ClockFrequency;
 import com.joprovost.r8bemu.clock.EmulatorContext;
 import com.joprovost.r8bemu.coco.devices.MC6847;
 import com.joprovost.r8bemu.coco.devices.gime.ColorPalette;
+import com.joprovost.r8bemu.coco.devices.gime.CompositeDetection;
 import com.joprovost.r8bemu.coco.devices.gime.DisplayProcessor;
 import com.joprovost.r8bemu.coco.devices.gime.MMU;
 import com.joprovost.r8bemu.coco.font.HighResFont;
 import com.joprovost.r8bemu.coco.font.LegacyFont3;
 import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
-import com.joprovost.r8bemu.data.discrete.Flag;
+import com.joprovost.r8bemu.data.discrete.DiscretePort;
 import com.joprovost.r8bemu.devices.DiskDrive;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6821Port;
@@ -20,7 +21,6 @@ import com.joprovost.r8bemu.devices.mc6809.Register;
 import com.joprovost.r8bemu.devices.mc6809.Signal;
 import com.joprovost.r8bemu.devices.memory.Addressable;
 import com.joprovost.r8bemu.devices.memory.Memory;
-import com.joprovost.r8bemu.graphic.Colors;
 import com.joprovost.r8bemu.graphic.Screen;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
 import com.joprovost.r8bemu.io.JoystickDispatcher;
@@ -41,7 +41,7 @@ import static com.joprovost.r8bemu.devices.memory.Addressable.when;
 public class CoCo3 {
     public static void emulate(EmulatorContext context,
                                Screen screen,
-                               Flag composite,
+                               DiscretePort composite,
                                KeyboardDispatcher keyboard,
                                CassetteRecorderDispatcher cassette,
                                DiskSlotDispatcher slot,
@@ -79,9 +79,7 @@ public class CoCo3 {
 
         MMU mmu = new MMU(ram);
 
-        Colors cmp = StandardColors.cmp();
-        Colors rgb = StandardColors.rgb();
-        ColorPalette palette = new ColorPalette(x -> composite.isSet() ? cmp.color(x) : rgb.color(x));
+        ColorPalette palette = new ColorPalette(StandardColors.select(composite), new CompositeDetection(composite));
         DisplayProcessor displayProcessor = new DisplayProcessor(screen, mmu.video(), new HighResFont(), palette, DiscreteOutput.not(mmu.legacy()));
         videoTiming.verticalSync().to(displayProcessor.sync());
         videoTiming.horizontalSync().to(displayProcessor.scan());

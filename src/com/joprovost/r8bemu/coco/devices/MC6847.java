@@ -6,7 +6,6 @@ import com.joprovost.r8bemu.data.binary.BinaryOutputRedirect;
 import com.joprovost.r8bemu.data.discrete.DiscreteLineInput;
 import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
 import com.joprovost.r8bemu.data.discrete.DiscteteOutputHandler;
-import com.joprovost.r8bemu.data.discrete.Flag;
 import com.joprovost.r8bemu.data.transform.BinaryOutputSubset;
 import com.joprovost.r8bemu.devices.RasterGraphicDecoder;
 import com.joprovost.r8bemu.devices.memory.Addressable;
@@ -43,7 +42,7 @@ public class MC6847 {
 
     private final Screen screen;
     private final Addressable ram;
-    private final Flag composite;
+    private final DiscreteOutput composite;
     private final Font font;
     private final DiscreteOutput enabled;
     private final Colors colors;
@@ -52,10 +51,10 @@ public class MC6847 {
     private int rg6ColorOffset = 0;
     private int line;
 
-    public MC6847(Screen screen, Addressable ram, Flag disableRg6Color, Font font, DiscreteOutput enabled, Colors colors) {
+    public MC6847(Screen screen, Addressable ram, DiscreteOutput composite, Font font, DiscreteOutput enabled, Colors colors) {
         this.screen = screen;
         this.ram = ram;
-        this.composite = disableRg6Color;
+        this.composite = composite;
         this.font = font;
         this.enabled = enabled;
         this.colors = colors;

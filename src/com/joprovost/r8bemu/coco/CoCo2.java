@@ -32,7 +32,7 @@ import static com.joprovost.r8bemu.devices.memory.Addressable.rom;
 public class CoCo2 {
     public static void emulate(EmulatorContext context,
                                Screen screen,
-                               Flag composite,
+                               DiscreteOutput composite,
                                KeyboardDispatcher keyboard,
                                CassetteRecorderDispatcher cassette,
                                DiskSlotDispatcher slot,

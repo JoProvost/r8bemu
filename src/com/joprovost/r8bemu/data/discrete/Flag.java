@@ -1,6 +1,10 @@
 package com.joprovost.r8bemu.data.discrete;
 
-public class Flag implements DiscreteAccess, DiscteteOutputHandler {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Flag implements DiscretePort {
+    private final List<DiscteteOutputHandler> handlers = new ArrayList<>();
     private boolean value = false;
 
     public static Flag value(boolean value) {
@@ -20,7 +24,9 @@ public class Flag implements DiscreteAccess, DiscteteOutputHandler {
 
     @Override
     public synchronized void set(boolean value) {
+        if (this.value == value) return;
         this.value = value;
+        for (var handler : handlers) handler.handle(this);
     }
 
     @Override
@@ -31,5 +37,10 @@ public class Flag implements DiscreteAccess, DiscteteOutputHandler {
     @Override
     public void handle(DiscreteOutput state) {
         set(state.isSet());
+    }
+
+    @Override
+    public void to(DiscteteOutputHandler handler) {
+        handlers.add(handler);
     }
 }

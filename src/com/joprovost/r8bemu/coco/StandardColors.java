@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.coco;
 
+import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
 import com.joprovost.r8bemu.graphic.Colors;
 
 import java.awt.*;
@@ -238,5 +239,11 @@ public class StandardColors {
         };
 
         return value -> colors[value % colors.length];
+    }
+
+    public static Colors select(DiscreteOutput composite) {
+        Colors cmp = StandardColors.cmp();
+        Colors rgb = StandardColors.rgb();
+        return color -> composite.isSet() ? cmp.color(color) : rgb.color(color);
     }
 }
