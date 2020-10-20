@@ -53,7 +53,7 @@ public class UserInterface extends JFrame {
         JToolBar toolBar = new JToolBar();
         toolBar.setVisible(false);
         toolBar.setFloatable(false);
-        toolBar.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(0, 128, 0)));
+        toolBar.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(128, 128, 128)));
 
         for (var action : actions) {
             if (action == SEPARATOR) toolBar.addSeparator();

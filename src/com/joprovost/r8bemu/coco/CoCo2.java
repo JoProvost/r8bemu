@@ -85,7 +85,7 @@ public class CoCo2 {
         videoTiming.verticalSync().to(pia0b.interrupt());
 
         Hardware.legacyVideo(
-                new MC6847(screen, sam.video(), composite, new LegacyFont(), Flag.value(true), StandardColors.legacy()),
+                new MC6847(screen, sam.video(), composite, new LegacyFont(), Flag.value(true), StandardColors.legacy(), 320, 225),
                 pia1b, videoTiming);
         Hardware.base(context, uptime, services, bus, pia0a, pia0b, pia1a, pia1b, keyboard, cassette,
                       left, right, mixer, mute, recordingFile, debugger);

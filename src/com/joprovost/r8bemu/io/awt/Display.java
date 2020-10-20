@@ -11,9 +11,9 @@ import static java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
 public class Display extends JPanel {
     private final Renderer renderer = new Renderer(this::repaint);
 
-    public Display() {
-        setMinimumSize(new Dimension(768, 576));
-        setPreferredSize(new Dimension(768, 576));
+    public Display(Dimension size) {
+        setMinimumSize(size);
+        setPreferredSize(size);
         setVisible(true);
 
         setFocusable(true);

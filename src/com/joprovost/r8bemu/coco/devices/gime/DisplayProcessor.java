@@ -13,9 +13,6 @@ import com.joprovost.r8bemu.graphic.Screen;
 
 import java.awt.*;
 
-import static com.joprovost.r8bemu.coco.StandardColors.BLACK;
-import static com.joprovost.r8bemu.coco.StandardColors.GREEN;
-
 public class DisplayProcessor implements Addressable {
     public static final String CHARACTERS = "" +
             "ÇüéâäàåçêëèïîßÄÅóæÆôöøûùØÖÜ§£±°ƒ !\"#$%&'()*+,-./0123456789:;<=>?" +
@@ -26,6 +23,8 @@ public class DisplayProcessor implements Addressable {
     private final Font font;
     private int line;
 
+    private final Colors palette;
+    private final Colors colors;
     private final DiscreteOutput enabled;
 
     // Video mode register
@@ -40,15 +39,22 @@ public class DisplayProcessor implements Addressable {
     private final BinaryOutput cres = BinaryAccessSubset.of(res, 0b00000011);
     // NOTE: Text modes x0=No color attributes x1=Color attributes enabled
     private final BinaryOutput cattr = BinaryAccessSubset.of(res, 0b00000001);
+
+    private final BinaryRegister borderColor = BinaryRegister.ofMask(0x3f);
+
+    public final int displayHeight;
     private final RasterGraphicDecoder raster;
 
 
-    public DisplayProcessor(Screen screen, Addressable ram, Font font, Colors colors, DiscreteOutput enabled) {
+    public DisplayProcessor(Screen screen, Addressable ram, Font font, Colors palette, Colors colors, DiscreteOutput enabled, int displayHeight) {
         this.screen = screen;
         this.ram = ram;
         this.font = font;
+        this.palette = palette;
+        this.colors = colors;
         this.enabled = enabled;
-        raster = RasterGraphicDecoder.of(ram, this::width, this::bits, colors);
+        this.displayHeight = displayHeight;
+        raster = RasterGraphicDecoder.of(ram, this::width, this::bits, palette);
     }
 
     public DiscreteLineInput sync() {
@@ -63,31 +69,53 @@ public class DisplayProcessor implements Addressable {
         return value -> {
             if (!value) return;
             if (enabled.isClear()) return;
-            if (line >= height()) return;
-            if (graphic.isSet()) lineScan();
-            else characterScan();
+            if (line >= displayHeight) return;
+
+            if (frameLine() >= 0 && frameLine() < frameHeight()) {
+                if (graphic.isSet()) lineScan();
+                else characterScan();
+            } else {
+                for (int x = 0; x < width(); x++) {
+                    screen.pixel(x, line, borderColor(), width(), displayHeight);
+                }
+            }
+
             line++;
         };
     }
 
+    private Color borderColor() {
+        return colors.color(borderColor.value());
+    }
+
     private void lineScan() {
-        screen.pixels(0, line, raster.line(line), width(), height());
+        screen.pixels(0, line, raster.line(frameLine()), width(), displayHeight);
     }
 
     private void characterScan() {
-        int spriteLine = line % 8;
-        int row = line / 8;
+        int spriteLine = frameLine() % 8;
+        int row = frameLine() / 8;
         for (int col = 0; col < columns(); col++) {
             char utf8 = CHARACTERS.charAt(ram.read((row * columns() + col) << cattr.value()) % CHARACTERS.length());
-            character(utf8, row, col, spriteLine, BLACK, GREEN);
+
+            int attr = cattr.isSet() ? ram.read(((row * columns() + col) << cattr.value()) + 1) : 8;
+            boolean blink = BinaryOutput.bit(attr, 7);
+            boolean underline = BinaryOutput.bit(attr, 6);
+            Color fg = palette.color(BinaryOutput.subset(attr, 0b00111000) + 8);
+            Color bg = palette.color(BinaryOutput.subset(attr, 0b00000111));
+
+            character(utf8, row, col, spriteLine, fg, bg, underline);
         }
     }
 
-    private void character(char utf8, int row, int column, int line, Color fg, Color bg) {
+    private void character(char utf8, int row, int column, int line, Color fg, Color bg, boolean underline) {
         screen.character(utf8, row, column, fg, bg);
         font.sprite(utf8).ifPresent(sprite -> {
             for (int x = 0; x < 8; x++) {
-                screen.pixel(column * 8 + x, row * 8 + line, sprite.pixel(x, line) ? fg : bg, width(), height());
+                if (underline && line == 7)
+                    screen.pixel(column * 8 + x, row * 8 + line + verticalBorder(), fg, width(), displayHeight);
+                else
+                    screen.pixel(column * 8 + x, row * 8 + line + verticalBorder(), sprite.pixel(x, line) ? fg : bg, width(), displayHeight);
             }
         });
     }
@@ -97,6 +125,7 @@ public class DisplayProcessor implements Addressable {
         switch (address) {
             case 0xff98: return mode.value();
             case 0xff99: return res.value();
+            case 0xff9a: return borderColor.value();
             default: return 0;
         }
     }
@@ -106,6 +135,7 @@ public class DisplayProcessor implements Addressable {
         switch (address) {
             case 0xff98: mode.value(data); break;
             case 0xff99: res.value(data); break;
+            case 0xff9a: borderColor.value(data); break;
         }
     }
 
@@ -115,13 +145,21 @@ public class DisplayProcessor implements Addressable {
         return columns() * 8;
     }
 
-    public int height() {
+    public int frameHeight() {
         switch (lpf.value()) {
             case 0b00: return 192;
             case 0b01: return 200;
             case 0b11: return 225;
             default: throw new UnsupportedOperationException();
         }
+    }
+
+    public int verticalBorder() {
+        return (displayHeight - frameHeight()) / 2;
+    }
+
+    private int frameLine() {
+        return line - verticalBorder();
     }
 
     private int bytesPerRow() {

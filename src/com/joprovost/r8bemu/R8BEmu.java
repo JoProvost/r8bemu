@@ -26,6 +26,7 @@ import com.joprovost.r8bemu.io.terminal.Terminal;
 import com.joprovost.r8bemu.storage.DiskSlot;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -65,6 +66,9 @@ public class R8BEmu {
         Flag disassembler = settings.flag("disassembler", false, "Enable the disassembler");
         Flag mute = settings.flag("mute", false, "Mute the speaker");
 
+        int width = settings.integer("window-width", 640, "Width of the windowed graphic interface");
+        int height = settings.integer("window-height", 450, "Height of the windowed graphic interface");
+
         if (settings.flag("help", false, "Show help").isSet()) {
             settings.help();
             return;
@@ -90,7 +94,7 @@ public class R8BEmu {
         }
 
         if (window.isSet()) {
-            var display = new Display();
+            var display = new Display(new Dimension(width, height));
             screen.dispatchTo(display.screen());
 
             display.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer, DiscreteOutput.or(dpadLeft, dpadRight)));

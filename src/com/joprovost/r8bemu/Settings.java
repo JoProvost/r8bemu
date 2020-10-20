@@ -46,6 +46,11 @@ public class Settings {
         return Path.of(options.getOrDefault(option, value));
     }
 
+    public int integer(String option, int value, String description) {
+        help(option, "<number>", description);
+        return Integer.parseInt(options.getOrDefault(option, String.valueOf(value)));
+    }
+
     private void help(String option, String type, String description) {
         help.append("  ")
             .append(column(22, "--" + option))

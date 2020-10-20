@@ -15,7 +15,6 @@ import com.joprovost.r8bemu.graphic.Screen;
 
 import java.awt.*;
 
-// VideoDisplayGenerator
 public class MC6847 {
     public static final String CHARACTERS = "" +
             "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]↑← !\"#$%&'()*+,-./0123456789:;<=>?" +
@@ -35,6 +34,9 @@ public class MC6847 {
     private static final int AS = 7;
     private static final int INV = 6;
 
+    public static final int FRAME_WIDTH = 256;
+    public static final int FRAME_HEIGHT = 192;
+
     private final BinaryOutputRedirect port = BinaryOutputRedirect.empty();
     private final BinaryOutput graphic = BinaryOutputSubset.bit(port, 7);
     private final BinaryOutput mode = BinaryOutputSubset.of(port, 0b1110000);
@@ -46,19 +48,23 @@ public class MC6847 {
     private final Font font;
     private final DiscreteOutput enabled;
     private final Colors colors;
+    private final int displayWidth;
+    private final int displayHeight;
     private final RasterGraphicDecoder raster;
 
     private int rg6ColorOffset = 0;
     private int line;
 
-    public MC6847(Screen screen, Addressable ram, DiscreteOutput composite, Font font, DiscreteOutput enabled, Colors colors) {
+    public MC6847(Screen screen, Addressable ram, DiscreteOutput composite, Font font, DiscreteOutput enabled, Colors colors, int displayWidth, int displayHeight) {
         this.screen = screen;
         this.ram = ram;
         this.composite = composite;
         this.font = font;
         this.enabled = enabled;
         this.colors = colors;
-        raster = RasterGraphicDecoder.of(ram, this::width, this::bits, this::pixelColor);
+        this.displayWidth = displayWidth;
+        this.displayHeight = displayHeight;
+        raster = RasterGraphicDecoder.of(ram, this::frameWidth, this::bits, this::pixelColor);
     }
 
     public BinaryOutputHandler mode() {
@@ -81,19 +87,32 @@ public class MC6847 {
         return value -> {
             if (!value) return;
             if (enabled.isClear()) return;
-            if (line >= height()) return;
-            if (graphic.isClear()) {
-                for (int col = 0; col < 32; col++)
-                    characterScan(16 * line / height(), col);
+            if (line >= displayHeight) return;
+
+            if (frameLine() >= 0 && frameLine() < FRAME_HEIGHT) {
+                int hBorder = horizontalBorder();
+                for (int x = 0; x < hBorder; x++) {
+                    screen.pixel(x, line, borderColor(), width(), displayHeight);
+                    screen.pixel(x + hBorder + frameWidth(), line, borderColor(), width(), displayHeight);
+                }
+
+                if (graphic.isClear()) {
+                    for (int col = 0; col < 32; col++)
+                        characterScan(16 * frameLine() / FRAME_HEIGHT, col);
+                } else {
+                    lineScan();
+                }
             } else {
-                lineScan();
+                for (int x = 0; x < width(); x++) {
+                    screen.pixel(x, line, borderColor(), width(), displayHeight);
+                }
             }
             line++;
         };
     }
 
-    public int width() {
-        if (graphic.isClear()) return 256;
+    public int frameWidth() {
+        if (graphic.isClear()) return FRAME_WIDTH;
         switch (mode.value()) {
             case CG1: // 0b000
                 return 64;
@@ -108,12 +127,24 @@ public class MC6847 {
 
             case RG6: // 0b111 PMODE 4
             default:
-                return 256;
+                return FRAME_WIDTH;
         }
     }
 
-    public int height() {
-        return 192;
+    private int width() {
+        return displayWidth * frameWidth() / FRAME_WIDTH;
+    }
+
+    public int horizontalBorder() {
+        return (displayWidth - FRAME_WIDTH) * frameWidth() / FRAME_WIDTH / 2;
+    }
+
+    public int verticalBorder() {
+        return (displayHeight - FRAME_HEIGHT) / 2;
+    }
+
+    private int frameLine() {
+        return line - verticalBorder();
     }
 
     private int bits() {
@@ -134,7 +165,7 @@ public class MC6847 {
     }
 
     private void characterScan(int row, int col) {
-        int spriteLine = line % 12;
+        int spriteLine = frameLine() % 12;
         int data = ram.read(row * 32 * 12 + (spriteLine * 32) + col);
         char utf8 = CHARACTERS.charAt(data % CHARACTERS.length());
         if (BinaryOutput.bit(data, AS)) {
@@ -149,19 +180,26 @@ public class MC6847 {
         }
     }
 
-    private void character(char utf8, int row, int column, int line, Color fg, Color bg) {
+    private void character(char utf8, int row, int column, int spriteLine, Color fg, Color bg) {
+        int hBorder = horizontalBorder();
+        int vBorder = verticalBorder();
+        int width = width();
         screen.character(utf8, row, column, fg, bg);
         font.sprite(utf8).ifPresent(sprite -> {
             for (int x = 0; x < 8; x++) {
-                screen.pixel(column * 8 + x, row * 12 + line, sprite.pixel(x, line) ? fg : bg, width(), height());
+                screen.pixel(column * 8 + x + hBorder,
+                             row * 12 + spriteLine + vBorder,
+                             sprite.pixel(x, spriteLine) ? fg : bg,
+                             width,
+                             displayHeight);
             }
         });
     }
 
     private void lineScan() {
-        Color[] pixels = raster.line(line);
+        Color[] pixels = raster.line(frameLine());
         if (mode.value() == RG6 && composite.isSet()) composite(pixels);
-        screen.pixels(0, line, pixels, width(), height());
+        screen.pixels(horizontalBorder(), line, pixels, width(), displayHeight);
     }
 
     private Color pixelColor(int value) {
@@ -171,10 +209,10 @@ public class MC6847 {
     }
 
     private void composite(Color[] pixels) {
-        for (int x = 0; x < width(); x++) {
+        for (int x = 0; x < frameWidth(); x++) {
             var left = (x > 0) ? pixels[x - 1] : black();
-            var right = (x < width() - 1) ? pixels[x + 1] : black();
-            var after = (x < width() - 2) ? pixels[x + 2] : buff();
+            var right = (x < frameWidth() - 1) ? pixels[x + 1] : black();
+            var after = (x < frameWidth() - 2) ? pixels[x + 2] : buff();
 
             if (pixels[x] == buff() && left != buff() && right == black()) {
                 var color = ((x + rg6ColorOffset) % 2 == 0) ? blue() : red();
@@ -182,6 +220,11 @@ public class MC6847 {
                 if (after != black() && (x + 1) < pixels.length) pixels[x + 1] = color;
             }
         }
+    }
+
+    private Color borderColor() {
+        if (graphic.isClear()) return black();
+        return css.isSet() ? buff() : green();
     }
 
     private Color green() {

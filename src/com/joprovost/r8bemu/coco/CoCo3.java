@@ -21,6 +21,7 @@ import com.joprovost.r8bemu.devices.mc6809.Register;
 import com.joprovost.r8bemu.devices.mc6809.Signal;
 import com.joprovost.r8bemu.devices.memory.Addressable;
 import com.joprovost.r8bemu.devices.memory.Memory;
+import com.joprovost.r8bemu.graphic.Colors;
 import com.joprovost.r8bemu.graphic.Screen;
 import com.joprovost.r8bemu.io.CassetteRecorderDispatcher;
 import com.joprovost.r8bemu.io.JoystickDispatcher;
@@ -79,8 +80,9 @@ public class CoCo3 {
 
         MMU mmu = new MMU(ram);
 
-        ColorPalette palette = new ColorPalette(StandardColors.select(composite), new CompositeDetection(composite));
-        DisplayProcessor displayProcessor = new DisplayProcessor(screen, mmu.video(), new HighResFont(), palette, DiscreteOutput.not(mmu.legacy()));
+        Colors colors = StandardColors.select(composite);
+        ColorPalette palette = new ColorPalette(colors, new CompositeDetection(composite));
+        DisplayProcessor displayProcessor = new DisplayProcessor(screen, mmu.video(), new HighResFont(), palette, colors, DiscreteOutput.not(mmu.legacy()), 225);
         videoTiming.verticalSync().to(displayProcessor.sync());
         videoTiming.horizontalSync().to(displayProcessor.scan());
 
@@ -96,7 +98,7 @@ public class CoCo3 {
                 when(mmu.scs(), drive));
 
         Hardware.legacyVideo(
-                new MC6847(screen, mmu.lowResVideo(), composite, new LegacyFont3(), mmu.legacy(), palette),
+                new MC6847(screen, mmu.lowResVideo(), composite, new LegacyFont3(), mmu.legacy(), palette, 320, 225),
                 pia1b, videoTiming);
 
         Hardware.base(context, uptime, services, bus, pia0a, pia0b, pia1a, pia1b, keyboard, cassette,
