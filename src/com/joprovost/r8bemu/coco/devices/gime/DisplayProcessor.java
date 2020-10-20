@@ -14,9 +14,10 @@ import com.joprovost.r8bemu.graphic.Screen;
 import java.awt.*;
 
 public class DisplayProcessor implements Addressable {
-    public static final String CHARACTERS = "" +
+    public static final char[] CHARACTERS = ("" +
             "ÇüéâäàåçêëèïîßÄÅóæÆôöøûùØÖÜ§£±°ƒ !\"#$%&'()*+,-./0123456789:;<=>?" +
-            "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]↑←^abcdefghijklmnopqrstuvwxyz{¦}~_";
+            "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]↑←^abcdefghijklmnopqrstuvwxyz{¦}~_"
+    ).toCharArray();
 
     private final Screen screen;
     private final Addressable ram;
@@ -96,10 +97,10 @@ public class DisplayProcessor implements Addressable {
         int spriteLine = frameLine() % 8;
         int row = frameLine() / 8;
         for (int col = 0; col < columns(); col++) {
-            char utf8 = CHARACTERS.charAt(ram.read((row * columns() + col) << cattr.value()) % CHARACTERS.length());
+            char utf8 = CHARACTERS[ram.read((row * columns() + col) << cattr.value()) % CHARACTERS.length];
 
             int attr = cattr.isSet() ? ram.read(((row * columns() + col) << cattr.value()) + 1) : 8;
-            boolean blink = BinaryOutput.bit(attr, 7);
+            // boolean blink = BinaryOutput.bit(attr, 7);
             boolean underline = BinaryOutput.bit(attr, 6);
             Color fg = palette.color(BinaryOutput.subset(attr, 0b00111000) + 8);
             Color bg = palette.color(BinaryOutput.subset(attr, 0b00000111));

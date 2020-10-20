@@ -11,7 +11,7 @@ class LegacyFont3Test {
 
     @Test
     void hasAllCharactersCovered() {
-        for (char character : MC6847.CHARACTERS.toCharArray()) {
+        for (char character : MC6847.CHARACTERS) {
             assertTrue(font.sprite(character).isPresent(), "missing character: '" + character + "'");
         }
     }

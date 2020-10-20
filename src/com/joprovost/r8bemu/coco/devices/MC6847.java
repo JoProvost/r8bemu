@@ -16,11 +16,12 @@ import com.joprovost.r8bemu.graphic.Screen;
 import java.awt.*;
 
 public class MC6847 {
-    public static final String CHARACTERS = "" +
+    public static final char[] CHARACTERS = ("" +
             "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]↑← !\"#$%&'()*+,-./0123456789:;<=>?" +
             "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]↑← !\"#$%&'()*+,-./0123456789:;<=>?" +
             " ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█ ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█ ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█ ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█" +
-            " ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█ ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█ ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█ ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█";
+            " ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█ ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█ ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█ ▗▖▄▝▐▞▟▘▚▌▙▀▜▛█"
+    ).toCharArray();
 
     private static final int CG1 = 0;
     private static final int RG1 = 1;
@@ -167,7 +168,7 @@ public class MC6847 {
     private void characterScan(int row, int col) {
         int spriteLine = frameLine() % 12;
         int data = ram.read(row * 32 * 12 + (spriteLine * 32) + col);
-        char utf8 = CHARACTERS.charAt(data % CHARACTERS.length());
+        char utf8 = CHARACTERS[data % CHARACTERS.length];
         if (BinaryOutput.bit(data, AS)) {
             character(utf8, row, col, spriteLine, colors.color(BinaryOutput.subset(data, 0b01110000)), black());
         } else {

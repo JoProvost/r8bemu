@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 
 public class Renderer implements Screen {
     private BufferedImage image;
+    private int[] pixels;
     private final Timer timer;
 
     public Renderer(Runnable callback) {
@@ -21,9 +22,16 @@ public class Renderer implements Screen {
     }
 
     public void pixel(int x, int y, Color color, int width, int height) {
-        if (image == null || width != image.getWidth() || height != image.getHeight())
+        if (image == null || width != image.getWidth() || height != image.getHeight()) {
             image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        image.setRGB(x, y, color.getRGB());
-        timer.start();
+            pixels = new int[width * height];
+        }
+
+        int rgb = color.getRGB();
+        if (pixels[y * width + x] != rgb) {
+            pixels[y * width + x] = rgb;
+            image.setRGB(x, y, rgb);
+            timer.start();
+        }
     }
 }

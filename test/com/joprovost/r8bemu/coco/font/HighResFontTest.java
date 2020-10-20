@@ -11,7 +11,7 @@ class HighResFontTest {
 
     @Test
     void hasAllCharactersCovered() {
-        for (char character : DisplayProcessor.CHARACTERS.toCharArray()) {
+        for (char character : DisplayProcessor.CHARACTERS) {
             assertTrue(font.sprite(character).isPresent(), "missing character: '" + character + "'");
         }
     }
