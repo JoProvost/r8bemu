@@ -5,77 +5,17 @@ import com.joprovost.r8bemu.graphic.Colors;
 
 import java.awt.*;
 
+import static com.joprovost.r8bemu.data.binary.BinaryOutput.bit;
+
 public class StandardColors {
     public static final Color BLACK = Color.decode("#000000");
-    public static final Color LOW_INTENSITY_BLUE = Color.decode("#000055");
-    public static final Color LOW_INTENSITY_GREEN = Color.decode("#005500");
-    public static final Color LOW_INTENSITY_CYAN = Color.decode("#005555");
-    public static final Color LOW_INTENSITY_RED = Color.decode("#550000");
-    public static final Color LOW_INTENSITY_MAGENTA = Color.decode("#550055");
-    public static final Color LOW_INTENSITY_BROWN = Color.decode("#555500");
-    public static final Color LOW_INTENSITY_WHITE = Color.decode("#555555");
-    public static final Color MEDIUM_INTENSITY_BLUE = Color.decode("#0000AA");
-    public static final Color FULL_INTENSITY_BLUE = Color.decode("#0000FF");
-    public static final Color BLUE = FULL_INTENSITY_BLUE;
-    public static final Color GREEN_TINT_BLUE = Color.decode("#0055AA");
-    public static final Color CYAN_TINT_BLUE = Color.decode("#0055FF");
-    public static final Color RED_TINT_BLUE = Color.decode("#5500AA");
-    public static final Color MAGENTA_TINT_BLUE = Color.decode("#5500FF");
-    public static final Color BROWN_TINT_BLUE = Color.decode("#5555AA");
-    public static final Color FADED_BLUE = Color.decode("#5555FF");
-    public static final Color MEDIUM_INTENSITY_GREEN = Color.decode("#00AA00");
-    public static final Color BLUE_TINT_GREEN = Color.decode("#00AA55");
-    public static final Color FULL_INTENSITY_GREEN = Color.decode("#00FF00");
-    public static final Color GREEN = FULL_INTENSITY_GREEN;
-    public static final Color CYAN_TINT_GREEN = Color.decode("#00FF55");
-    public static final Color RED_TINT_GREEN = Color.decode("#55AA00");
-    public static final Color MAGENTA_TINT_GREEN = Color.decode("#55AA55");
-    public static final Color BROWN_TINT_GREEN = Color.decode("#55FF00");
-    public static final Color FADED_GREEN = Color.decode("#55FF55");
-    public static final Color MEDIUM_INTENSITY_CYAN = Color.decode("#00AAAA");
-    public static final Color BLUE_TINT_CYAN = Color.decode("#55FFFF");
-    public static final Color GREEN_TINT_CYAN = Color.decode("#00FFAA");
-    public static final Color FULL_INTENSITY_CYAN = Color.decode("#00FFFF");
-    public static final Color CYAN = FULL_INTENSITY_CYAN;
-    public static final Color RED_TINT_CYAN = Color.decode("#55AAAA");
-    public static final Color MAGENTA_TINT_CYAN = Color.decode("#55AAFF");
-    public static final Color BROWN_TINT_CYAN = Color.decode("#55FFAA");
-    public static final Color FADED_CYAN = Color.decode("#55FFFF");
-    public static final Color MEDIUM_INTENSITY_RED = Color.decode("#AA0000");
-    public static final Color BLUE_TINT_RED = Color.decode("#AA0055");
-    public static final Color LIGHT_ORANGE = Color.decode("#AA5500");
-    public static final Color ORANGE = LIGHT_ORANGE;
-    public static final Color CYAN_TINT_RED = Color.decode("#AA5555");
-    public static final Color FULL_INTENSITY_RED = Color.decode("#FF0000");
-    public static final Color RED = FULL_INTENSITY_RED;
-    public static final Color MAGENTA_TINT_RED = Color.decode("#FF0055");
-    public static final Color BROWN_TINT_RED = Color.decode("#FF5500");
-    public static final Color FADED_RED = Color.decode("#FF5555");
-    public static final Color MEDIUM_INTENSITY_MAGENTA = Color.decode("#AA00AA");
-    public static final Color BLUE_TINT_MAGENTA = Color.decode("#AA00FF");
-    public static final Color GREEN_TINT_MAGENTA = Color.decode("#AA55AA");
-    public static final Color CYAN_TINT_MAGENTA = Color.decode("#AA55FF");
-    public static final Color RED_TINT_MAGENTA = Color.decode("#FF00AA");
-    public static final Color FULL_INTENSITY_MAGENTA = Color.decode("#FF00FF");
-    public static final Color MAGENTA = FULL_INTENSITY_MAGENTA;
-    public static final Color BROWN_TINT_MAGENTA = Color.decode("#FF55AA");
-    public static final Color FADED_MAGENTA = Color.decode("#FF55FF");
-    public static final Color MEDIUM_INTENSITY_YELLOW = Color.decode("#AAAA00");
-    public static final Color BLUE_TINT_YELLOW = Color.decode("#AAAA55");
-    public static final Color GREEN_TINT_YELLOW = Color.decode("#AAFF00");
-    public static final Color CYAN_TINT_YELLOW = Color.decode("#AAFF55");
-    public static final Color RED_TINT_YELLOW = Color.decode("#FFAA00");
-    public static final Color MAGENTA_TINT_YELLOW = Color.decode("#FFAA55");
-    public static final Color FULL_INTENSITY_YELLOW = Color.decode("#FFFF00");
-    public static final Color YELLOW = FULL_INTENSITY_YELLOW;
-    public static final Color FADED_YELLOW = Color.decode("#FFFF55");
-    public static final Color MEDIUM_INTENSITY_WHITE = Color.decode("#AAAAAA");
-    public static final Color LIGHT_BLUE = Color.decode("#AAAAFF");
-    public static final Color LIGHT_GREEN = Color.decode("#AAFFAA");
-    public static final Color LIGHT_CYAN = Color.decode("#AAFFFF");
-    public static final Color LIGHT_RED = Color.decode("#FFAAAA");
-    public static final Color LIGHT_MAGENTA = Color.decode("#FFAAFF");
-    public static final Color LIGHT_YELLOW = Color.decode("#FFFFAA");
+    public static final Color BLUE = Color.decode("#0000FF");
+    public static final Color GREEN = Color.decode("#00FF00");
+    public static final Color CYAN = Color.decode("#00FFFF");
+    public static final Color ORANGE = Color.decode("#AA5500");
+    public static final Color RED = Color.decode("#FF0000");
+    public static final Color MAGENTA = Color.decode("#FF00FF");
+    public static final Color YELLOW = Color.decode("#FFFF00");
     public static final Color WHITE = Color.decode("#FFFFFF");
     public static final Color BUFF = WHITE;
 
@@ -153,91 +93,15 @@ public class StandardColors {
     }
 
     public static Colors rgb() {
-        // RGB palette
-        // Source : https://exstructus.com/tags/coco/australia-colour-palette/
-        Color[] colors = {
-                BLACK,
-                LOW_INTENSITY_BLUE,
-                LOW_INTENSITY_GREEN,
-                LOW_INTENSITY_CYAN,
-                LOW_INTENSITY_RED,
-                LOW_INTENSITY_MAGENTA,
-                LOW_INTENSITY_BROWN,
-                LOW_INTENSITY_WHITE,
-                MEDIUM_INTENSITY_BLUE,
-                FULL_INTENSITY_BLUE,
-                GREEN_TINT_BLUE,
-                CYAN_TINT_BLUE,
-                RED_TINT_BLUE,
-                MAGENTA_TINT_BLUE,
-                BROWN_TINT_BLUE,
-                FADED_BLUE,
-                MEDIUM_INTENSITY_GREEN,
-                BLUE_TINT_GREEN,
-                FULL_INTENSITY_GREEN,
-                CYAN_TINT_GREEN,
-                RED_TINT_GREEN,
-                MAGENTA_TINT_GREEN,
-                BROWN_TINT_GREEN,
-                FADED_GREEN,
-                MEDIUM_INTENSITY_CYAN,
-                BLUE_TINT_CYAN,
-                GREEN_TINT_CYAN,
-                FULL_INTENSITY_CYAN,
-                RED_TINT_CYAN,
-                MAGENTA_TINT_CYAN,
-                BROWN_TINT_CYAN,
-                FADED_CYAN,
-                MEDIUM_INTENSITY_RED,
-                BLUE_TINT_RED,
-                LIGHT_ORANGE,
-                CYAN_TINT_RED,
-                FULL_INTENSITY_RED,
-                MAGENTA_TINT_RED,
-                BROWN_TINT_RED,
-                FADED_RED,
-                MEDIUM_INTENSITY_MAGENTA,
-                BLUE_TINT_MAGENTA,
-                GREEN_TINT_MAGENTA,
-                CYAN_TINT_MAGENTA,
-                RED_TINT_MAGENTA,
-                FULL_INTENSITY_MAGENTA,
-                BROWN_TINT_MAGENTA,
-                FADED_MAGENTA,
-                MEDIUM_INTENSITY_YELLOW,
-                BLUE_TINT_YELLOW,
-                GREEN_TINT_YELLOW,
-                CYAN_TINT_YELLOW,
-                RED_TINT_YELLOW,
-                MAGENTA_TINT_YELLOW,
-                FULL_INTENSITY_YELLOW,
-                FADED_YELLOW,
-                MEDIUM_INTENSITY_WHITE,
-                LIGHT_BLUE,
-                LIGHT_GREEN,
-                LIGHT_CYAN,
-                LIGHT_RED,
-                LIGHT_MAGENTA,
-                LIGHT_YELLOW,
-                WHITE,
-        };
-
-        return value -> colors[value % colors.length];
+        return cache(index -> new Color(
+                channel(index, 2),
+                channel(index, 1),
+                channel(index, 0)
+        ));
     }
 
     public static Colors legacy() {
-        Color[] colors = {
-                GREEN,
-                YELLOW,
-                BLUE,
-                RED,
-                BUFF,
-                CYAN,
-                MAGENTA,
-                ORANGE,
-                BLACK
-        };
-
+        Color[] colors = {GREEN, YELLOW, BLUE, RED, BUFF, CYAN, MAGENTA, ORANGE, BLACK};
         return value -> colors[value % colors.length];
     }
 
@@ -245,5 +109,16 @@ public class StandardColors {
         Colors cmp = StandardColors.cmp();
         Colors rgb = StandardColors.rgb();
         return color -> composite.isSet() ? cmp.color(color) : rgb.color(color);
+    }
+
+    public static Colors cache(Colors colors) {
+        Color[] cache = new Color[64];
+        for (int i = 0; i < cache.length; i++)
+            cache[i] = colors.color(i);
+        return value -> cache[value];
+    }
+
+    private static int channel(int value, int pos) {
+        return 85 * ((bit(value, pos) ? 1 : 0) + (bit(value, pos + 3) ? 2 : 0));
     }
 }

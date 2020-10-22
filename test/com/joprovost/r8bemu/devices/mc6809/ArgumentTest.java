@@ -1,7 +1,7 @@
 package com.joprovost.r8bemu.devices.mc6809;
 
 import com.joprovost.r8bemu.clock.BusyState;
-import com.joprovost.r8bemu.clock.ClockAwareBusyState;
+import com.joprovost.r8bemu.clock.Countdown;
 import com.joprovost.r8bemu.devices.memory.Addressing;
 import com.joprovost.r8bemu.devices.memory.BinaryReference;
 import com.joprovost.r8bemu.devices.memory.Memory;
@@ -17,7 +17,7 @@ import static com.joprovost.r8bemu.devices.mc6809.Register.S;
 class ArgumentTest {
 
     Memory memory = new Memory(0xffff);
-    BusyState clock = new ClockAwareBusyState();
+    BusyState clock = new Countdown();
 
     @BeforeEach
     void setUp() {

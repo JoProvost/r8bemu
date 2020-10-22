@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.clock;
 
+import com.joprovost.r8bemu.data.discrete.DiscreteLineInput;
 import com.joprovost.r8bemu.data.discrete.DiscretePort;
 import com.joprovost.r8bemu.data.discrete.DiscteteOutputHandler;
 
@@ -11,16 +12,21 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
-public class EmulatorContext implements Runnable, BusyState, Clock, Executor {
+public class EmulatorContext implements Runnable, BusyState, Clock, ClockDivider, Executor {
     private final ClockBus clockBus = new ClockBus();
     private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
     private final List<Runnable> buffer = new ArrayList<>();
     private final List<Consumer<Exception>> errorHandlers = new ArrayList<>();
     private long ticks = 0;
     private long busy = 0;
+    private long divider = 1;
 
     public <T extends ClockAware> T aware(T device) {
         return clockBus.aware(device);
+    }
+
+    public DiscreteLineInput aware(DiscreteLineInput line) {
+        return value -> execute(() -> line.set(value));
     }
 
     public DiscretePort aware(DiscretePort line) {
@@ -51,7 +57,7 @@ public class EmulatorContext implements Runnable, BusyState, Clock, Executor {
     public void run() {
         while (true) {
             try {
-                clockBus.tick(this);
+                if (ticks % divider == 0) clockBus.tick(this);
                 ticks += (busy > 0) ? busy : 1;
                 busy = 0;
 
@@ -74,7 +80,7 @@ public class EmulatorContext implements Runnable, BusyState, Clock, Executor {
 
     @Override
     public void busy(long period) {
-        busy += period;
+        busy += period * divider;
     }
 
     @Override
@@ -89,5 +95,10 @@ public class EmulatorContext implements Runnable, BusyState, Clock, Executor {
 
     public void onError(Consumer<Exception> handler) {
         errorHandlers.add(handler);
+    }
+
+    @Override
+    public void divideBy(int divider) {
+        this.divider = divider;
     }
 }

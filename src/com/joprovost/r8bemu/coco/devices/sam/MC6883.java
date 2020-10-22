@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.coco.devices.sam;
 
+import com.joprovost.r8bemu.clock.ClockDivider;
 import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
 import com.joprovost.r8bemu.data.discrete.DiscteteOutputHandler;
 import com.joprovost.r8bemu.devices.memory.AddressSubset;
@@ -12,12 +13,14 @@ public class MC6883 implements Addressable {
     private static final AddressSubset SAM = AddressSubset.mask(0xffc0, 0x1f);
     private final ControlRegister register = new ControlRegister();
     private final Addressable ram;
+    private final ClockDivider clockDivider;
 
     private int select = 0;
     private DiscreteOutput SECOND_PAGE = DiscreteOutput.and(DiscreteOutput.not(register.fullRam()), register.pageSwitch32K());
 
-    public MC6883(Addressable ram) {
+    public MC6883(Addressable ram, ClockDivider clockDivider) {
         this.ram = ram;
+        this.clockDivider = clockDivider;
     }
 
     public Addressable video() {
@@ -71,6 +74,7 @@ public class MC6883 implements Addressable {
         if (select == 7) {
             if (SAM.contains(address)) {
                 register.write(SAM.offset(address));
+                clockDivider.divideBy(2 - register.mpuRate().subset(0b10));
             } else {
                 if (SECOND_PAGE.isSet()) address |= 0x8000;
                 ram.write(address, data);

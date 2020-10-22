@@ -1,11 +1,11 @@
 package com.joprovost.r8bemu.coco.devices.gime;
 
+import com.joprovost.r8bemu.clock.ClockDivider;
 import com.joprovost.r8bemu.coco.devices.sam.ControlRegister;
 import com.joprovost.r8bemu.coco.devices.sam.SAMVideoMemory;
 import com.joprovost.r8bemu.data.binary.BinaryAccess;
 import com.joprovost.r8bemu.data.binary.BinaryOutput;
 import com.joprovost.r8bemu.data.binary.BinaryRegister;
-import com.joprovost.r8bemu.data.discrete.DiscreteAccess;
 import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
 import com.joprovost.r8bemu.data.transform.BinaryAccessSubset;
 import com.joprovost.r8bemu.data.transform.BinaryOutputSubset;
@@ -35,45 +35,44 @@ public class MMU implements Addressable {
 
     private final BinaryRegister init1 = BinaryRegister.ofMask(0xff);
     private final BinaryOutput task = BinaryOutputSubset.of(init1, 0x01);
-    private final DiscreteAccess memory512k = BinaryAccessSubset.of(init1, 0x40);
 
     private final BinaryRegister verticalOffset = BinaryRegister.of(0x6c000, 0x7ffff);
     private final BinaryAccess videoOffsetLsb = BinaryAccessSubset.of(verticalOffset, 0b0000000011111111000);
     private final BinaryAccess videoOffsetMsb = BinaryAccessSubset.of(verticalOffset, 0b1111111100000000000);
 
-    private final AddressSubset CPU_IO = AddressSubset.mask(0xff00, 0xff);
-    private final AddressSubset CPU_VECTOR = AddressSubset.mask(0xfe00, 0xff);
-
-    private final Addresses ROM_HIGH = AddressSubset.mask(0x7c000, 0x3fff)
-                                                    .exceptIf(sam.fullRam())
-                                                    .excluding(MemoryMap.IO, MemoryMap.VECTOR.onlyIf(vectorRam));
-    private final Addresses ROM_LOW = AddressSubset.mask(0x78000, 0x3fff)
-                                                   .exceptIf(sam.fullRam());
-    private final Addresses RAM = AddressSubset.mask(0x00000, 0x7ffff)
-                                               .excluding(MemoryMap.IO, ROM_LOW, ROM_HIGH);
+    private final Addresses highRom = AddressSubset.mask(0x7c000, 0x3fff)
+                                                   .exceptIf(sam.fullRam())
+                                                   .excluding(MemoryMap.IO, MemoryMap.VECTOR.onlyIf(vectorRam));
+    private final Addresses lowRom = AddressSubset.mask(0x78000, 0x3fff)
+                                                  .exceptIf(sam.fullRam());
+    private final Addresses rom = Addresses.of(lowRom.onlyIf(() -> romMode.value() <= 2),
+                                               highRom.onlyIf(() -> romMode.value() == 2));
+    private final Addresses cts = Addresses.of(lowRom.onlyIf(() -> romMode.value() == 3),
+                                               highRom.onlyIf(() -> romMode.value() != 2));
+    private final Addresses ram = AddressSubset.mask(0x00000, 0x7ffff)
+                                               .excluding(MemoryMap.IO, lowRom, highRom);
+    private final Addresses vector = AddressSubset.mask(0xfe00, 0xff).onlyIf(vectorRam);
 
     private final MemoryBank direct = new MemoryBank();
     private final MemoryBank task0 = new MemoryBank();
     private final MemoryBank task1 = new MemoryBank();
     private final Addressable memory;
+    private final ClockDivider clockDivider;
 
     private int address;
 
-    public MMU(Addressable memory) {
+    public MMU(Addressable memory, ClockDivider clockDivider) {
         this.memory = memory;
+        this.clockDivider = clockDivider;
     }
 
     public DiscreteOutput rom() {
-        return DiscreteOutput.of("S0 (ROM)", () -> Addresses.of(ROM_LOW.onlyIf(() -> romMode.value() <= 2),
-                                                                ROM_HIGH.onlyIf(() -> romMode.value() == 2))
-                                                            .contains(address));
+        return DiscreteOutput.of("S0 (ROM)", () -> rom.contains(address));
     }
 
     // Cartridge (ROM) Select Signal
     public DiscreteOutput cts() {
-        return DiscreteOutput.of("S1 (CTS)", () -> Addresses.of(ROM_LOW.onlyIf(() -> romMode.value() == 3),
-                                                                ROM_HIGH.onlyIf(() -> romMode.value() != 2))
-                                                            .contains(address));
+        return DiscreteOutput.of("S1 (CTS)", () -> cts.contains(address));
     }
 
     public DiscreteOutput pia() {
@@ -118,14 +117,17 @@ public class MMU implements Addressable {
             if (MemoryMap.TASK0.contains(address)) return task0.get(MemoryMap.TASK0.offset(address)) >> 13;
         }
         if (MemoryMap.INTERRUPT.contains(address)) return vectors[MemoryMap.INTERRUPT.offset(address)];
-        if (RAM.contains(address)) return memory.read(address);
+        if (ram.contains(address)) return memory.read(address);
         return 0;
     }
 
     @Override
     public void write(int cpuAddress, int data) {
         address = extended(cpuAddress);
-        if (MemoryMap.SAM.contains(address)) sam.write(MemoryMap.SAM.offset(address));
+        if (MemoryMap.SAM.contains(address)) {
+            sam.write(MemoryMap.SAM.offset(address));
+            clockDivider.divideBy(2 - sam.mpuRate().subset(0b10));
+        }
         if (MemoryMap.GIME.contains(address)) {
             if (address == 0x7ff90) init0.value(data);
             if (address == 0x7ff91) init1.value(data);
@@ -134,12 +136,12 @@ public class MMU implements Addressable {
             if (MemoryMap.TASK1.contains(address)) task1.set(MemoryMap.TASK1.offset(address), (data & 0x3f) << 13);
             if (MemoryMap.TASK0.contains(address)) task0.set(MemoryMap.TASK0.offset(address), (data & 0x3f) << 13);
         }
-        if (RAM.contains(address)) memory.write(address, data);
+        if (ram.contains(address)) memory.write(address, data);
     }
 
     private int extended(int cpuAddress) {
-        if (CPU_IO.contains(cpuAddress)) return direct.translate(cpuAddress);
-        if (CPU_VECTOR.onlyIf(vectorRam).contains(cpuAddress)) return direct.translate(cpuAddress);
+        if (MemoryMap.CPU_IO.contains(cpuAddress)) return direct.translate(cpuAddress);
+        if (vector.contains(cpuAddress)) return direct.translate(cpuAddress);
         return bank().translate(cpuAddress);
     }
 

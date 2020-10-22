@@ -55,7 +55,7 @@ public class CoCo3 {
                                Path home,
                                Debugger debugger) {
 
-        var uptime = context.aware(new ClockFrequency(900, context));
+        var uptime = context.aware(new ClockFrequency(1780, context));
 
         Memory ram = new Memory(0x7ffff);
 
@@ -74,11 +74,13 @@ public class CoCo3 {
         var pia1a = new MC6821Port(Signal.FIRQ);
         var pia1b = new MC6821Port(Signal.FIRQ);
 
-        var videoTiming = context.aware(new VideoTimer());
-        videoTiming.horizontalSync().to(pia0a.interrupt());
-        videoTiming.verticalSync().to(pia0b.interrupt());
+        EmulatorContext video = services.declare(new EmulatorContext());
+        video.aware(new ClockFrequency(15, video));
+        var videoTiming = video.aware(new VideoTimer());
+        videoTiming.horizontalSync().to(context.aware(pia0a.interrupt()));
+        videoTiming.verticalSync().to(context.aware(pia0b.interrupt()));
 
-        MMU mmu = new MMU(ram);
+        MMU mmu = new MMU(ram, context);
 
         Colors colors = StandardColors.select(composite);
         ColorPalette palette = new ColorPalette(colors, new CompositeDetection(composite));

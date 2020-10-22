@@ -45,7 +45,7 @@ public class Speaker implements Runnable, Mixer {
     public AnalogInput input() {
         return amplitude -> {
             try {
-                var pos = position(uptime.nanoTime());
+                long pos = position(uptime.nanoTime());
                 int count = (int) (pos - last);
                 if (count > 0) {
                     buffer.skip(count - 1);
@@ -69,7 +69,7 @@ public class Speaker implements Runnable, Mixer {
             SourceDataLine audio = AudioSystem.getSourceDataLine(format);
             audio.open(format, buffer.size() / 2);
             while (audio.isOpen()) {
-                var bytes = input.readNBytes(audio.available());
+                byte[] bytes = input.readNBytes(audio.available());
                 audio.write(bytes, 0, bytes.length);
                 audio.start();
             }

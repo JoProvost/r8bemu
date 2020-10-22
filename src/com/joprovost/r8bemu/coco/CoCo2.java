@@ -45,11 +45,11 @@ public class CoCo2 {
                                Path home,
                                Debugger debugger) {
 
-        var uptime = context.aware(new ClockFrequency(900, context));
+        var uptime = context.aware(new ClockFrequency(1780, context));
 
         Memory ram = new Memory(0xffff);
 
-        var sam = new MC6883(ram);
+        var sam = new MC6883(ram, context);
         Signal.RESET.to(sam.reset());
         var rom0 = rom(home.resolve("extbas11.rom"))
                 .or(() -> rom(home.resolve("EXTBASIC.ROM")))
@@ -80,9 +80,11 @@ public class CoCo2 {
                 Addressable.when(sam.select(6), drive)  // S=6
         );
 
-        var videoTiming = context.aware(new VideoTimer());
-        videoTiming.horizontalSync().to(pia0a.interrupt());
-        videoTiming.verticalSync().to(pia0b.interrupt());
+        EmulatorContext video = services.declare(new EmulatorContext());
+        video.aware(new ClockFrequency(15, context));
+        var videoTiming = video.aware(new VideoTimer());
+        videoTiming.horizontalSync().to(context.aware(pia0a.interrupt()));
+        videoTiming.verticalSync().to(context.aware(pia0b.interrupt()));
 
         Hardware.legacyVideo(
                 new MC6847(screen, sam.video(), composite, new LegacyFont(), Flag.value(true), StandardColors.legacy(), 320, 225),

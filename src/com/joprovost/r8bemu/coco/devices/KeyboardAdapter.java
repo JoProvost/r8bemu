@@ -2,7 +2,7 @@ package com.joprovost.r8bemu.coco.devices;
 
 import com.joprovost.r8bemu.clock.Clock;
 import com.joprovost.r8bemu.clock.ClockAware;
-import com.joprovost.r8bemu.clock.ClockAwareBusyState;
+import com.joprovost.r8bemu.clock.Countdown;
 import com.joprovost.r8bemu.data.binary.BinaryAccess;
 import com.joprovost.r8bemu.data.binary.BinaryLineInput;
 import com.joprovost.r8bemu.data.binary.BinaryLineOutput;
@@ -71,10 +71,10 @@ import static com.joprovost.r8bemu.io.Key.UP;
 
 public class KeyboardAdapter implements Keyboard, ClockAware {
 
-    public static final int TYPE_DELAY = 40000;
-    public static final int BOOT_DELAY = 1200000;
+    public static final int TYPE_DELAY = 10000;
+    public static final int BOOT_DELAY = 600000;
 
-    private final ClockAwareBusyState state = new ClockAwareBusyState();
+    private final Countdown state = new Countdown();
     private final Deque<Set<Key>> buffer = new ArrayDeque<>();
     private final BinaryOutput column;
     private final BinaryAccessSubset row;
@@ -102,7 +102,7 @@ public class KeyboardAdapter implements Keyboard, ClockAware {
 
     @Override
     public void tick(Clock clock) {
-        if (state.at(clock).isBusy()) return;
+        if (state.isBusy()) return;
 
         state.busy(TYPE_DELAY);
         if (typed.isEmpty()) {

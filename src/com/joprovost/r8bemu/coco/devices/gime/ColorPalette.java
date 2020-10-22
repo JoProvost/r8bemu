@@ -34,7 +34,7 @@ public class ColorPalette implements Addressable, Colors {
     }
 
     @Override
-    public Color color(int value) {
-        return colors.color(palette[value % palette.length]);
+    public Color color(int index) {
+        return colors.color(palette[index & 0xf]);
     }
 }

@@ -3,6 +3,7 @@ package com.joprovost.r8bemu.coco.devices.gime;
 import com.joprovost.r8bemu.devices.memory.AddressSubset;
 
 public class MemoryMap {
+    public static final AddressSubset CPU_IO = AddressSubset.mask(0xff00, 0xff);
     public static final AddressSubset VECTOR = AddressSubset.mask(0x7fe00, 0xff);
     public static final AddressSubset IO = AddressSubset.mask(0x7ff00, 0xff);
     public static final AddressSubset PIA = AddressSubset.mask(0x7ff00, 0x3f);

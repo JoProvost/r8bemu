@@ -29,7 +29,7 @@ public class RasterGraphicDecoder {
         int pxPerByte = 8 / bits;
         int pixel = width() * y + x;
         int address = pixel / pxPerByte;
-        int relative = pixel % pxPerByte;
+        int relative = pixel & (pxPerByte - 1);
         int shift = ((8 - bits) - bits * relative) & 7;
         return colors.color((memory.read(address) >> shift) & colorMask);
     }

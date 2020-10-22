@@ -13,7 +13,7 @@ public class Flag implements DiscretePort {
         return flag;
     }
 
-    public synchronized boolean isSet() {
+    public boolean isSet() {
         return value;
     }
 
@@ -23,7 +23,7 @@ public class Flag implements DiscretePort {
     }
 
     @Override
-    public synchronized void set(boolean value) {
+    public void set(boolean value) {
         if (this.value == value) return;
         this.value = value;
         for (var handler : handlers) handler.handle(this);

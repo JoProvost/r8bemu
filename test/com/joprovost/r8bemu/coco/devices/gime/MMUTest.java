@@ -1,6 +1,7 @@
 package com.joprovost.r8bemu.coco.devices.gime;
 
 import com.joprovost.r8bemu.Assert;
+import com.joprovost.r8bemu.data.binary.BinaryRegister;
 import com.joprovost.r8bemu.devices.memory.Addressable;
 import com.joprovost.r8bemu.devices.memory.Memory;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +24,8 @@ class MMUTest {
         write(0x7fe00, "RAM VECTOR".getBytes());
     }};
 
-    MMU mmu = new MMU(ram);
+    BinaryRegister clockDivider = BinaryRegister.of(2, 0x3);
+    MMU mmu = new MMU(ram, clockDivider::value);
 
     Addressable rom = new Memory(0x7fff) {{
         write(0x8000, "EXTENDED BASIC".getBytes());
@@ -283,5 +285,16 @@ class MMUTest {
                 }
             }
         }
+    }
+
+    @Test
+    void mpuRate() {
+        // fast
+        mmu.write(0xffd9, 0);
+        Assert.assertEquals(1, clockDivider.value());
+
+        // slow / normal
+        mmu.write(0xffd8, 0);
+        Assert.assertEquals(2, clockDivider.value());
     }
 }
