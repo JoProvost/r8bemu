@@ -55,7 +55,7 @@ public class EmulatorContext implements Runnable, BusyState, Clock, ClockDivider
     }
 
     public void run() {
-        while (true) {
+        while (!Thread.interrupted()) {
             try {
                 if (ticks % divider == 0) clockBus.tick(this);
                 ticks += (busy > 0) ? busy : 1;
