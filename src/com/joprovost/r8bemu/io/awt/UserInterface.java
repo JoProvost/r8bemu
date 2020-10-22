@@ -1,7 +1,5 @@
 package com.joprovost.r8bemu.io.awt;
 
-import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -16,10 +14,10 @@ import static java.awt.BorderLayout.PAGE_START;
 public class UserInterface extends JFrame {
     public static final Function<Window, Action> SEPARATOR = window -> null;
 
-    private UserInterface(String name, Display display, List<Function<Window, Action>> actions, DiscreteOutput toolbarOnEdge) {
+    private UserInterface(String name, Display display, List<Function<Window, Action>> actions) {
         super(name);
 
-        var toolbar = toolbar(actions, display);
+        JToolBar toolbar = toolbar(actions, display);
         add(display, CENTER);
         add(toolbar, PAGE_START);
 
@@ -28,14 +26,14 @@ public class UserInterface extends JFrame {
                 if (toolbar.isVisible()) {
                     toolbar.setVisible(e.getY() == 0);
                 } else {
-                    toolbar.setVisible(toolbarOnEdge.isSet() ? e.getY() < 5: e.getY() < toolbar.getPreferredSize().height);
+                    toolbar.setVisible(e.getY() < toolbar.getPreferredSize().height);
                 }
             }
         });
     }
 
-    public static UserInterface show(Display display, List<Function<Window, Action>> actions, DiscreteOutput toolbarOnEdge) {
-        UserInterface ui = new UserInterface("R8BEmu", display, actions, toolbarOnEdge);
+    public static UserInterface show(Display display, List<Function<Window, Action>> actions) {
+        UserInterface ui = new UserInterface("R8BEmu", display, actions);
         List<Image> icons  = new ArrayList<>();
         icons.add(new ImageIcon(UserInterface.class.getResource("/images/logo_64x64.png")).getImage());
         icons.add(new ImageIcon(UserInterface.class.getResource("/images/logo_128x128.png")).getImage());

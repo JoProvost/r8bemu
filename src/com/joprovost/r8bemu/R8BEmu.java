@@ -130,7 +130,7 @@ public class R8BEmu {
                     Actions.toggle(MUTE, mute),
                     SEPARATOR,
                     Actions.presentation()
-            ), mouse);
+            ));
         }
 
         var services = new Threads();

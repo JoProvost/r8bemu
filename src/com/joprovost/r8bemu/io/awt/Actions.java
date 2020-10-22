@@ -15,20 +15,15 @@ import java.util.function.Function;
 public class Actions {
     public static Function<Window, Action> presentation() {
         return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/maximized_32x32.png"))) {
-            {
-                setEnabled(!isMac());
-            }
+            final Runnable fullScreenToggle = fullScreenToggle(
+                    window,
+                    () -> putValue(Action.SMALL_ICON, new ImageIcon(Actions.class.getResource("/images/windowed_32x32.png"))),
+                    () -> putValue(Action.SMALL_ICON, new ImageIcon(Actions.class.getResource("/images/maximized_32x32.png"))),
+                    () -> setEnabled(false));
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-                if (device.getFullScreenWindow() == null) {
-                    putValue(Action.SMALL_ICON, new ImageIcon(Actions.class.getResource("/images/windowed_32x32.png")));
-                    device.setFullScreenWindow(window);
-                } else {
-                    putValue(Action.SMALL_ICON, new ImageIcon(Actions.class.getResource("/images/maximized_32x32.png")));
-                    device.setFullScreenWindow(null);
-                }
+                fullScreenToggle.run();
             }
         };
     }
@@ -70,18 +65,33 @@ public class Actions {
         return window -> new AbstractAction(null, icon.icon()) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                    var files = new JFileChooser(home.toFile());
-                    files.setAcceptAllFileFilterUsed(false);
-                    files.addChoosableFileFilter(filter);
-                    int returnVal = files.showOpenDialog(window);
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        action.accept(files.getSelectedFile());
-                    }
+                var files = new JFileChooser(home.toFile());
+                files.setAcceptAllFileFilterUsed(false);
+                files.addChoosableFileFilter(filter);
+                int returnVal = files.showOpenDialog(window);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    action.accept(files.getSelectedFile());
+                }
+            }
+        };
+    }
+
+    public static Runnable fullScreenToggle(Window window, Runnable windowEnteringFullScreen, Runnable windowExitingFullScreen, Runnable onError) {
+        try {
+            return MacOS.isMac() ? MacOS.fullScreenToggle(window, windowEnteringFullScreen, windowExitingFullScreen) :
+                    () -> {
+                GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+                if (device.getFullScreenWindow() == null) {
+                    windowEnteringFullScreen.run();
+                    device.setFullScreenWindow(window);
+                } else {
+                    windowExitingFullScreen.run();
+                    device.setFullScreenWindow(null);
                 }
             };
+        } catch (ReflectiveOperationException e) {
+            onError.run();
+            return () -> {};
         }
-
-    private static boolean isMac() {
-        return System.getProperty("os.name").toLowerCase().contains("mac");
     }
 }
