@@ -81,7 +81,7 @@ public class CoCo2 {
         );
 
         EmulatorContext video = services.declare(new EmulatorContext());
-        video.aware(new ClockFrequency(15, context));
+        video.aware(new ClockFrequency(15, video));
         var videoTiming = video.aware(new VideoTimer());
         videoTiming.horizontalSync().to(context.aware(pia0a.interrupt()));
         videoTiming.verticalSync().to(context.aware(pia0b.interrupt()));
