@@ -35,17 +35,17 @@ import java.util.List;
 
 import static com.joprovost.r8bemu.io.awt.ActionIcon.COMPOSITE;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.HALT;
-import static com.joprovost.r8bemu.io.awt.ActionIcon.KEYBOARD_BUFFER;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.KEYBOARD_DPAD_LEFT;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.MOUSE;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.MUTE;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.UNBUFFERED;
 import static com.joprovost.r8bemu.io.awt.UserInterface.SEPARATOR;
 
 public class R8BEmu {
 
     public static void main(String[] args) throws IOException, URISyntaxException {
         Settings settings = Settings.parse(args);
-        Flag coco2 = settings.flag("coco2", true, "Use Color Computer Model 2 hardware emulation");
+        Flag coco2 = settings.flag("coco2", false, "Use Color Computer Model 2 hardware emulation");
         Flag coco3 = settings.flag("coco3", coco2.isClear(), "Use Color Computer Model 3 hardware emulation");
 
         Flag terminalGraphic = settings.flag("terminal-graphic", false, "Activate the terminal interface in graphic mode");
@@ -62,7 +62,7 @@ public class R8BEmu {
         Flag mouse = settings.flag("mouse", false, "Use the mouse as the left joystick");
         Flag dpadLeft = settings.flag("dpad-left", false, "Use the keyboard arrow keys as the left joystick");
         Flag dpadRight = settings.flag("dpad-right", false, "Use the keyboard arrow keys as the right joystick");
-        Flag keyboardBuffer = settings.flag("keyboard-buffer", true, "Enable keyboard input buffering");
+        Flag unbuffered = settings.flag("unbuffered", false, "Disable keyboard input buffering");
         Flag disassembler = settings.flag("disassembler", false, "Enable the disassembler");
         Flag mute = settings.flag("mute", false, "Mute the speaker");
 
@@ -97,7 +97,7 @@ public class R8BEmu {
             var display = new Display(new Dimension(width, height));
             screen.dispatchTo(display.screen());
 
-            display.addKeyListener(new AWTKeyboardDriver(keyboard, keyboardBuffer, DiscreteOutput.or(dpadLeft, dpadRight)));
+            display.addKeyListener(new AWTKeyboardDriver(keyboard, unbuffered, DiscreteOutput.or(dpadLeft, dpadRight)));
             display.addKeyListener(new NumpadJoystickDriver(joystickLeft, DiscreteOutput.not(dpadRight)));
             display.addKeyListener(new NumpadJoystickDriver(joystickRight, DiscreteOutput.not(dpadLeft)));
             display.addKeyListener(new ArrowsJoystickDriver(joystickLeft, dpadLeft));
@@ -121,7 +121,7 @@ public class R8BEmu {
                     SEPARATOR,
                     Actions.file(ActionIcon.DISK, drive::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
                     SEPARATOR,
-                    Actions.toggle(KEYBOARD_BUFFER, keyboardBuffer),
+                    Actions.toggle(UNBUFFERED, unbuffered),
                     Actions.toggle(KEYBOARD_DPAD_LEFT, dpadLeft),
                     Actions.toggle(MOUSE, mouse),
                     SEPARATOR,

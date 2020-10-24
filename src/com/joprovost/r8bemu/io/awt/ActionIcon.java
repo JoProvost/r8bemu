@@ -9,7 +9,7 @@ public enum ActionIcon {
     CASSETTE_REWIND("/images/rewind_32x32.png"),
     DISK("/images/disk_32x32.png"),
     HALT("/images/halt_32x32.png", "/images/halt_selected_32x32.png"),
-    KEYBOARD_BUFFER("/images/keyboard_abc_32x32.png", "/images/keyboard_abc_selected_32x32.png"),
+    UNBUFFERED("/images/keyboard_unbuffered_32x32.png", "/images/keyboard_unbuffered_selected_32x32.png"),
     KEYBOARD_DPAD_LEFT("/images/keyboard_dpad_left_32x32.png", "/images/keyboard_dpad_left_selected_32x32.png"),
     MOUSE("/images/mouse_32x32.png", "/images/mouse_selected_32x32.png"),
     MUTE("/images/mute_32x32.png", "/images/muted_32x32.png"),

@@ -12,13 +12,13 @@ import static com.joprovost.r8bemu.io.Key.character;
 
 public class AWTKeyboardDriver implements KeyListener {
     private final Keyboard keyboard;
-    private final DiscreteOutput buffered;
+    private final DiscreteOutput unbuffered;
     private final DiscreteOutput gamepad;
     private Set<Key> state = Set.of();
 
-    public AWTKeyboardDriver(Keyboard keyboard, DiscreteOutput buffered, DiscreteOutput gamepad) {
+    public AWTKeyboardDriver(Keyboard keyboard, DiscreteOutput unbuffered, DiscreteOutput gamepad) {
         this.keyboard = keyboard;
-        this.buffered = buffered;
+        this.unbuffered = unbuffered;
         this.gamepad = gamepad;
     }
 
@@ -58,15 +58,15 @@ public class AWTKeyboardDriver implements KeyListener {
 
         if (keys.isEmpty()) return;
 
-        if (buffered.isSet())
-            keyboard.type(keys);
-        else
+        if (unbuffered.isSet())
             keyboard.press(keys);
+        else
+            keyboard.type(keys);
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if (buffered.isClear())
+        if (unbuffered.isSet())
             keyboard.release(state);
         state = Set.of();
     }

@@ -28,9 +28,11 @@ __Just for fun!__
       --mouse               [true|false]    Use the mouse as the left joystick
       --dpad-left           [true|false]    Use the keyboard arrow keys as the left joystick
       --dpad-right          [true|false]    Use the keyboard arrow keys as the right joystick
-      --keyboard-buffer     [true|false]    Enable keyboard input buffering
+      --unbuffered          [true|false]    Disable keyboard input buffering
       --disassembler        [true|false]    Enable the disassembler
       --mute                [true|false]    Mute the speaker
+      --window-width        <number>        Width of the windowed graphic interface
+      --window-height       <number>        Height of the windowed graphic interface
       --help                [true|false]    Show help
 
 ### Boot ROM
