@@ -1,7 +1,4 @@
 #!/bin/bash
-# See https://medium.com/@adam_carroll/java-packager-with-jdk11-31b3d620f4a8
-# See https://github.com/Santulator/Santulator/blob/1.1.0/package/PACKAGING.md
-
 set -e
 APP_HOME="$(dirname "$(realpath $0)")"
 TARGET="$APP_HOME/target"
@@ -23,6 +20,16 @@ jar --create \
 VERSION="$(git describe --tags)"
 mkdir -p "$PACKAGE"
 cp "$JAR_FILE" "$PACKAGE"
+
+SHELL_SCRIPT="$DIST/R8BEmu-$VERSION.sh"
+cp $APP_HOME/resources/scripts/launch.sh "$SHELL_SCRIPT"
+cat "$JAR_FILE" >> "$SHELL_SCRIPT"
+chmod +x "$SHELL_SCRIPT"
+
+BATCH_SCRIPT="$DIST/R8BEmu-$VERSION.bat"
+cp $APP_HOME/resources/scripts/launch.bat "$BATCH_SCRIPT"
+cat "$JAR_FILE" >> "$BATCH_SCRIPT"
+chmod +x "$BATCH_SCRIPT"
 
 case $(uname) in
   Darwin)

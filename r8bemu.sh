@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 APP_HOME="$(dirname "$(realpath $0)")"
-JAR_FILE="$APP_HOME/target/r8bemu.jar"
+export JAR_FILE="$APP_HOME/target/r8bemu.jar"
 
 if [ ! -f "$JAR_FILE" ]; then
   javac -d "$APP_HOME/classes" $(find $APP_HOME/src -name '*.java')
@@ -14,4 +14,4 @@ if [ ! -f "$JAR_FILE" ]; then
     -C "$APP_HOME/resources" template
 fi
 
-java -jar "$JAR_FILE" "$@"
+exec $APP_HOME/resources/scripts/launch.sh "$@"

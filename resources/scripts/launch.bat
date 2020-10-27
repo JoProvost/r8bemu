@@ -1,0 +1,1 @@
+@echo offstart /b javaw -jar %~f0 %*exit
