@@ -105,9 +105,6 @@ public class MMU implements Addressable {
     @Override
     public int read(int cpuAddress) {
         address = extended(cpuAddress);
-        if (address ==0x01f5b5) {
-            var a=true;
-        }
         if (MemoryMap.GIME.contains(address)) {
             if (address == 0x7ff90) return init0.value();
             if (address == 0x7ff91) return init1.value();
