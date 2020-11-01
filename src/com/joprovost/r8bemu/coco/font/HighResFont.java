@@ -731,6 +731,6 @@ public class HighResFont implements Font {
     public Optional<Sprite> sprite(Character character) {
         return Optional.ofNullable(SPRITES.get(character))
                        .or(() -> LEGACY3.sprite(character)
-                                        .map(x -> x.clipY(3, 8)));
+                                        .map(x -> x.at(0, -3)));
     }
 }

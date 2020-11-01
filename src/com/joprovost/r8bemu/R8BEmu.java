@@ -12,7 +12,6 @@ import com.joprovost.r8bemu.io.CassetteRecorder;
 import com.joprovost.r8bemu.io.JoystickInput;
 import com.joprovost.r8bemu.io.Keyboard;
 import com.joprovost.r8bemu.io.awt.AWTKeyboardDriver;
-import com.joprovost.r8bemu.io.awt.ActionIcon;
 import com.joprovost.r8bemu.io.awt.Actions;
 import com.joprovost.r8bemu.io.awt.ArrowsJoystickDriver;
 import com.joprovost.r8bemu.io.awt.Display;
@@ -33,12 +32,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static com.joprovost.r8bemu.io.awt.ActionIcon.COMPOSITE;
-import static com.joprovost.r8bemu.io.awt.ActionIcon.HALT;
-import static com.joprovost.r8bemu.io.awt.ActionIcon.KEYBOARD_DPAD_LEFT;
-import static com.joprovost.r8bemu.io.awt.ActionIcon.MOUSE;
-import static com.joprovost.r8bemu.io.awt.ActionIcon.MUTE;
-import static com.joprovost.r8bemu.io.awt.ActionIcon.UNBUFFERED;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.CASSETTE_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.DISK_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.DPAD_LEFT_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.FULL_SCREEN_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.HALT_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.MOUSE_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.MUTE_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.NO_KEYBOARD_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.REBOOT_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.RESET_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.REWIND_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.TV_ICON;
 import static com.joprovost.r8bemu.io.awt.UserInterface.SEPARATOR;
 
 public class R8BEmu {
@@ -112,24 +117,24 @@ public class R8BEmu {
             display.addMouseListener(mouseRightJoystickDriver);
 
             UserInterface.show(display, List.of(
-                    Actions.action(ActionIcon.REBOOT, context.aware(Signal.REBOOT)::pulse),
-                    Actions.action(ActionIcon.RESET, context.aware(Signal.RESET)::pulse),
-                    Actions.toggle(HALT, context.aware(Signal.HALT)),
+                    Actions.action(REBOOT_ICON, context.aware(Signal.REBOOT)::pulse),
+                    Actions.action(RESET_ICON, context.aware(Signal.RESET)::pulse),
+                    Actions.toggle(HALT_ICON, context.aware(Signal.HALT)),
                     SEPARATOR,
-                    Actions.action(ActionIcon.CASSETTE_REWIND, cassette::rewind),
-                    Actions.file(ActionIcon.CASSETTE, cassette::insert, home, new FileNameExtensionFilter("Audio file", "wav")),
+                    Actions.action(REWIND_ICON, cassette::rewind),
+                    Actions.file(CASSETTE_ICON, cassette::insert, home, new FileNameExtensionFilter("Audio file", "wav")),
                     SEPARATOR,
-                    Actions.file(ActionIcon.DISK, drive::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
+                    Actions.file(DISK_ICON, drive::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
                     SEPARATOR,
-                    Actions.toggle(UNBUFFERED, unbuffered),
-                    Actions.toggle(KEYBOARD_DPAD_LEFT, dpadLeft),
-                    Actions.toggle(MOUSE, mouse),
+                    Actions.toggle(NO_KEYBOARD_ICON, unbuffered),
+                    Actions.toggle(DPAD_LEFT_ICON, dpadLeft),
+                    Actions.toggle(MOUSE_ICON, mouse),
                     SEPARATOR,
-                    Actions.toggle(COMPOSITE, composite),
+                    Actions.toggle(TV_ICON, composite),
                     SEPARATOR,
-                    Actions.toggle(MUTE, mute),
+                    Actions.toggle(MUTE_ICON, mute),
                     SEPARATOR,
-                    Actions.presentation()
+                    Actions.presentation(FULL_SCREEN_ICON)
             ));
         }
 

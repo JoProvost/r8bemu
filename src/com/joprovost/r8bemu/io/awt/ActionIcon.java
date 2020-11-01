@@ -1,44 +1,71 @@
 package com.joprovost.r8bemu.io.awt;
 
 import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
+import com.joprovost.r8bemu.graphic.Sprite;
 
 import javax.swing.*;
 
+import static com.joprovost.r8bemu.io.awt.ActionSprites.CASSETTE;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.DISK;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.DPAD;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.KEYBOARD;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.LEFT;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.MAXIMIZE;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.MINIMIZE;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.MOUSE;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.NOT;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.PAUSE;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.POWER;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.RESET;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.REWIND;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.RIGHT;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.SPEAKER;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.TV;
+
 public enum ActionIcon {
-    CASSETTE("/images/cassette_32x32.png"),
-    CASSETTE_REWIND("/images/rewind_32x32.png"),
-    DISK("/images/disk_32x32.png"),
-    HALT("/images/halt_32x32.png", "/images/halt_selected_32x32.png"),
-    UNBUFFERED("/images/keyboard_unbuffered_32x32.png", "/images/keyboard_unbuffered_selected_32x32.png"),
-    KEYBOARD_DPAD_LEFT("/images/keyboard_dpad_left_32x32.png", "/images/keyboard_dpad_left_selected_32x32.png"),
-    MOUSE("/images/mouse_32x32.png", "/images/mouse_selected_32x32.png"),
-    MUTE("/images/mute_32x32.png", "/images/muted_32x32.png"),
-    REBOOT("/images/power_32x32.png"),
-    RESET("/images/reset_32x32.png"),
-    COMPOSITE("/images/composite_32x32.png", "/images/composite_selected_32x32.png");
+    CASSETTE_ICON(CASSETTE),
+    REWIND_ICON(REWIND),
+    DISK_ICON(DISK),
+    HALT_ICON(PAUSE),
+    NO_KEYBOARD_ICON(KEYBOARD.with(NOT)),
+    DPAD_LEFT_ICON(DPAD.with(LEFT)),
+    MOUSE_ICON(MOUSE.with(LEFT).with(RIGHT)),
+    MUTE_ICON(SPEAKER.with(NOT)),
+    FULL_SCREEN_ICON(MAXIMIZE, MINIMIZE),
+    REBOOT_ICON(POWER),
+    RESET_ICON(RESET),
+    TV_ICON(TV);
 
-    private final ImageIcon normal;
-    private final ImageIcon selected;
+    private final Icon normal;
+    private final Icon selected;
 
-    ActionIcon(String normal, String selected) {
-        this.normal = new ImageIcon(ActionIcon.class.getResource(normal));
-        this.selected = new ImageIcon(ActionIcon.class.getResource(selected));
+    ActionIcon(Sprite sprite) {
+        this(sprite, sprite.xor(ActionSprites.SELECTED));
     }
 
-    ActionIcon(String normal) {
-        this.normal = this.selected = new ImageIcon(ActionIcon.class.getResource(normal));
+    ActionIcon(Sprite normal, Sprite selected) {
+        this(SpriteIcon.of(normal), SpriteIcon.of(selected));
+    }
+
+    ActionIcon(Icon normal, Icon selected) {
+        this.normal = normal;
+        this.selected = selected;
     }
 
     public Icon icon(DiscreteOutput state) {
-        return icon(state.isSet());
-    }
-
-    public Icon icon(boolean state) {
-        return state ? selected : normal;
+        return state.isSet() ? selected() : normal();
     }
 
     public Icon icon() {
-        return icon(false);
+        return normal();
+    }
+
+    public Icon normal() {
+        return normal;
+    }
+
+    public Icon selected() {
+        return selected;
     }
 }
 

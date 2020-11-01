@@ -111,12 +111,9 @@ public class DisplayProcessor implements Addressable {
 
     private void character(char utf8, int row, int column, int line, Color fg, Color bg, boolean underline) {
         screen.character(utf8, row, column, fg, bg);
-        font.sprite(utf8).ifPresent(sprite -> {
+        font.sprite(utf8).map(it -> underline? font.sprite('＿').map(it::or).orElse(it):it).ifPresent(sprite -> {
             for (int x = 0; x < 8; x++) {
-                if (underline && line == 7)
-                    screen.pixel(column * 8 + x, row * 8 + line + verticalBorder(), fg, width(), displayHeight);
-                else
-                    screen.pixel(column * 8 + x, row * 8 + line + verticalBorder(), sprite.pixel(x, line) ? fg : bg, width(), displayHeight);
+                screen.pixel(column * 8 + x, row * 8 + line + verticalBorder(), sprite.pixel(x, line) ? fg : bg, width(), displayHeight);
             }
         });
     }

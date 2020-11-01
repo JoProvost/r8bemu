@@ -46,23 +46,42 @@ public interface Sprite {
 
     int height();
 
-    default Sprite clipY(int firstLine, int height) {
-        final Sprite origin = this;
-        return new Sprite() {
-            @Override
-            public boolean pixel(int x, int y) {
-                return origin.pixel(x, firstLine + y);
-            }
+    default Sprite at(int ox, int oy) {
+        return Transform.move(this, ox, oy);
+    }
 
-            @Override
-            public int width() {
-                return origin.width();
-            }
+    default Sprite xor(Sprite mask) {
+        return Transform.xor(this, mask);
+    }
 
-            @Override
-            public int height() {
-                return height;
+    default Sprite or(Sprite mask) {
+        return Transform.or(this, mask);
+    }
+
+    default Sprite and(Sprite mask) {
+        return Transform.and(this, mask);
+    }
+
+    default Sprite with(Sprite overlay) {
+        return and(overlay.bold().not()).or(overlay);
+    }
+
+    default Sprite not() {
+        return Transform.not(this);
+    }
+
+    default Sprite bold() {
+        return Transform.bold(this);
+    }
+
+    static String asString(Sprite sprite) {
+        String[] array = new String[sprite.height()];
+        for (int y = 0; y < array.length; y++) {
+            array[y] = "";
+            for (int x = 0; x < sprite.width(); x++) {
+                array[y] += sprite.pixel(x, y) ? "██" : "  ";
             }
-        };
+        }
+        return "Sprite.of(\n    \"" + String.join("\",\n    \"", array) + "\"\n);\n";
     }
 }

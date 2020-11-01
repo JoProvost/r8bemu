@@ -1,6 +1,5 @@
 package com.joprovost.r8bemu.io.awt;
 
-import com.joprovost.r8bemu.data.discrete.DiscreteAccess;
 import com.joprovost.r8bemu.data.discrete.DiscretePort;
 
 import javax.swing.*;
@@ -13,28 +12,17 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Actions {
-    public static Function<Window, Action> presentation() {
-        return window -> new AbstractAction(null, new ImageIcon(Actions.class.getResource("/images/maximized_32x32.png"))) {
+    public static Function<Window, Action> presentation(ActionIcon actionIcon) {
+        return window -> new AbstractAction(null, actionIcon.icon()) {
             final Runnable fullScreenToggle = fullScreenToggle(
                     window,
-                    () -> putValue(Action.SMALL_ICON, new ImageIcon(Actions.class.getResource("/images/windowed_32x32.png"))),
-                    () -> putValue(Action.SMALL_ICON, new ImageIcon(Actions.class.getResource("/images/maximized_32x32.png"))),
+                    () -> putValue(Action.SMALL_ICON, actionIcon.selected()),
+                    () -> putValue(Action.SMALL_ICON, actionIcon.normal()),
                     () -> setEnabled(false));
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 fullScreenToggle.run();
-            }
-        };
-    }
-
-    public static Function<Window, Action> toggle(ActionIcon icon, DiscreteAccess state) {
-        return window -> new AbstractAction(null, icon.icon(state)) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean newState = state.isClear();
-                state.set(newState);
-                putValue(Action.SMALL_ICON, icon.icon(newState));
             }
         };
     }
