@@ -65,8 +65,11 @@ public class Arithmetic {
         if ((register >= 0x90 && low >= 0x0a) || register >= 0xa0 || Register.C.isSet()) result += 0x60;
         Register.A.value(result);
 
-        Register.C.set(Register.C.isSet() || carry(result, mask));
-        Register.V.clear();
+        //Register.C.set(Register.C.isSet() || carry(result, mask));
+        // C The Carry flag is set if the BCD addition produced a carry; cleared otherwise.
+        Register.C.set(carry(result, mask));
+        // V The affect this instruction has on the Overflow flag is undefined.
+        // Register.V.clear();
         Register.Z.set(zero(result, mask));
         Register.N.set(negative(result, mask));
     }

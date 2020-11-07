@@ -6,7 +6,6 @@ import com.joprovost.r8bemu.data.binary.BinaryOutput;
 public abstract class Debugger {
 
     protected int address;
-    protected String[] addresses = new String[32];
     protected BinaryOutput argument;
 
     public static Debugger none() {
@@ -16,14 +15,17 @@ public abstract class Debugger {
             public void instruction(Described mnemonic) {
 
             }
+
+            @Override
+            public void onError(Exception e) {
+                e.printStackTrace();
+            }
         };
     }
 
     public void at(int address) {
         this.address = address;
         this.argument = BinaryOutput.NONE;
-        System.arraycopy(addresses, 0, addresses, 1, addresses.length - 1);
-        addresses[0] = BinaryOutput.hex(address, 0xffff);
     }
 
     public void label(String name, int address) {
@@ -31,6 +33,8 @@ public abstract class Debugger {
     }
 
     public abstract void instruction(Described mnemonic);
+
+    public abstract void onError(Exception e);
 
     protected String column(int size, Object string) {
         return string + " ".repeat(size - string.toString().length());

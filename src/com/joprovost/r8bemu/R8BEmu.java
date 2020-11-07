@@ -56,6 +56,8 @@ public class R8BEmu {
         Flag terminalGraphic = settings.flag("terminal-graphic", false, "Activate the terminal interface in graphic mode");
         Flag terminal = settings.flag("terminal", terminalGraphic.isSet(), "Activate the terminal interface in text mode");
         Flag window = settings.flag("window", terminal.isClear(), "Activate the windowed graphic interface");
+        int width = settings.integer("window-width", 640, "Width of the windowed graphic interface");
+        int height = settings.integer("window-height", 450, "Height of the windowed graphic interface");
         Flag composite = settings.flag("composite", true, "Composite blue/red color emulation");
 
         Path home = settings.path("home", System.getProperty("user.home") + "/.r8bemu", "Home directory (location of ROM files)");
@@ -68,11 +70,11 @@ public class R8BEmu {
         Flag dpadLeft = settings.flag("dpad-left", false, "Use the keyboard arrow keys as the left joystick");
         Flag dpadRight = settings.flag("dpad-right", false, "Use the keyboard arrow keys as the right joystick");
         Flag unbuffered = settings.flag("unbuffered", false, "Disable keyboard input buffering");
-        Flag disassembler = settings.flag("disassembler", false, "Enable the disassembler");
         Flag mute = settings.flag("mute", false, "Mute the speaker");
+        Flag disassembler = settings.flag("disassembler", false, "Enable the disassembler");
+        Flag trace = settings.flag("trace", false, "Enable the execution trace on error");
+        int traceSize = settings.integer("trace-size", 80, "Limit the size of the execution trace");
 
-        int width = settings.integer("window-width", 640, "Width of the windowed graphic interface");
-        int height = settings.integer("window-height", 450, "Height of the windowed graphic interface");
 
         if (settings.flag("help", false, "Show help").isSet()) {
             settings.help();
@@ -144,7 +146,10 @@ public class R8BEmu {
         services.declare(new LinuxJoystickDriver(Path.of("/dev/input/js1"), joystickRight));
 
         Configuration.prepare(home);
-        Debugger debugger = disassembler.isSet() ? new Disassembler(home.resolve("disassembler.asm")) : Debugger.none();
+        Debugger debugger = Debugger.none();
+
+        if (trace.isSet()) debugger = new ExecutionTrace(traceSize);
+        if (disassembler.isSet()) debugger = new Disassembler(home.resolve("disassembler.asm"), traceSize);
 
         if (coco3.isSet())
             CoCo3.emulate(context, screen, composite, keyboard, cassette, drive, services,

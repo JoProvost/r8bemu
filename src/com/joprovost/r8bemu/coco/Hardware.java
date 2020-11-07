@@ -97,7 +97,7 @@ public class Hardware {
         Signal.HALT.to(cpu.halt());
 
         Signal.RESET.to(Signal.HALT); // clear HALT when reset is released
-        context.onError(Throwable::printStackTrace);
+        context.onError(debugger::onError);
         context.onError(e -> System.err.println(Register.dump()));
         context.onError(e -> Signal.HALT.set());
     }
