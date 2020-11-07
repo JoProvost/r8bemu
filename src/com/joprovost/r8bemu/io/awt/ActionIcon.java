@@ -14,18 +14,25 @@ import static com.joprovost.r8bemu.io.awt.ActionSprites.MAXIMIZE;
 import static com.joprovost.r8bemu.io.awt.ActionSprites.MINIMIZE;
 import static com.joprovost.r8bemu.io.awt.ActionSprites.MOUSE;
 import static com.joprovost.r8bemu.io.awt.ActionSprites.NOT;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.ONE;
 import static com.joprovost.r8bemu.io.awt.ActionSprites.PAUSE;
 import static com.joprovost.r8bemu.io.awt.ActionSprites.POWER;
 import static com.joprovost.r8bemu.io.awt.ActionSprites.RESET;
 import static com.joprovost.r8bemu.io.awt.ActionSprites.REWIND;
 import static com.joprovost.r8bemu.io.awt.ActionSprites.RIGHT;
 import static com.joprovost.r8bemu.io.awt.ActionSprites.SPEAKER;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.THREE;
 import static com.joprovost.r8bemu.io.awt.ActionSprites.TV;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.TWO;
+import static com.joprovost.r8bemu.io.awt.ActionSprites.ZERO;
 
 public enum ActionIcon {
     CASSETTE_ICON(CASSETTE),
     REWIND_ICON(REWIND),
-    DISK_ICON(DISK),
+    DISK0_ICON(DISK.with(ZERO)),
+    DISK1_ICON(DISK.with(ONE)),
+    DISK2_ICON(DISK.with(TWO)),
+    DISK3_ICON(DISK.with(THREE)),
     HALT_ICON(PAUSE),
     NO_KEYBOARD_ICON(KEYBOARD.with(NOT)),
     DPAD_LEFT_ICON(DPAD.with(LEFT)),

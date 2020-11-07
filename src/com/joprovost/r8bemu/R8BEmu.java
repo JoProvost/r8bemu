@@ -33,7 +33,10 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static com.joprovost.r8bemu.io.awt.ActionIcon.CASSETTE_ICON;
-import static com.joprovost.r8bemu.io.awt.ActionIcon.DISK_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.DISK0_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.DISK1_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.DISK2_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.DISK3_ICON;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.DPAD_LEFT_ICON;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.FULL_SCREEN_ICON;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.HALT_ICON;
@@ -87,11 +90,14 @@ public class R8BEmu {
         var joystickRight = JoystickInput.dispatcher(context);
         var screen = Screen.dispatcher();
         var cassette = CassetteRecorder.dispatcher(context);
-        var drive = DiskSlot.dispatcher(context);
+        var drive0 = DiskSlot.dispatcher(context);
+        var drive1 = DiskSlot.dispatcher(context);
+        var drive2 = DiskSlot.dispatcher(context);
+        var drive3 = DiskSlot.dispatcher(context);
         var mixer = Mixer.dispatcher(context);
 
         if (Files.exists(playback)) cassette.insert(playback.toFile());
-        if (Files.exists(disk)) drive.insert(disk.toFile());
+        if (Files.exists(disk)) drive0.insert(disk.toFile());
         if (Files.exists(script)) keyboard.script(Files.readString(script));
         if (scriptText != null) keyboard.script(scriptText);
 
@@ -126,7 +132,10 @@ public class R8BEmu {
                     Actions.action(REWIND_ICON, cassette::rewind),
                     Actions.file(CASSETTE_ICON, cassette::insert, home, new FileNameExtensionFilter("Audio file", "wav")),
                     SEPARATOR,
-                    Actions.file(DISK_ICON, drive::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
+                    Actions.file(DISK0_ICON, drive0::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
+                    Actions.file(DISK1_ICON, drive1::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
+                    Actions.file(DISK2_ICON, drive2::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
+                    Actions.file(DISK3_ICON, drive3::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
                     SEPARATOR,
                     Actions.toggle(NO_KEYBOARD_ICON, unbuffered),
                     Actions.toggle(DPAD_LEFT_ICON, dpadLeft),
@@ -152,10 +161,10 @@ public class R8BEmu {
         if (disassembler.isSet()) debugger = new Disassembler(home.resolve("disassembler.asm"), traceSize);
 
         if (coco3.isSet())
-            CoCo3.emulate(context, screen, composite, keyboard, cassette, drive, services,
+            CoCo3.emulate(context, screen, composite, keyboard, cassette, drive0, drive1, drive2, drive3, services,
                           joystickLeft, joystickRight, mixer, mute, recording, home, debugger);
         else
-            CoCo2.emulate(context, screen, composite, keyboard, cassette, drive, services,
+            CoCo2.emulate(context, screen, composite, keyboard, cassette, drive0, drive1, drive2, drive3, services,
                           joystickLeft, joystickRight, mixer, mute, recording, home, debugger);
     }
 }

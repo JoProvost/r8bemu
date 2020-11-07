@@ -12,6 +12,7 @@ import com.joprovost.r8bemu.coco.font.HighResFont;
 import com.joprovost.r8bemu.coco.font.LegacyFont3;
 import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
 import com.joprovost.r8bemu.data.discrete.DiscretePort;
+import com.joprovost.r8bemu.devices.DiskController;
 import com.joprovost.r8bemu.devices.DiskDrive;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6821Port;
@@ -45,7 +46,10 @@ public class CoCo3 {
                                DiscretePort composite,
                                KeyboardDispatcher keyboard,
                                CassetteRecorderDispatcher cassette,
-                               DiskSlotDispatcher slot,
+                               DiskSlotDispatcher drive0,
+                               DiskSlotDispatcher drive1,
+                               DiskSlotDispatcher drive2,
+                               DiskSlotDispatcher drive3,
                                Services services,
                                JoystickDispatcher left,
                                JoystickDispatcher right,
@@ -65,9 +69,13 @@ public class CoCo3 {
         var cart = rom(home.resolve("disk12.rom"))
                 .or(() -> rom(home.resolve("disk11.rom")))
                 .orElse(none());
-        var drive = context.aware(new DiskDrive());
-        drive.irq().to(Signal.NMI);
-        slot.dispatchTo(drive);
+        var diskDrive = new DiskDrive();
+        var diskController = context.aware(new DiskController(diskDrive));
+        diskController.irq().to(Signal.NMI);
+        drive0.dispatchTo(diskDrive.slot0());
+        drive1.dispatchTo(diskDrive.slot1());
+        drive2.dispatchTo(diskDrive.slot2());
+        drive3.dispatchTo(diskDrive.slot3());
 
         var pia0a = new MC6821Port(Signal.IRQ);
         var pia0b = new MC6821Port(Signal.IRQ);
@@ -97,7 +105,9 @@ public class CoCo3 {
                 when(mmu.pia(),
                      select(0x00, 0x20, new MC6821(pia0a, pia0b)),
                      select(0x20, 0x20, new MC6821(pia1a, pia1b))),
-                when(mmu.scs(), drive));
+                when(mmu.scs(), diskController),
+                when(mmu.scs(), diskDrive)
+        );
 
         Hardware.legacyVideo(
                 new MC6847(screen, mmu.lowResVideo(), composite, new LegacyFont3(), mmu.legacy(), palette, 320, 225),

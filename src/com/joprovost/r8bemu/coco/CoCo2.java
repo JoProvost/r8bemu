@@ -8,6 +8,7 @@ import com.joprovost.r8bemu.coco.devices.sam.MC6883;
 import com.joprovost.r8bemu.coco.font.LegacyFont;
 import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
 import com.joprovost.r8bemu.data.discrete.Flag;
+import com.joprovost.r8bemu.devices.DiskController;
 import com.joprovost.r8bemu.devices.DiskDrive;
 import com.joprovost.r8bemu.devices.MC6821;
 import com.joprovost.r8bemu.devices.MC6821Port;
@@ -35,7 +36,10 @@ public class CoCo2 {
                                DiscreteOutput composite,
                                KeyboardDispatcher keyboard,
                                CassetteRecorderDispatcher cassette,
-                               DiskSlotDispatcher slot,
+                               DiskSlotDispatcher drive0,
+                               DiskSlotDispatcher drive1,
+                               DiskSlotDispatcher drive2,
+                               DiskSlotDispatcher drive3,
                                Services services,
                                JoystickDispatcher left,
                                JoystickDispatcher right,
@@ -61,9 +65,12 @@ public class CoCo2 {
                 .or(() -> rom(home.resolve("disk11.rom")))
                 .or(() -> rom(home.resolve("DSKBASIC.ROM")))
                 .orElse(none());
-        var drive = context.aware(new DiskDrive());
-        drive.irq().to(Signal.NMI);
-        slot.dispatchTo(drive);
+        var diskDrive = new DiskDrive();
+        var diskController = context.aware(new DiskController(diskDrive));
+        diskController.irq().to(Signal.NMI);
+        drive1.dispatchTo(diskDrive.slot1());
+        drive2.dispatchTo(diskDrive.slot2());
+        drive3.dispatchTo(diskDrive.slot3());
 
         var pia0a = new MC6821Port(Signal.IRQ);
         var pia0b = new MC6821Port(Signal.IRQ);
@@ -77,7 +84,8 @@ public class CoCo2 {
                 Addressable.when(sam.select(3), cart),  // S=3
                 Addressable.when(sam.select(4), new MC6821(pia0a, pia0b)),  // S=4
                 Addressable.when(sam.select(5), new MC6821(pia1a, pia1b)),  // S=5
-                Addressable.when(sam.select(6), drive)  // S=6
+                Addressable.when(sam.select(6), diskController),  // S=6
+                Addressable.when(sam.select(6), diskDrive)  // S=6
         );
 
         EmulatorContext video = services.declare(new EmulatorContext());
