@@ -68,6 +68,7 @@ public class CoCo2 {
         var diskDrive = new DiskDrive();
         var diskController = context.aware(new DiskController(diskDrive));
         diskController.irq().to(Signal.NMI);
+        drive0.dispatchTo(diskDrive.slot0());
         drive1.dispatchTo(diskDrive.slot1());
         drive2.dispatchTo(diskDrive.slot2());
         drive3.dispatchTo(diskDrive.slot3());
