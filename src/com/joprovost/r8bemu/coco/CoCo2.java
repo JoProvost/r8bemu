@@ -27,8 +27,10 @@ import com.joprovost.r8bemu.storage.DiskSlotDispatcher;
 
 import java.nio.file.Path;
 
+import static com.joprovost.r8bemu.Configuration.rom;
+import static com.joprovost.r8bemu.devices.memory.Addressable.bus;
 import static com.joprovost.r8bemu.devices.memory.Addressable.none;
-import static com.joprovost.r8bemu.devices.memory.Addressable.rom;
+import static com.joprovost.r8bemu.devices.memory.Addressable.when;
 
 public class CoCo2 {
     public static void emulate(EmulatorContext context,
@@ -49,44 +51,40 @@ public class CoCo2 {
                                Path home,
                                Debugger debugger) {
 
-        var uptime = context.aware(new ClockFrequency(1780, context));
+        ClockFrequency uptime = context.aware(new ClockFrequency(1780, context));
 
         Memory ram = new Memory(0xffff);
 
-        var sam = new MC6883(ram, context);
+        MC6883 sam = new MC6883(ram, context);
         Signal.RESET.to(sam.reset());
-        var rom0 = rom(home.resolve("extbas11.rom"))
-                .or(() -> rom(home.resolve("EXTBASIC.ROM")))
-                .orElse(none());
-        var rom1 = rom(home.resolve("bas13.rom"))
-                .or(() -> rom(home.resolve("BASIC.ROM")))
-                .orElse(DemoROM.demo());
-        var cart = rom(home.resolve("disk12.rom"))
-                .or(() -> rom(home.resolve("disk11.rom")))
-                .or(() -> rom(home.resolve("DSKBASIC.ROM")))
-                .orElse(none());
-        var diskDrive = new DiskDrive();
-        var diskController = context.aware(new DiskController(diskDrive));
-        diskController.irq().to(Signal.NMI);
+
+        Addressable rom0 = rom(home, "extbas11.rom", "EXTBASIC.ROM").orElse(none());
+        Addressable rom1 = rom(home, "bas13.rom", "BASIC.ROM").orElse(DemoROM.demo());
+        Addressable cart = rom(home, "disk12.rom", "disk11.rom", "DSKBASIC.ROM").orElse(none());
+
+        DiskDrive diskDrive = new DiskDrive();
         drive0.dispatchTo(diskDrive.slot0());
         drive1.dispatchTo(diskDrive.slot1());
         drive2.dispatchTo(diskDrive.slot2());
         drive3.dispatchTo(diskDrive.slot3());
+
+        DiskController diskController = context.aware(new DiskController(diskDrive));
+        diskController.irq().to(Signal.NMI);
 
         var pia0a = new MC6821Port(Signal.IRQ);
         var pia0b = new MC6821Port(Signal.IRQ);
         var pia1a = new MC6821Port(Signal.FIRQ);
         var pia1b = new MC6821Port(Signal.FIRQ);
 
-        var bus = Addressable.bus(
+        Addressable bus = bus(
                 sam, // S7
-                Addressable.when(sam.select(1), rom0),  // S=1
-                Addressable.when(sam.select(2), rom1),  // S=2
-                Addressable.when(sam.select(3), cart),  // S=3
-                Addressable.when(sam.select(4), new MC6821(pia0a, pia0b)),  // S=4
-                Addressable.when(sam.select(5), new MC6821(pia1a, pia1b)),  // S=5
-                Addressable.when(sam.select(6), diskController),  // S=6
-                Addressable.when(sam.select(6), diskDrive)  // S=6
+                when(sam.select(1), rom0),  // S=1
+                when(sam.select(2), rom1),  // S=2
+                when(sam.select(3), cart),  // S=3
+                when(sam.select(4), new MC6821(pia0a, pia0b)),  // S=4
+                when(sam.select(5), new MC6821(pia1a, pia1b)),  // S=5
+                when(sam.select(6), diskController),  // S=6
+                when(sam.select(6), diskDrive)  // S=6
         );
 
         EmulatorContext video = services.declare(new EmulatorContext());

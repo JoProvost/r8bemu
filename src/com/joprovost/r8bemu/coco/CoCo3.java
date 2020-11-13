@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.coco;
 
+import com.joprovost.r8bemu.Configuration;
 import com.joprovost.r8bemu.Services;
 import com.joprovost.r8bemu.clock.ClockFrequency;
 import com.joprovost.r8bemu.clock.EmulatorContext;
@@ -32,15 +33,19 @@ import com.joprovost.r8bemu.storage.DiskSlotDispatcher;
 
 import java.nio.file.Path;
 
+import static com.joprovost.r8bemu.Configuration.rom;
 import static com.joprovost.r8bemu.coco.DemoROM.demo;
 import static com.joprovost.r8bemu.devices.memory.Addressable.bus;
 import static com.joprovost.r8bemu.devices.memory.Addressable.none;
 import static com.joprovost.r8bemu.devices.memory.Addressable.readOnly;
-import static com.joprovost.r8bemu.devices.memory.Addressable.rom;
 import static com.joprovost.r8bemu.devices.memory.Addressable.select;
 import static com.joprovost.r8bemu.devices.memory.Addressable.when;
 
 public class CoCo3 {
+    public static boolean isConfigured(Path home) {
+        return Configuration.file(home, "coco3.rom", "BASIC3.ROM").isPresent();
+    }
+
     public static void emulate(EmulatorContext context,
                                Screen screen,
                                DiscretePort composite,
@@ -59,23 +64,21 @@ public class CoCo3 {
                                Path home,
                                Debugger debugger) {
 
-        var uptime = context.aware(new ClockFrequency(1780, context));
+        ClockFrequency uptime = context.aware(new ClockFrequency(1780, context));
 
         Memory ram = new Memory(0x7ffff);
 
-        var rom = rom(home.resolve("coco3.rom"))
-                .or(() -> rom(home.resolve("BASIC3.ROM")))
-                .orElse(demo());
-        var cart = rom(home.resolve("disk12.rom"))
-                .or(() -> rom(home.resolve("disk11.rom")))
-                .orElse(none());
-        var diskDrive = new DiskDrive();
-        var diskController = context.aware(new DiskController(diskDrive));
-        diskController.irq().to(Signal.NMI);
+        Addressable rom = rom(home, "coco3.rom", "BASIC3.ROM").orElse(demo());
+        Addressable cart = rom(home, "disk12.rom", "disk11.rom").orElse(none());
+
+        DiskDrive diskDrive = new DiskDrive();
         drive0.dispatchTo(diskDrive.slot0());
         drive1.dispatchTo(diskDrive.slot1());
         drive2.dispatchTo(diskDrive.slot2());
         drive3.dispatchTo(diskDrive.slot3());
+
+        DiskController diskController = context.aware(new DiskController(diskDrive));
+        diskController.irq().to(Signal.NMI);
 
         var pia0a = new MC6821Port(Signal.IRQ);
         var pia0b = new MC6821Port(Signal.IRQ);
@@ -84,7 +87,7 @@ public class CoCo3 {
 
         EmulatorContext video = services.declare(new EmulatorContext());
         video.aware(new ClockFrequency(15, video));
-        var videoTiming = video.aware(new VideoTimer());
+        VideoTimer videoTiming = video.aware(new VideoTimer());
         videoTiming.horizontalSync().to(context.aware(pia0a.interrupt()));
         videoTiming.verticalSync().to(context.aware(pia0b.interrupt()));
 

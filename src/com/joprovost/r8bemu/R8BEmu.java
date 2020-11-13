@@ -53,8 +53,8 @@ public class R8BEmu {
 
     public static void main(String[] args) throws IOException, URISyntaxException {
         Settings settings = Settings.parse(args);
-        Flag coco2 = settings.flag("coco2", false, "Use Color Computer Model 2 hardware emulation");
-        Flag coco3 = settings.flag("coco3", coco2.isClear(), "Use Color Computer Model 3 hardware emulation");
+        Flag coco2 = settings.flag("coco2", false, "Use Color Computer 2 hardware emulation");
+        Flag coco3 = settings.flag("coco3", coco2.isClear(), "Use Color Computer 3 hardware emulation");
 
         Flag terminalGraphic = settings.flag("terminal-graphic", false, "Activate the terminal interface in graphic mode");
         Flag terminal = settings.flag("terminal", terminalGraphic.isSet(), "Activate the terminal interface in text mode");
@@ -65,6 +65,9 @@ public class R8BEmu {
 
         Path home = settings.path("home", System.getProperty("user.home") + "/.r8bemu", "Home directory (location of ROM files)");
         Path disk = settings.path("disk", home + "/disk.dsk", "Insert the diskette image file in drive 0");
+        Path disk1 = settings.path("disk1", home + "/disk.dsk", "Insert the diskette image file in drive 1");
+        Path disk2 = settings.path("disk2", home + "/disk.dsk", "Insert the diskette image file in drive 2");
+        Path disk3 = settings.path("disk3", home + "/disk.dsk", "Insert the diskette image file in drive 3");
         Path playback = settings.path("playback", home + "/playback.wav", "Define the audio file used for playback");
         Path recording = settings.path("recording", home + "/recording.wav", "Define the audio file used for recording");
         Path script = settings.path("script", home + "/autorun.bas", "Load a script file at boot");
@@ -98,6 +101,9 @@ public class R8BEmu {
 
         if (Files.exists(playback)) cassette.insert(playback.toFile());
         if (Files.exists(disk)) drive0.insert(disk.toFile());
+        if (Files.exists(disk1)) drive0.insert(disk1.toFile());
+        if (Files.exists(disk2)) drive0.insert(disk2.toFile());
+        if (Files.exists(disk3)) drive0.insert(disk3.toFile());
         if (Files.exists(script)) keyboard.script(Files.readString(script));
         if (scriptText != null) keyboard.script(scriptText);
 
@@ -160,7 +166,7 @@ public class R8BEmu {
         if (trace.isSet()) debugger = new ExecutionTrace(traceSize);
         if (disassembler.isSet()) debugger = new Disassembler(home.resolve("disassembler.asm"), traceSize);
 
-        if (coco3.isSet())
+        if (coco3.isSet() && CoCo3.isConfigured(home))
             CoCo3.emulate(context, screen, composite, keyboard, cassette, drive0, drive1, drive2, drive3, services,
                           joystickLeft, joystickRight, mixer, mute, recording, home, debugger);
         else

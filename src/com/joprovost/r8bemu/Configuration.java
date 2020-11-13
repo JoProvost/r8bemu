@@ -1,5 +1,7 @@
 package com.joprovost.r8bemu;
 
+import com.joprovost.r8bemu.devices.memory.Addressable;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,7 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Configuration {
 
@@ -21,6 +25,14 @@ public class Configuration {
             Files.createDirectories(home);
             copy(resource(RESOURCES), home);
         }
+    }
+
+    public static Optional<Path> file(Path home , String ...files) {
+        return Stream.of(files).map(home::resolve).filter(Files::exists).findFirst();
+    }
+
+    public static Optional<Addressable> rom(Path home , String ...files) {
+        return file(home, files).flatMap(Addressable::rom);
     }
 
     private static Path resource(String name) throws IOException, URISyntaxException {

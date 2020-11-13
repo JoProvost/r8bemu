@@ -13,14 +13,19 @@ __Just for fun!__
     $ ./r8bemu --help
     Usage: r8bemu [options]
     
-      --coco2               [true|false]    Use Color Computer Model 2 hardware emulation
-      --coco3               [true|false]    Use Color Computer Model 3 hardware emulation
+      --coco2               [true|false]    Use Color Computer 2 hardware emulation
+      --coco3               [true|false]    Use Color Computer 3 hardware emulation
       --terminal-graphic    [true|false]    Activate the terminal interface in graphic mode
       --terminal            [true|false]    Activate the terminal interface in text mode
       --window              [true|false]    Activate the windowed graphic interface
+      --window-width        <number>        Width of the windowed graphic interface
+      --window-height       <number>        Height of the windowed graphic interface
       --composite           [true|false]    Composite blue/red color emulation
       --home                <path>          Home directory (location of ROM files)     (default: ~/.r8bemu)
       --disk                <path>          Insert the diskette image file in drive 0  (default: ~/.r8bemu/disk.dsk)
+      --disk1               <path>          Insert the diskette image file in drive 1  (default: ~/.r8bemu/disk.dsk)
+      --disk2               <path>          Insert the diskette image file in drive 2  (default: ~/.r8bemu/disk.dsk)
+      --disk3               <path>          Insert the diskette image file in drive 3  (default: ~/.r8bemu/disk.dsk)
       --playback            <path>          Define the audio file used for playback    (default: ~/.r8bemu/playback.wav)
       --recording           <path>          Define the audio file used for recording   (default: ~/.r8bemu/recording.wav)
       --script              <path>          Load a script file at boot                 (default: ~/.r8bemu/autorun.bas)
@@ -29,29 +34,27 @@ __Just for fun!__
       --dpad-left           [true|false]    Use the keyboard arrow keys as the left joystick
       --dpad-right          [true|false]    Use the keyboard arrow keys as the right joystick
       --unbuffered          [true|false]    Disable keyboard input buffering
-      --disassembler        [true|false]    Enable the disassembler
       --mute                [true|false]    Mute the speaker
-      --window-width        <number>        Width of the windowed graphic interface
-      --window-height       <number>        Height of the windowed graphic interface
+      --disassembler        [true|false]    Enable the disassembler
+      --trace               [true|false]    Enable the execution trace on error
+      --trace-size          <number>        Limit the size of the execution trace
       --help                [true|false]    Show help
 
 ### Boot ROM
-In order to use this emulator, you must provide the ROM to boot on.  You can download it from an actual CoCo 2 you
-own and put the content of `Color Basic` in `bas13.rom`, `Extended Color Basic` in `extbas11.rom` and
+#### Color Computer 2
+In order to use this emulator, you must provide the ROM to boot on.  You can download it from an actual Color Computer 2
+you own and put the content of `Color Basic` in `bas13.rom`, `Extended Color Basic` in `extbas11.rom` and
 `Disk Extended Color Basic` in `disk11.rom` or craft your own :
 
  * __`bas13.rom`__ starting at __0xA000__ ending at __0xBFFF__, boot vector must be at __0xBFFE__ ;
  * __`extbas11.rom`__ starting at __0x8000__ ending at __0x9FFF__ .
  * __`disk11.rom`__ starting at __0xC000__ ending at __0xFF00__ .
 
-For CoCo 3 emulation, you need to provide the image of `Extended Color Basic 2.0` in `BASIC3.ROM` or `coco3.rom`
-and `Disk Extended Color Basic` in `disk11.rom`.
+#### Color Computer 3
+For Color Computer 3 emulation, you need to provide the image of `Extended Color Basic 2.0` in `BASIC3.ROM` or
+`coco3.rom` and `Disk Extended Color Basic` in `disk11.rom`.
 
-### Scripting
-In order to perform integration tests the content of a script may be is typed on the emulator keyboard.
-To do so, start the application with `--script <path-to-file>`.
-
-### Tape cassette
+## Tape cassette
 To load a program from a `.wav` file, start the application with `--playback <path-to-file>` and type `CLOAD` or
 `CLOADM` at the prompt. To save on tape, start the application with `--recording <path-to-file>` and type
 `CSAVE "<file-name>"`.
@@ -65,6 +68,11 @@ To load a program from a `.dsk` file, choose a disk by clicking on the disk icon
  - type `LOAD` "<basic-file> to load a basic file,
  - type `RUN` "<basic-file> to load and run a basic file,
  - type `LOADM` "<binary-file> to load a binary file.
+
+## Script
+In order to perform integration tests the content of a script may be is typed on the emulator keyboard.
+To do so, start the application with `--script <path-to-file>`.
+
 
 ## Some useful resources
  - https://colorcomputerarchive.com/
