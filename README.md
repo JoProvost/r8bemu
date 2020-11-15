@@ -51,8 +51,8 @@ you own and put the content of `Color Basic` in `bas13.rom`, `Extended Color Bas
  * __`disk11.rom`__ starting at __0xC000__ ending at __0xFF00__ .
 
 #### Color Computer 3
-For Color Computer 3 emulation, you need to provide the image of `Extended Color Basic 2.0` in `BASIC3.ROM` or
-`coco3.rom` and `Disk Extended Color Basic` in `disk11.rom`.
+For Color Computer 3 emulation, you need to provide the image of `Extended Color Basic 2.0` in `BASIC3.ROM`
+and `Disk Extended Color Basic` in `disk11.rom`.
 
 ## Tape cassette
 To load a program from a `.wav` file, start the application with `--playback <path-to-file>` and type `CLOAD` or

@@ -47,7 +47,7 @@ public class DemoROM {
                      "                                "),
                 text("                                ",
                      " ROM FILES :                    ",
-                     "  .R8BEMU/COCO3.ROM  "),
+                     "  .R8BEMU/BASIC3.ROM "),
                 inv("REQ"),
                 text(" COCO 3 ",
                      "  .R8BEMU/BAS13.ROM  "),

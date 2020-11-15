@@ -43,7 +43,7 @@ import static com.joprovost.r8bemu.devices.memory.Addressable.when;
 
 public class CoCo3 {
     public static boolean isConfigured(Path home) {
-        return Configuration.file(home, "coco3.rom", "BASIC3.ROM").isPresent();
+        return Configuration.file(home, "basic3.rom", "BASIC3.ROM").isPresent();
     }
 
     public static void emulate(EmulatorContext context,
@@ -68,7 +68,7 @@ public class CoCo3 {
 
         Memory ram = new Memory(0x7ffff);
 
-        Addressable rom = rom(home, "coco3.rom", "BASIC3.ROM").orElse(demo());
+        Addressable rom = rom(home, "basic3.rom", "BASIC3.ROM").orElse(demo());
         Addressable cart = rom(home, "disk12.rom", "disk11.rom").orElse(none());
 
         DiskDrive diskDrive = new DiskDrive();
