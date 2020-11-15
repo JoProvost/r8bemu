@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -34,10 +33,15 @@ public class UserInterface extends JFrame {
 
     public static UserInterface show(Display display, List<Function<Window, Action>> actions) {
         UserInterface ui = new UserInterface("R8BEmu", display, actions);
-        List<Image> icons  = new ArrayList<>();
-        icons.add(new ImageIcon(UserInterface.class.getResource("/images/logo_64x64.png")).getImage());
-        icons.add(new ImageIcon(UserInterface.class.getResource("/images/logo_128x128.png")).getImage());
-        ui.setIconImages(icons);
+        ui.setIconImages(List.of(
+                ResourceImage.of("/images/logo_64x64.png"),
+                ResourceImage.of("/images/logo_128x128.png")
+        ));
+
+        try {
+            Taskbar.getTaskbar().setIconImage(ResourceImage.of("/images/logo_128x128.png"));
+        } catch (final UnsupportedOperationException | SecurityException ignored) {
+        }
 
         ui.setResizable(true);
         ui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -57,9 +61,9 @@ public class UserInterface extends JFrame {
             if (action == SEPARATOR) toolBar.addSeparator();
             else {
                 var button = new JButton(action.apply(this));
-                button.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+                button.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
                 button.setContentAreaFilled(false);
-                button.addActionListener(xit-> display.requestFocusInWindow());
+                button.addActionListener(xit -> display.requestFocusInWindow());
                 toolBar.add(button);
             }
         }
