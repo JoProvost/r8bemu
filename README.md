@@ -33,7 +33,7 @@ __Just for fun!__
       --mouse               [true|false]    Use the mouse as the left joystick
       --dpad-left           [true|false]    Use the keyboard arrow keys as the left joystick
       --dpad-right          [true|false]    Use the keyboard arrow keys as the right joystick
-      --unbuffered          [true|false]    Disable keyboard input buffering
+      --keyboard            [true|false]    Disable keyboard input buffering and translation
       --mute                [true|false]    Mute the speaker
       --disassembler        [true|false]    Enable the disassembler
       --trace               [true|false]    Enable the execution trace on error

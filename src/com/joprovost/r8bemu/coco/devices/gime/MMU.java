@@ -97,7 +97,7 @@ public class MMU implements Addressable {
     }
 
     public void clear() {
-        init0.clear();
+        init0.value(0x80);
         init1.clear();
         sam.clear();
     }

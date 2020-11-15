@@ -40,9 +40,9 @@ import static com.joprovost.r8bemu.io.awt.ActionIcon.DISK3_ICON;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.DPAD_LEFT_ICON;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.FULL_SCREEN_ICON;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.HALT_ICON;
+import static com.joprovost.r8bemu.io.awt.ActionIcon.KEYBOARD_ICON;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.MOUSE_ICON;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.MUTE_ICON;
-import static com.joprovost.r8bemu.io.awt.ActionIcon.NO_KEYBOARD_ICON;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.REBOOT_ICON;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.RESET_ICON;
 import static com.joprovost.r8bemu.io.awt.ActionIcon.REWIND_ICON;
@@ -75,7 +75,7 @@ public class R8BEmu {
         Flag mouse = settings.flag("mouse", false, "Use the mouse as the left joystick");
         Flag dpadLeft = settings.flag("dpad-left", false, "Use the keyboard arrow keys as the left joystick");
         Flag dpadRight = settings.flag("dpad-right", false, "Use the keyboard arrow keys as the right joystick");
-        Flag unbuffered = settings.flag("unbuffered", false, "Disable keyboard input buffering");
+        Flag direct = settings.flag("keyboard", false, "Disable keyboard input buffering and translation");
         Flag mute = settings.flag("mute", false, "Mute the speaker");
         Flag disassembler = settings.flag("disassembler", false, "Enable the disassembler");
         Flag trace = settings.flag("trace", false, "Enable the execution trace on error");
@@ -116,7 +116,7 @@ public class R8BEmu {
             var display = new Display(new Dimension(width, height));
             screen.dispatchTo(display.screen());
 
-            display.addKeyListener(new AWTKeyboardDriver(keyboard, unbuffered, DiscreteOutput.or(dpadLeft, dpadRight)));
+            display.addKeyListener(new AWTKeyboardDriver(keyboard, direct, DiscreteOutput.or(dpadLeft, dpadRight)));
             display.addKeyListener(new NumpadJoystickDriver(joystickLeft, DiscreteOutput.not(dpadRight)));
             display.addKeyListener(new NumpadJoystickDriver(joystickRight, DiscreteOutput.not(dpadLeft)));
             display.addKeyListener(new ArrowsJoystickDriver(joystickLeft, dpadLeft));
@@ -143,7 +143,7 @@ public class R8BEmu {
                     Actions.file(DISK2_ICON, drive2::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
                     Actions.file(DISK3_ICON, drive3::insert, home, new FileNameExtensionFilter("Disk image", "dsk")),
                     SEPARATOR,
-                    Actions.toggle(NO_KEYBOARD_ICON, unbuffered),
+                    Actions.toggle(KEYBOARD_ICON, direct),
                     Actions.toggle(DPAD_LEFT_ICON, dpadLeft),
                     Actions.toggle(MOUSE_ICON, mouse),
                     SEPARATOR,

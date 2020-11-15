@@ -16,14 +16,18 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.joprovost.r8bemu.io.Key.ALT;
 import static com.joprovost.r8bemu.io.Key.AT;
 import static com.joprovost.r8bemu.io.Key.BREAK;
 import static com.joprovost.r8bemu.io.Key.CLEAR;
 import static com.joprovost.r8bemu.io.Key.COLON;
 import static com.joprovost.r8bemu.io.Key.COMMA;
+import static com.joprovost.r8bemu.io.Key.CTRL;
 import static com.joprovost.r8bemu.io.Key.DOT;
 import static com.joprovost.r8bemu.io.Key.DOWN;
 import static com.joprovost.r8bemu.io.Key.ENTER;
+import static com.joprovost.r8bemu.io.Key.F1;
+import static com.joprovost.r8bemu.io.Key.F2;
 import static com.joprovost.r8bemu.io.Key.KEY_0;
 import static com.joprovost.r8bemu.io.Key.KEY_1;
 import static com.joprovost.r8bemu.io.Key.KEY_2;
@@ -89,7 +93,7 @@ public class KeyboardAdapter implements Keyboard, ClockAware {
             {KEY_X, KEY_Y, KEY_Z, UP,    DOWN,  LEFT,  RIGHT, SPACE},
             {KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7},
             {KEY_8, KEY_9, COLON, SMCOL, COMMA, MINUS, DOT,   SLASH},
-            {ENTER, CLEAR, BREAK, null,  null,  null,  null,  SHIFT},
+            {ENTER, CLEAR, BREAK, ALT,   CTRL,  F1,    F2,    SHIFT},
             // @formatter:off<
     };
 

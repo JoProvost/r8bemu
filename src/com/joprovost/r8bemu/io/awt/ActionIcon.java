@@ -34,7 +34,7 @@ public enum ActionIcon {
     DISK2_ICON(DISK.with(TWO)),
     DISK3_ICON(DISK.with(THREE)),
     HALT_ICON(PAUSE),
-    NO_KEYBOARD_ICON(KEYBOARD.with(NOT)),
+    KEYBOARD_ICON(KEYBOARD),
     DPAD_LEFT_ICON(DPAD.with(LEFT)),
     MOUSE_ICON(MOUSE.with(LEFT).with(RIGHT)),
     MUTE_ICON(SPEAKER.with(NOT)),

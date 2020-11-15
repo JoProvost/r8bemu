@@ -10,7 +10,7 @@ public enum Key {
     KEY_X, KEY_Y, KEY_Z, UP,    DOWN,  LEFT,  RIGHT, SPACE,
     KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7,
     KEY_8, KEY_9, COLON, SMCOL, COMMA, MINUS, DOT,   SLASH,
-    ENTER, CLEAR, BREAK,                             SHIFT;
+    ENTER, CLEAR, BREAK, ALT,   CTRL,  F1,    F2,    SHIFT;
     // @formatter:on
 
     public static Set<Key> character(char character) {
