@@ -2,6 +2,7 @@ package com.joprovost.r8bemu.data.discrete;
 
 import com.joprovost.r8bemu.data.Described;
 
+import java.util.StringJoiner;
 import java.util.function.Supplier;
 
 public interface DiscreteOutput extends Supplier<Boolean>, Described {
@@ -43,30 +44,36 @@ public interface DiscreteOutput extends Supplier<Boolean>, Described {
         };
     }
 
-    static DiscreteOutput and(DiscreteOutput left, DiscreteOutput right) {
+    static DiscreteOutput and(DiscreteOutput... outputs) {
         return new DiscreteOutput() {
             @Override
             public boolean isSet() {
-                return left.isSet() && right.isSet();
+                for (var output : outputs) if (!output.isSet()) return false;
+                return true;
             }
 
             @Override
             public String description() {
-                return left.description() + " AND " + right.isSet();
+                var joiner = new StringJoiner(" AND ");
+                for (var output : outputs) joiner.add(output.description());
+                return joiner.toString();
             }
         };
     }
 
-    static DiscreteOutput or(DiscreteOutput left, DiscreteOutput right) {
+    static DiscreteOutput or(DiscreteOutput... outputs) {
         return new DiscreteOutput() {
             @Override
             public boolean isSet() {
-                return left.isSet() || right.isSet();
+                for (var output : outputs) if (output.isSet()) return true;
+                return false;
             }
 
             @Override
             public String description() {
-                return left.description() + " OR " + right.isSet();
+                var joiner = new StringJoiner(" OR ");
+                for (var output : outputs) joiner.add(output.description());
+                return joiner.toString();
             }
         };
     }

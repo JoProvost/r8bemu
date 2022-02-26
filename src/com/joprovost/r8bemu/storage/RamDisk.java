@@ -37,12 +37,6 @@ public class RamDisk implements Disk {
             }
 
             @Override
-            public int attribute() {
-                if (sectorAttributeFlag() == 0) return 0;
-                return content.read(start);
-            }
-
-            @Override
             public int size() {
                 return sectorSize();
             }

@@ -1,9 +1,8 @@
 package com.joprovost.r8bemu.coco;
 
 import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
+import com.joprovost.r8bemu.graphic.Color;
 import com.joprovost.r8bemu.graphic.Colors;
-
-import java.awt.*;
 
 import static com.joprovost.r8bemu.data.binary.BinaryOutput.bit;
 

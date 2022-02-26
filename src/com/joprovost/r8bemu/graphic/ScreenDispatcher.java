@@ -1,6 +1,5 @@
 package com.joprovost.r8bemu.graphic;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 

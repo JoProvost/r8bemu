@@ -1,9 +1,9 @@
 package com.joprovost.r8bemu.io.terminal;
 
 import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
+import com.joprovost.r8bemu.graphic.Color;
 import com.joprovost.r8bemu.graphic.Screen;
 
-import java.awt.*;
 import java.io.PrintStream;
 
 public class Terminal implements Screen {
@@ -85,6 +85,6 @@ public class Terminal implements Screen {
     }
 
     private String trueColor(Color color) {
-        return "2;" + color.getRed() + ";" + color.getGreen() + ";" + color.getBlue();
+        return "2;" + color.red + ";" + color.green + ";" + color.blue;
     }
 }

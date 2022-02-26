@@ -1,5 +1,6 @@
 package com.joprovost.r8bemu.io.awt;
 
+import com.joprovost.r8bemu.graphic.Color;
 import com.joprovost.r8bemu.graphic.Screen;
 
 import javax.swing.*;

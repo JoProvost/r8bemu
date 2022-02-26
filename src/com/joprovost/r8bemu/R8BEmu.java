@@ -25,7 +25,6 @@ import com.joprovost.r8bemu.io.terminal.Terminal;
 import com.joprovost.r8bemu.storage.DiskSlot;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -113,7 +112,7 @@ public class R8BEmu {
         }
 
         if (window.isSet()) {
-            var display = new Display(new Dimension(width, height));
+            var display = new Display(width, height);
             screen.dispatchTo(display.screen());
 
             display.addKeyListener(new AWTKeyboardDriver(keyboard, direct, DiscreteOutput.or(dpadLeft, dpadRight)));

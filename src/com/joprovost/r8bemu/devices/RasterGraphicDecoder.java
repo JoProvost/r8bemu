@@ -1,9 +1,9 @@
 package com.joprovost.r8bemu.devices;
 
 import com.joprovost.r8bemu.devices.memory.Addressable;
+import com.joprovost.r8bemu.graphic.Color;
 import com.joprovost.r8bemu.graphic.Colors;
 
-import java.awt.*;
 import java.util.function.IntSupplier;
 
 public class RasterGraphicDecoder {

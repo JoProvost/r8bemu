@@ -9,8 +9,6 @@ import com.joprovost.r8bemu.storage.DiskSlot;
 import com.joprovost.r8bemu.storage.DiskTracks;
 import com.joprovost.r8bemu.storage.Sector;
 
-import java.util.List;
-
 import static com.joprovost.r8bemu.data.discrete.DiscreteOutput.and;
 import static com.joprovost.r8bemu.data.discrete.DiscreteOutput.or;
 
@@ -25,7 +23,7 @@ public class DiskDrive implements Addressable, DiskTracks {
     private final DiscreteOutput drive2 = BinaryAccessSubset.bit(latch, 2);
     private final DiscreteOutput drive1 = BinaryAccessSubset.bit(latch, 1);
     private final DiscreteOutput drive0 = BinaryAccessSubset.bit(latch, 0);
-    private final DiscreteOutput secondSide = and(drive3, or(drive0, or(drive1, drive2)));
+    private final DiscreteOutput secondSide = and(drive3, or(drive0, drive1, drive2));
 
     private Disk disk0 = Disk.blank();
     private Disk disk1 = Disk.blank();
@@ -69,11 +67,6 @@ public class DiskDrive implements Addressable, DiskTracks {
         if (drive2.isSet()) return disk2;
         if (drive3.isSet()) return disk3;
         return null;
-    }
-
-    @Override
-    public List<Sector> sectors(int track) {
-        return disk().sectors(secondSide.isSet() ? 1 : 0, track);
     }
 
     @Override

@@ -7,11 +7,11 @@ import com.joprovost.r8bemu.data.discrete.DiscreteOutput;
 import com.joprovost.r8bemu.data.transform.BinaryAccessSubset;
 import com.joprovost.r8bemu.devices.RasterGraphicDecoder;
 import com.joprovost.r8bemu.devices.memory.Addressable;
+import com.joprovost.r8bemu.graphic.Color;
 import com.joprovost.r8bemu.graphic.Colors;
 import com.joprovost.r8bemu.graphic.Font;
 import com.joprovost.r8bemu.graphic.Screen;
 
-import java.awt.*;
 
 public class DisplayProcessor implements Addressable {
     public static final char[] CHARACTERS = ("" +
